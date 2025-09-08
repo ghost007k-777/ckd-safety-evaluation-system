@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+*.log
+Dockerfile
+nginx.conf
+cloudbuild.yaml
+.DS_Store
+
+
+

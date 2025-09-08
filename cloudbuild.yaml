@@ -1,0 +1,20 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build image'
+    args: [ 'build', '-t', '${_IMAGE}', '.' ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push image'
+    args: [ 'push', '${_IMAGE}' ]
+
+substitutions:
+  _IMAGE: 'gcr.io/$PROJECT_ID/ckd3-frontend:${SHORT_SHA}'
+
+images:
+  - '${_IMAGE}'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+
+

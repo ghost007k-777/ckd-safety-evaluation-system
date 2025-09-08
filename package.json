@@ -1,0 +1,26 @@
+{
+  "name": "적격-수급업체-안전-평가-시스템",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "firebase": "^12.2.1",
+    "html2canvas": "1.4.1",
+    "jspdf": "3.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-signature-canvas": "1.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
