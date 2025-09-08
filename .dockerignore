@@ -3,10 +3,9 @@ dist
 .git
 .gitignore
 *.log
-Dockerfile
-nginx.conf
-cloudbuild.yaml
+README.md
 .DS_Store
-
-
-
+.env*
+*.md
+coverage
+.nyc_output
