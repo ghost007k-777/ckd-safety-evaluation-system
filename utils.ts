@@ -112,31 +112,66 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
   console.log(`PDF 파일 "${filename}" 생성 완료 (${totalPages} 페이지)`);
 };
 
-// 엑셀 다운로드 함수
+// 엑셀 다운로드 함수 (위험성평가 상세 포함)
 export const downloadSubmissionsAsExcel = (submissions: Submission[]): void => {
-  // CSV 형식으로 데이터 생성
+  // 모든 데이터를 하나의 배열로 변환 (위험항목별로 행 생성)
+  const allRows: string[][] = [];
+  
+  // 헤더 추가
   const headers = [
     '신청ID', '상태', '제출일시', '업체명', '공사명', '위치', '담당자',
-    '안전교육완료', '위험성평가항목수', '작업허가유형', '서약완료'
+    '안전교육완료', '작업허가유형', '서약완료',
+    '위험항목번호', '장소명(공정명)', '세부작업명', '유해위험요인', '재해유형분류',
+    '현재안전보건조치', '가능성(1-5)', '중대성(1-4)', '위험성점수', '위험성감소대책'
   ];
+  allRows.push(headers);
   
-  const csvData = submissions.map(sub => [
-    sub.id,
-    sub.status === 'pending' ? '대기중' : sub.status === 'approved' ? '승인' : '거부',
-    sub.submittedAt ? sub.submittedAt.toLocaleString('ko-KR') : '',
-    sub.projectInfo.companyName,
-    sub.projectInfo.constructionName,
-    sub.projectInfo.location === '기타' ? sub.projectInfo.locationOther : sub.projectInfo.location,
-    sub.projectInfo.contactPerson,
-    sub.safetyTraining.completed ? '완료' : '미완료',
-    sub.riskAssessment.length.toString(),
-    sub.workPermit.type === 'general' ? '일반작업' : sub.workPermit.type === 'hazardous' ? '위험작업' : '미설정',
-    sub.safetyPledge.agreeToAll ? '완료' : '미완료'
-  ]);
+  submissions.forEach(sub => {
+    const baseInfo = [
+      sub.id,
+      sub.status === 'pending' ? '대기중' : sub.status === 'approved' ? '승인' : '거부',
+      sub.submittedAt ? sub.submittedAt.toLocaleString('ko-KR') : '',
+      sub.projectInfo.companyName,
+      sub.projectInfo.constructionName,
+      sub.projectInfo.location === '기타' ? sub.projectInfo.locationOther : sub.projectInfo.location,
+      sub.projectInfo.contactPerson,
+      sub.safetyTraining.completed ? '완료' : '미완료',
+      sub.workPermit.type === 'general' ? '일반작업' : sub.workPermit.type === 'hazardous' ? '위험작업' : '미설정',
+      sub.safetyPledge.agreeToAll ? '완료' : '미완료'
+    ];
+    
+    // 위험성평가 항목이 있는 경우
+    if (sub.riskAssessment.length > 0) {
+      sub.riskAssessment.forEach((risk, index) => {
+        const riskScore = risk.likelihood * risk.severity;
+        const row = [
+          ...baseInfo,
+          (index + 1).toString(), // 위험항목번호
+          risk.location, // 장소명(공정명)
+          risk.task, // 세부작업명
+          risk.hazard, // 유해위험요인
+          risk.disasterType, // 재해유형분류
+          risk.safetyMeasures, // 현재안전보건조치
+          risk.likelihood.toString(), // 가능성
+          risk.severity.toString(), // 중대성
+          riskScore.toString(), // 위험성점수
+          risk.reductionMeasures // 위험성감소대책
+        ];
+        allRows.push(row);
+      });
+    } else {
+      // 위험성평가 항목이 없는 경우 기본 정보만 추가
+      const row = [
+        ...baseInfo,
+        '', '', '', '', '', '', '', '', '', '' // 위험성평가 관련 빈 컬럼들
+      ];
+      allRows.push(row);
+    }
+  });
   
   // CSV 문자열 생성
-  const csvContent = [headers, ...csvData]
-    .map(row => row.map(cell => `"${cell}"`).join(','))
+  const csvContent = allRows
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     .join('\n');
   
   // BOM 추가 (한글 깨짐 방지)
@@ -146,7 +181,7 @@ export const downloadSubmissionsAsExcel = (submissions: Submission[]): void => {
   // 다운로드
   const link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = `안전평가신청서_${new Date().toLocaleDateString('ko-KR')}.csv`;
+  link.download = `안전평가신청서_상세_${new Date().toLocaleDateString('ko-KR').replace(/\./g, '')}.csv`;
   link.click();
   
   // 메모리 정리
