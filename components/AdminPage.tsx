@@ -5,7 +5,7 @@ import { Button } from './ui/Button.tsx';
 import Step6Confirmation from './Step6Confirmation.tsx';
 import { Input } from './ui/Input.tsx';
 import { Spinner } from './ui/Spinner.tsx';
-import { downloadSubmissionAsPdf } from '../utils.ts';
+import { downloadSubmissionAsPdf, downloadSubmissionsAsExcel } from '../utils.ts';
 
 interface AdminPageProps {
   submissions: Submission[];
@@ -147,10 +147,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         </Card>
 
         <Card>
-            <CardHeader
-                title="승인 완료 및 거부된 신청서"
-                description="이미 처리된 신청서 목록입니다."
-            />
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h3 className="text-xl font-semibold text-gray-900">승인 완료 및 거부된 신청서</h3>
+                    <p className="text-sm text-gray-600">이미 처리된 신청서 목록입니다.</p>
+                </div>
+                <Button 
+                    variant="primary" 
+                    onClick={() => downloadSubmissionsAsExcel(submissions)}
+                    className="bg-green-600 hover:bg-green-700"
+                >
+                    📊 엑셀로 다운로드
+                </Button>
+            </div>
             {processedSubmissions.length === 0 ? (
                  <p className="text-center text-gray-500 py-16">처리된 신청서가 없습니다.</p>
             ) : (

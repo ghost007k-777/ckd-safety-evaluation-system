@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Submission } from './types';
 
 export const generateUniqueId = (): string => {
   // Use crypto.randomUUID if available, otherwise fallback to a less robust method.
@@ -109,4 +110,45 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
   pdf.save(filename);
   
   console.log(`PDF 파일 "${filename}" 생성 완료 (${totalPages} 페이지)`);
+};
+
+// 엑셀 다운로드 함수
+export const downloadSubmissionsAsExcel = (submissions: Submission[]): void => {
+  // CSV 형식으로 데이터 생성
+  const headers = [
+    '신청ID', '상태', '제출일시', '업체명', '공사명', '위치', '담당자',
+    '안전교육완료', '위험성평가항목수', '작업허가유형', '서약완료'
+  ];
+  
+  const csvData = submissions.map(sub => [
+    sub.id,
+    sub.status === 'pending' ? '대기중' : sub.status === 'approved' ? '승인' : '거부',
+    sub.submittedAt ? sub.submittedAt.toLocaleString('ko-KR') : '',
+    sub.projectInfo.companyName,
+    sub.projectInfo.constructionName,
+    sub.projectInfo.location === '기타' ? sub.projectInfo.locationOther : sub.projectInfo.location,
+    sub.projectInfo.contactPerson,
+    sub.safetyTraining.completed ? '완료' : '미완료',
+    sub.riskAssessment.length.toString(),
+    sub.workPermit.type === 'general' ? '일반작업' : sub.workPermit.type === 'hazardous' ? '위험작업' : '미설정',
+    sub.safetyPledge.agreeToAll ? '완료' : '미완료'
+  ]);
+  
+  // CSV 문자열 생성
+  const csvContent = [headers, ...csvData]
+    .map(row => row.map(cell => `"${cell}"`).join(','))
+    .join('\n');
+  
+  // BOM 추가 (한글 깨짐 방지)
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
+  
+  // 다운로드
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `안전평가신청서_${new Date().toLocaleDateString('ko-KR')}.csv`;
+  link.click();
+  
+  // 메모리 정리
+  URL.revokeObjectURL(link.href);
 };
