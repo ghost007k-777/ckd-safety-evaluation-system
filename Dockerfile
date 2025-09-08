@@ -1,13 +1,13 @@
 # Use official Node.js runtime as build stage
-FROM node:18-alpine AS build
+FROM node:20-bullseye AS build
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (use lockfile if present)
+RUN npm ci --no-audit --no-fund || npm install --no-audit --no-fund
 
 # Copy app source
 COPY . .
