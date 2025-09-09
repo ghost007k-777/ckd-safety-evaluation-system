@@ -58,6 +58,12 @@ export interface GasMeasurement {
   time: string;
 }
 
+export interface WorkerInfo {
+  id: string;
+  name: string;
+  phoneNumber: string;
+}
+
 
 export interface WorkPermit {
   type: 'general' | 'hazardous' | '';
@@ -69,6 +75,7 @@ export interface WorkPermit {
   location: string;
   description: string;
   workerCount: number;
+  workers?: WorkerInfo[];
   applicantTeam?: string;
   applicantName?: string;
   applicantSignature?: string;
