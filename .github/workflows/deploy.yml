@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  PROJECT_ID: ckd-app-001-65119
+  PROJECT_ID: ckd-app-001
   SERVICE: ckd-safety-app
   REGION: asia-northeast3
 
