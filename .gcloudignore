@@ -4,10 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Production builds
-dist/
-build/
-
 # Environment variables
 .env
 .env.local
@@ -30,15 +26,8 @@ build/
 ehthumbs.db
 Thumbs.db
 
-# Google Cloud service account keys
-*-key.json
+# Google Cloud service account keys - but keep package.json files
 github-actions-key.json
-service-account*.json
-
-# Environment examples are allowed
-!.env.example
-!package*.json
-!tsconfig*.json
 
 # Logs
 logs
@@ -75,3 +64,7 @@ jspm_packages/
 .firebase/
 firebase-debug.log
 firestore-debug.log
+
+# Git files
+.git/
+.gitignore

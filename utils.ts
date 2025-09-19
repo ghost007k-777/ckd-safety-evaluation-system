@@ -123,12 +123,15 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     return;
   }
   
-  // PDF 생성을 위해 임시로 스타일 조정
+  // PDF 생성을 위해 임시로 스타일 조정 (50% 스케일 적용)
   const originalStyle = element.style.cssText;
   element.style.cssText += `
     page-break-inside: avoid;
     break-inside: avoid;
     box-decoration-break: slice;
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%; /* 100% / 0.5 = 200% */
   `;
   
   // 테이블과 중요 섹션에 data-section 속성 추가
@@ -168,20 +171,33 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     // 공통 캔버스 렌더러
     const renderToCanvas = async (target: HTMLElement): Promise<HTMLCanvasElement> => {
       const canvas = await html2canvas(target, {
-        scale: 3,
+        scale: 1.5, // 3 * 0.5 = 1.5 (50% 스케일 적용)
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        height: target.scrollHeight,
-        windowWidth: target.scrollWidth,
-        windowHeight: target.scrollHeight,
+        height: target.scrollHeight * 0.5, // 높이도 50%로 조정
+        windowWidth: target.scrollWidth * 2, // 200% 너비 반영
+        windowHeight: target.scrollHeight * 0.5,
         onclone: (doc) => {
           const imgs = doc.querySelectorAll('img');
           imgs.forEach((img: any) => {
             img.style.imageRendering = 'high-quality';
-            img.style.maxWidth = 'none';
-            img.style.maxHeight = 'none';
+            // 서명 이미지의 경우 적절한 크기로 제한
+            if (img.alt && (img.alt.includes('signature') || img.alt.includes('서명'))) {
+              img.style.maxWidth = '200px';
+              img.style.maxHeight = '80px';
+              img.style.width = 'auto';
+              img.style.height = 'auto';
+              img.style.objectFit = 'contain';
+            } else {
+              // 일반 이미지의 경우 적당한 크기로 제한
+              img.style.maxWidth = '400px';
+              img.style.maxHeight = '300px';
+              img.style.width = 'auto';
+              img.style.height = 'auto';
+              img.style.objectFit = 'contain';
+            }
           });
         }
       });
@@ -192,8 +208,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const addCanvasPagedSliced = (canvas: HTMLCanvasElement): number => {
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
-      // html2canvas scale=3 고려하여 mm/px 비율 계산
-      const mmPerPixel = usableWidth / (canvasWidthPx / 3);
+      // html2canvas scale=1.5 고려하여 mm/px 비율 계산
+      const mmPerPixel = usableWidth / (canvasWidthPx / 1.5);
       const pageHeightPx = Math.floor(usableHeight / mmPerPixel);
       let pages = 0;
 

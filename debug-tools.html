@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CKD Firebase 디버깅 도구</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 3px; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #080; }
+        button { padding: 10px 15px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #005a87; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .info-box { background: #e7f3ff; padding: 10px; border-left: 4px solid #007cba; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 CKD Firebase 디버깅 도구</h1>
+    
+    <div class="info-box">
+        <strong>사용법:</strong> 이 도구를 사용하여 Firebase 연결, 데이터 저장/읽기를 단계별로 테스트할 수 있습니다.
+    </div>
+
+    <div class="section">
+        <h2>📋 현재 Firebase 설정</h2>
+        <div id="config-info" class="result">로딩 중...</div>
+    </div>
+
+    <div class="section">
+        <h2>🔗 1단계: Firebase 연결 테스트</h2>
+        <button onclick="testConnection()">연결 테스트 실행</button>
+        <div id="connection-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>📝 2단계: 테스트 데이터 저장</h2>
+        <button onclick="testWrite()">테스트 데이터 저장</button>
+        <div id="write-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>📖 3단계: 데이터 읽기 테스트</h2>
+        <button onclick="testRead()">데이터 읽기</button>
+        <button onclick="testRealtime()">실시간 구독 테스트</button>
+        <div id="read-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>🗄️ 4단계: LocalStorage 확인</h2>
+        <button onclick="checkLocalStorage()">LocalStorage 확인</button>
+        <button onclick="clearLocalStorage()">LocalStorage 초기화</button>
+        <div id="storage-result" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>🌐 5단계: 환경 정보</h2>
+        <button onclick="checkEnvironment()">환경 정보 확인</button>
+        <div id="env-result" class="result"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            onSnapshot,
+            query,
+            orderBy,
+            Timestamp 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase 설정 (실제 프로젝트와 동일)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDP47zfIOQ-7HH9GVYw4oe3-knQBfENTlk",
+            authDomain: "ckd-app-001.firebaseapp.com",
+            projectId: "ckd-app-001",
+            storageBucket: "ckd-app-001.firebasestorage.app",
+            messagingSenderId: "975049362785",
+            appId: "1:975049362785:web:8a511219b5234236e7a183",
+            measurementId: "G-LYV8NSVBMM",
+        };
+
+        let app, db;
+        let unsubscribe = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            
+            document.getElementById('config-info').innerHTML = `
+                <div class="success">✅ Firebase 초기화 성공</div>
+                <pre>${JSON.stringify(firebaseConfig, null, 2)}</pre>
+            `;
+        } catch (error) {
+            document.getElementById('config-info').innerHTML = `
+                <div class="error">❌ Firebase 초기화 실패: ${error.message}</div>
+            `;
+        }
+
+        // 전역 함수들
+        window.testConnection = async function() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = '🔄 연결 테스트 중...';
+            
+            try {
+                // 간단한 읽기 테스트로 연결 확인
+                const testQuery = query(collection(db, 'submissions'));
+                await getDocs(testQuery);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Firebase 연결 성공</div>
+                    <div>프로젝트 ID: ${firebaseConfig.projectId}</div>
+                    <div>연결 시간: ${new Date().toLocaleString()}</div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 연결 실패: ${error.message}</div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        };
+
+        window.testWrite = async function() {
+            const resultDiv = document.getElementById('write-result');
+            resultDiv.innerHTML = '🔄 데이터 저장 중...';
+            
+            try {
+                const testData = {
+                    status: 'pending',
+                    submittedAt: Timestamp.now(),
+                    projectInfo: {
+                        companyName: '디버그 테스트 회사',
+                        constructionName: '연결 테스트 프로젝트',
+                        location: '서울',
+                        contactPerson: '테스터'
+                    },
+                    safetyTraining: { completed: true, completionDate: null },
+                    riskAssessment: [],
+                    workPermit: {},
+                    safetyPledge: { agreements: {}, agreeToAll: true, name: '테스터', signature: '' },
+                    debugInfo: {
+                        createdBy: 'debug-tool',
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        url: window.location.href
+                    }
+                };
+
+                const docRef = await addDoc(collection(db, 'submissions'), testData);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">✅ 데이터 저장 성공</div>
+                    <div>문서 ID: ${docRef.id}</div>
+                    <div>저장 시간: ${new Date().toLocaleString()}</div>
+                    <div>⚠️ <strong>중요:</strong> 이제 Firebase Console에서 submissions 컬렉션을 확인하세요!</div>
+                    <a href="https://console.firebase.google.com/project/ckd-app-001/firestore/data" target="_blank">
+                        🔗 Firebase Console에서 확인하기
+                    </a>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 저장 실패: ${error.message}</div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        };
+
+        window.testRead = async function() {
+            const resultDiv = document.getElementById('read-result');
+            resultDiv.innerHTML = '🔄 데이터 읽기 중...';
+            
+            try {
+                const q = query(collection(db, 'submissions'), orderBy('submittedAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                
+                const docs = [];
+                querySnapshot.forEach((doc) => {
+                    docs.push({ id: doc.id, ...doc.data() });
+                });
+
+                resultDiv.innerHTML = `
+                    <div class="success">✅ 데이터 읽기 성공</div>
+                    <div>총 ${docs.length}개 문서 발견</div>
+                    <div>읽기 시간: ${new Date().toLocaleString()}</div>
+                    <details>
+                        <summary>📋 문서 목록 보기</summary>
+                        <pre>${JSON.stringify(docs.map(d => ({
+                            id: d.id,
+                            company: d.projectInfo?.companyName,
+                            status: d.status,
+                            submittedAt: d.submittedAt?.toDate?.()?.toLocaleString() || d.submittedAt
+                        })), null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 읽기 실패: ${error.message}</div>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        };
+
+        window.testRealtime = function() {
+            const resultDiv = document.getElementById('read-result');
+            
+            if (unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+                resultDiv.innerHTML += '<div>🔄 실시간 구독 중지됨</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '🔄 실시간 구독 시작...';
+            
+            try {
+                const q = query(collection(db, 'submissions'), orderBy('submittedAt', 'desc'));
+                unsubscribe = onSnapshot(q, 
+                    (querySnapshot) => {
+                        const docs = [];
+                        querySnapshot.forEach((doc) => {
+                            docs.push({ id: doc.id, ...doc.data() });
+                        });
+
+                        resultDiv.innerHTML = `
+                            <div class="success">📡 실시간 데이터 수신</div>
+                            <div>총 ${docs.length}개 문서</div>
+                            <div>마지막 업데이트: ${new Date().toLocaleString()}</div>
+                            <button onclick="testRealtime()">구독 중지</button>
+                            <details>
+                                <summary>📋 실시간 데이터 보기</summary>
+                                <pre>${JSON.stringify(docs.map(d => ({
+                                    id: d.id,
+                                    company: d.projectInfo?.companyName,
+                                    status: d.status
+                                })), null, 2)}</pre>
+                            </details>
+                        `;
+                    },
+                    (error) => {
+                        resultDiv.innerHTML = `
+                            <div class="error">❌ 실시간 구독 실패: ${error.message}</div>
+                        `;
+                    }
+                );
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ 실시간 구독 설정 실패: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.checkLocalStorage = function() {
+            const resultDiv = document.getElementById('storage-result');
+            
+            try {
+                const submissions = localStorage.getItem('ckd-submissions');
+                const lastSync = localStorage.getItem('ckd-last-sync');
+                
+                if (submissions) {
+                    const parsed = JSON.parse(submissions);
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ LocalStorage에 데이터 발견</div>
+                        <div>데이터 개수: ${parsed.length}개</div>
+                        <div>마지막 동기화: ${lastSync || '없음'}</div>
+                        <details>
+                            <summary>📋 LocalStorage 데이터 보기</summary>
+                            <pre>${JSON.stringify(parsed.map(d => ({
+                                id: d.id,
+                                company: d.projectInfo?.companyName,
+                                status: d.status
+                            })), null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ LocalStorage에 데이터 없음</div>
+                        <div>키 'ckd-submissions'에 데이터가 없습니다.</div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">❌ LocalStorage 확인 실패: ${error.message}</div>
+                `;
+            }
+        };
+
+        window.clearLocalStorage = function() {
+            localStorage.removeItem('ckd-submissions');
+            localStorage.removeItem('ckd-last-sync');
+            document.getElementById('storage-result').innerHTML = `
+                <div class="success">✅ LocalStorage 초기화 완료</div>
+            `;
+        };
+
+        window.checkEnvironment = function() {
+            const resultDiv = document.getElementById('env-result');
+            
+            resultDiv.innerHTML = `
+                <div class="success">🌐 환경 정보</div>
+                <pre>URL: ${window.location.href}
+도메인: ${window.location.hostname}
+프로토콜: ${window.location.protocol}
+포트: ${window.location.port || '기본'}
+User Agent: ${navigator.userAgent}
+현재 시간: ${new Date().toISOString()}
+타임존: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+
+Firebase 설정:
+- Project ID: ${firebaseConfig.projectId}
+- Auth Domain: ${firebaseConfig.authDomain}
+- API Key: ${firebaseConfig.apiKey.substring(0, 20)}...
+
+LocalStorage 지원: ${localStorage ? '✅' : '❌'}
+IndexedDB 지원: ${indexedDB ? '✅' : '❌'}</pre>
+            `;
+        };
+    </script>
+</body>
+</html>

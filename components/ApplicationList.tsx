@@ -5,13 +5,14 @@ import { Button } from './ui/Button.tsx';
 import Step6Confirmation from './Step6Confirmation.tsx';
 import { Spinner } from './ui/Spinner.tsx';
 import { downloadSubmissionAsPdf } from '../utils.ts';
+import { useConnectionStatus } from '../contexts/DataContext.tsx';
 
 interface ApplicationListProps {
   submissions: Submission[];
   onBack: () => void;
 }
 
-const statusMap: { [key in SubmissionStatus]: { text: string; dot: string; textBg: string; } } = {
+const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
   pending: { text: '신청 중', dot: 'bg-amber-500', textBg: 'bg-amber-100 text-amber-800' },
   approved: { text: '승인', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' },
   rejected: { text: '승인 거부', dot: 'bg-rose-500', textBg: 'bg-rose-100 text-rose-800' },
@@ -31,6 +32,7 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const connectionStatus = useConnectionStatus();
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -73,6 +75,19 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
         title="신청 목록"
         description="제출된 평가 신청서 목록입니다. 항목을 클릭하여 세부 내용을 확인하세요."
       />
+      
+      {/* 연결 상태 표시 */}
+      {connectionStatus === 'offline' && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+            <span className="text-sm text-yellow-800">
+              오프라인 모드 - 캐시된 데이터를 표시하고 있습니다.
+            </span>
+          </div>
+        </div>
+      )}
+      
       {sortedSubmissions.length === 0 ? (
         <p className="text-center text-gray-500 py-12">제출된 신청서가 없습니다.</p>
       ) : (

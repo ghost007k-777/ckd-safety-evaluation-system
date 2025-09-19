@@ -6,6 +6,7 @@ import Step6Confirmation from './Step6Confirmation.tsx';
 import { Input } from './ui/Input.tsx';
 import { Spinner } from './ui/Spinner.tsx';
 import { downloadSubmissionAsPdf, downloadSubmissionsAsExcel } from '../utils.ts';
+import { useConnectionStatus } from '../contexts/DataContext.tsx';
 
 interface AdminPageProps {
   submissions: Submission[];
@@ -14,7 +15,7 @@ interface AdminPageProps {
   onBack: () => void;
 }
 
-const statusMap: { [key in SubmissionStatus]: { text: string; dot: string; textBg: string; } } = {
+const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
   pending: { text: '신청 중', dot: 'bg-amber-500', textBg: 'bg-amber-100 text-amber-800' },
   approved: { text: '승인', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' },
   rejected: { text: '승인 거부', dot: 'bg-rose-500', textBg: 'bg-rose-100 text-rose-800' },
@@ -38,6 +39,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const connectionStatus = useConnectionStatus();
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -112,6 +114,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         <div className="mb-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">관리자 페이지</h2>
             <p className="text-lg text-gray-600 mt-2">신청서를 검토하고 처리합니다.</p>
+            
+            {/* 연결 상태 표시 */}
+            {connectionStatus === 'offline' && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
+                  <span className="text-sm text-yellow-800">
+                    오프라인 모드 - 변경사항은 연결 복구 후 동기화됩니다.
+                  </span>
+                </div>
+              </div>
+            )}
         </div>
         
         <Card className="mb-12">

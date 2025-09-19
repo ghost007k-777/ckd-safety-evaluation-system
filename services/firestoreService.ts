@@ -68,25 +68,50 @@ export const addSubmission = async (formData: FormData): Promise<string> => {
   }
 };
 
-// 모든 신청서 조회
+// 모든 신청서 조회 (폴백 로직 포함)
 export const getSubmissions = async (): Promise<Submission[]> => {
   try {
-    const q = query(
+    console.log('📖 [firestoreService] 신청서 조회 시작...');
+    
+    // 1차 시도: orderBy 쿼리
+    let q = query(
       collection(db, SUBMISSIONS_COLLECTION), 
       orderBy('submittedAt', 'desc')
     );
     
-    const querySnapshot = await getDocs(q);
+    let querySnapshot = await getDocs(q);
     const submissions: Submission[] = [];
     
     querySnapshot.forEach((doc) => {
       submissions.push(convertFirestoreToSubmission(doc));
     });
     
+    console.log(`✅ [firestoreService] ${submissions.length}개 신청서 조회 완료`);
     return submissions;
-  } catch (error) {
-    console.error('신청서 조회 중 오류 발생:', error);
-    throw error;
+    
+  } catch (error: any) {
+    console.warn('⚠️ [firestoreService] orderBy 쿼리 실패, 단순 쿼리로 폴백:', error);
+    
+    // 2차 시도: 단순 쿼리 (orderBy 없이)
+    try {
+      const simpleQuery = collection(db, SUBMISSIONS_COLLECTION);
+      const querySnapshot = await getDocs(simpleQuery);
+      const submissions: Submission[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        submissions.push(convertFirestoreToSubmission(doc));
+      });
+      
+      // 클라이언트에서 정렬
+      submissions.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+      
+      console.log(`✅ [firestoreService] 폴백으로 ${submissions.length}개 신청서 조회 완료`);
+      return submissions;
+      
+    } catch (fallbackError) {
+      console.error('❌ [firestoreService] 모든 쿼리 방법 실패:', fallbackError);
+      throw fallbackError;
+    }
   }
 };
 
@@ -116,24 +141,94 @@ export const deleteSubmission = async (id: string): Promise<void> => {
   }
 };
 
-// 실시간 신청서 리스너 (선택사항)
+// 실시간 신청서 리스너 (폴백 로직 포함)
 export const subscribeToSubmissions = (
-  callback: (submissions: Submission[]) => void
+  callback: (submissions: Submission[]) => void,
+  onError?: (error: Error) => void
 ): (() => void) => {
-  const q = query(
-    collection(db, SUBMISSIONS_COLLECTION), 
-    orderBy('submittedAt', 'desc')
-  );
+  console.log('📡 [firestoreService] 실시간 구독 시작...');
   
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    const submissions: Submission[] = [];
-    querySnapshot.forEach((doc) => {
-      submissions.push(convertFirestoreToSubmission(doc));
-    });
-    callback(submissions);
-  });
+  // 1차 시도: orderBy 쿼리로 실시간 구독
+  const tryOrderBySubscription = () => {
+    const q = query(
+      collection(db, SUBMISSIONS_COLLECTION), 
+      orderBy('submittedAt', 'desc')
+    );
+    
+    return onSnapshot(
+      q, 
+      (querySnapshot) => {
+        try {
+          const submissions: Submission[] = [];
+          querySnapshot.forEach((doc) => {
+            submissions.push(convertFirestoreToSubmission(doc));
+          });
+          console.log(`📡 [firestoreService] 실시간 업데이트: ${submissions.length}개의 신청서 동기화`);
+          callback(submissions);
+        } catch (error) {
+          console.error('❌ [firestoreService] 실시간 데이터 처리 오류:', error);
+          if (onError) onError(error instanceof Error ? error : new Error('Unknown error'));
+        }
+      },
+      (error) => {
+        console.warn('⚠️ [firestoreService] orderBy 실시간 구독 실패, 단순 구독으로 폴백:', error);
+        
+        // 2차 시도: 단순 쿼리로 실시간 구독
+        const fallbackUnsubscribe = trySimpleSubscription();
+        if (!fallbackUnsubscribe && onError) {
+          onError(error);
+        }
+      }
+    );
+  };
   
-  return unsubscribe;
+  // 단순 쿼리로 실시간 구독
+  const trySimpleSubscription = () => {
+    try {
+      const simpleCollection = collection(db, SUBMISSIONS_COLLECTION);
+      
+      return onSnapshot(
+        simpleCollection, 
+        (querySnapshot) => {
+          try {
+            const submissions: Submission[] = [];
+            querySnapshot.forEach((doc) => {
+              submissions.push(convertFirestoreToSubmission(doc));
+            });
+            
+            // 클라이언트에서 정렬
+            submissions.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+            
+            console.log(`📡 [firestoreService] 폴백 실시간 업데이트: ${submissions.length}개의 신청서 동기화`);
+            callback(submissions);
+          } catch (error) {
+            console.error('❌ [firestoreService] 폴백 실시간 데이터 처리 오류:', error);
+            if (onError) onError(error instanceof Error ? error : new Error('Unknown error'));
+          }
+        },
+        (error) => {
+          console.error('❌ [firestoreService] 폴백 실시간 구독도 실패:', error);
+          if (onError) onError(error);
+        }
+      );
+    } catch (error) {
+      console.error('❌ [firestoreService] 폴백 구독 설정 실패:', error);
+      if (onError) onError(error instanceof Error ? error : new Error('Unknown error'));
+      return null;
+    }
+  };
+  
+  // 먼저 orderBy 시도
+  try {
+    return tryOrderBySubscription();
+  } catch (error) {
+    console.warn('⚠️ [firestoreService] orderBy 구독 설정 실패, 폴백 시도:', error);
+    const fallbackUnsubscribe = trySimpleSubscription();
+    if (!fallbackUnsubscribe && onError) {
+      onError(error instanceof Error ? error : new Error('Unknown error'));
+    }
+    return fallbackUnsubscribe || (() => {});
+  }
 };
 
 // Firebase 연결 테스트 함수

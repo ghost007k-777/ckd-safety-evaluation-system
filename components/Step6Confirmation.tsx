@@ -56,13 +56,13 @@ const GeneralPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => 
                     <h4 className="font-semibold text-center text-gray-700 mb-2">신청자 (시공 업체)</h4>
                     <Field label="팀" value={data.applicantTeam} />
                     <Field label="성명" value={data.applicantName} />
-                    <Field label="서명" value={data.applicantSignature ? <img src={data.applicantSignature} alt="applicant signature" className="h-20 bg-gray-100 border rounded-md p-1" style={{imageRendering: 'high-quality', maxWidth: 'none'}} /> : '서명 없음'} />
+                    <Field label="서명" value={data.applicantSignature ? <img src={data.applicantSignature} alt="applicant signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
                 </div>
                 <div className="p-4 space-y-2 border-t lg:border-t-0 border-gray-300">
                     <h4 className="font-semibold text-center text-gray-700 mb-2">시행부서 팀장</h4>
                      <Field label="팀" value={data.managerTeam} />
                     <Field label="성명" value={data.managerName} />
-                    <Field label="서명" value={data.managerSignature ? <img src={data.managerSignature} alt="manager signature" className="h-20 bg-gray-100 border rounded-md p-1" style={{imageRendering: 'high-quality', maxWidth: 'none'}} /> : '서명 없음'} />
+                    <Field label="서명" value={data.managerSignature ? <img src={data.managerSignature} alt="manager signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
                 </div>
             </div>
             <div className="p-4 space-y-3">
@@ -159,13 +159,13 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) =
                     <h4 className="font-semibold text-center text-gray-700 mb-2">신청자 (시공 업체)</h4>
                     <Field label="팀" value={data.applicantTeam} />
                     <Field label="성명" value={data.applicantName} />
-                    <Field label="서명" value={data.applicantSignature ? <img src={data.applicantSignature} alt="applicant signature" className="h-20 bg-gray-100 border rounded-md p-1" style={{imageRendering: 'high-quality', maxWidth: 'none'}} /> : '서명 없음'} />
+                    <Field label="서명" value={data.applicantSignature ? <img src={data.applicantSignature} alt="applicant signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
                 </div>
                 <div className="p-4 space-y-2 border-t lg:border-t-0 border-gray-300">
                     <h4 className="font-semibold text-center text-gray-700 mb-2">시행부서 팀장</h4>
                      <Field label="팀" value={data.managerTeam} />
                     <Field label="성명" value={data.managerName} />
-                    <Field label="서명" value={data.managerSignature ? <img src={data.managerSignature} alt="manager signature" className="h-20 bg-gray-100 border rounded-md p-1" style={{imageRendering: 'high-quality', maxWidth: 'none'}} /> : '서명 없음'} />
+                    <Field label="서명" value={data.managerSignature ? <img src={data.managerSignature} alt="manager signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
                 </div>
             </div>
             <div className="p-4 space-y-3">
@@ -343,7 +343,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                     <Field label="성명" value={data.safetyPledge.name} />
                     <Field label="전체 동의" value={data.safetyPledge.agreeToAll ? '예' : '아니오'} />
-                    <Field label="서명" value={data.safetyPledge.signature ? <img src={data.safetyPledge.signature} alt="signature" className="h-20 bg-gray-100 border rounded-md p-1" style={{imageRendering: 'high-quality', maxWidth: 'none'}} /> : '서명 없음'} />
+                    <Field label="서명" value={data.safetyPledge.signature ? <img src={data.safetyPledge.signature} alt="signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
                 </div>
             </div>
         </Section>
