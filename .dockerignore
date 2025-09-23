@@ -1,11 +1,8 @@
 node_modules
-dist
 .git
 .gitignore
 *.log
-README.md
-.DS_Store
+README.md.DS_Store
 .env*
-*.md
 coverage
 .nyc_output
