@@ -40,6 +40,8 @@ jobs:
         echo "VITE_FIREBASE_USE_FETCH_STREAMS=false" >> .env.local
         echo "VITE_FIREBASE_FORCE_LONG_POLLING=false" >> .env.local
         echo "VITE_FIREBASE_LONG_POLLING_TIMEOUT_SEC=30" >> .env.local
+        echo "Debug: .env.local content:"
+        cat .env.local
 
     - name: Build project
       run: npm run build
