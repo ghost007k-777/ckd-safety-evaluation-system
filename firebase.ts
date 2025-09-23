@@ -13,18 +13,21 @@ const firebaseConfig = {
 };
 
 // Firebase 설정 유효성 검사
-const requiredEnvVars = [
-  'VITE_FIREBASE_API_KEY',
-  'VITE_FIREBASE_AUTH_DOMAIN',
-  'VITE_FIREBASE_PROJECT_ID',
-  'VITE_FIREBASE_STORAGE_BUCKET',
-  'VITE_FIREBASE_MESSAGING_SENDER_ID',
-  'VITE_FIREBASE_APP_ID'
+// 주의: Vite는 프로덕션 빌드에서 import.meta.env.VAR 형태만 정적으로 치환합니다.
+//       import.meta.env['VAR'] 같은 동적 접근은 치환되지 않아 런타임에서 누락처럼 보일 수 있습니다.
+//       따라서 검증은 실제 firebaseConfig 값으로 수행합니다.
+const requiredVarPairs: Array<[string, unknown]> = [
+  ['VITE_FIREBASE_API_KEY', firebaseConfig.apiKey],
+  ['VITE_FIREBASE_AUTH_DOMAIN', firebaseConfig.authDomain],
+  ['VITE_FIREBASE_PROJECT_ID', firebaseConfig.projectId],
+  ['VITE_FIREBASE_STORAGE_BUCKET', firebaseConfig.storageBucket],
+  ['VITE_FIREBASE_MESSAGING_SENDER_ID', firebaseConfig.messagingSenderId],
+  ['VITE_FIREBASE_APP_ID', firebaseConfig.appId],
 ];
 
-const missingVars = requiredEnvVars.filter(varName => 
-  !(import.meta as any).env?.[varName]
-);
+const missingVars = requiredVarPairs
+  .filter(([_, val]) => val === undefined || val === null || String(val).trim() === '')
+  .map(([name]) => name);
 
 if (missingVars.length > 0) {
   console.error('❌ 다음 Firebase 환경변수가 설정되지 않았습니다:', missingVars);
