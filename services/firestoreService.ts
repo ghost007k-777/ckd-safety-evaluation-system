@@ -19,14 +19,18 @@ const SUBMISSIONS_COLLECTION = 'submissions';
 // Firestore 데이터를 애플리케이션 타입으로 변환
 const convertFirestoreToSubmission = (doc: any): Submission => {
   const data = doc.data();
+  
+  // 안전한 데이터 변환 - safetyTraining이 없을 수도 있음
+  const safetyTraining = data.safetyTraining || {};
+  
   return {
     id: doc.id,
     ...data,
-    submittedAt: data.submittedAt.toDate(),
+    submittedAt: data.submittedAt?.toDate() || new Date(),
     safetyTraining: {
-      ...data.safetyTraining,
-      completionDate: data.safetyTraining.completionDate 
-        ? data.safetyTraining.completionDate.toDate() 
+      ...safetyTraining,
+      completionDate: safetyTraining.completionDate 
+        ? safetyTraining.completionDate.toDate() 
         : null
     }
   };
@@ -34,13 +38,16 @@ const convertFirestoreToSubmission = (doc: any): Submission => {
 
 // 애플리케이션 데이터를 Firestore 형식으로 변환
 const convertSubmissionToFirestore = (submission: Omit<Submission, 'id'>) => {
+  // 안전한 데이터 변환
+  const safetyTraining = submission.safetyTraining || {};
+  
   return {
     ...submission,
-    submittedAt: Timestamp.fromDate(submission.submittedAt),
+    submittedAt: Timestamp.fromDate(submission.submittedAt || new Date()),
     safetyTraining: {
-      ...submission.safetyTraining,
-      completionDate: submission.safetyTraining.completionDate 
-        ? Timestamp.fromDate(submission.safetyTraining.completionDate)
+      ...safetyTraining,
+      completionDate: safetyTraining.completionDate 
+        ? Timestamp.fromDate(safetyTraining.completionDate)
         : null
     }
   };
@@ -83,7 +90,12 @@ export const getSubmissions = async (): Promise<Submission[]> => {
     const submissions: Submission[] = [];
     
     querySnapshot.forEach((doc) => {
-      submissions.push(convertFirestoreToSubmission(doc));
+      try {
+        submissions.push(convertFirestoreToSubmission(doc));
+      } catch (error) {
+        console.warn(`⚠️ [firestoreService] 문서 ${doc.id} 변환 실패:`, error);
+        // 변환 실패한 문서는 건너뛰고 계속 진행
+      }
     });
     
     console.log(`✅ [firestoreService] ${submissions.length}개 신청서 조회 완료`);
@@ -99,7 +111,12 @@ export const getSubmissions = async (): Promise<Submission[]> => {
       const submissions: Submission[] = [];
       
       querySnapshot.forEach((doc) => {
-        submissions.push(convertFirestoreToSubmission(doc));
+        try {
+          submissions.push(convertFirestoreToSubmission(doc));
+        } catch (error) {
+          console.warn(`⚠️ [firestoreService] 폴백 문서 ${doc.id} 변환 실패:`, error);
+          // 변환 실패한 문서는 건너뛰고 계속 진행
+        }
       });
       
       // 클라이언트에서 정렬
@@ -161,7 +178,12 @@ export const subscribeToSubmissions = (
         try {
           const submissions: Submission[] = [];
           querySnapshot.forEach((doc) => {
-            submissions.push(convertFirestoreToSubmission(doc));
+            try {
+              submissions.push(convertFirestoreToSubmission(doc));
+            } catch (error) {
+              console.warn(`⚠️ [firestoreService] 실시간 문서 ${doc.id} 변환 실패:`, error);
+              // 변환 실패한 문서는 건너뛰고 계속 진행
+            }
           });
           console.log(`📡 [firestoreService] 실시간 업데이트: ${submissions.length}개의 신청서 동기화`);
           callback(submissions);
@@ -193,7 +215,12 @@ export const subscribeToSubmissions = (
           try {
             const submissions: Submission[] = [];
             querySnapshot.forEach((doc) => {
-              submissions.push(convertFirestoreToSubmission(doc));
+              try {
+                submissions.push(convertFirestoreToSubmission(doc));
+              } catch (error) {
+                console.warn(`⚠️ [firestoreService] 폴백 실시간 문서 ${doc.id} 변환 실패:`, error);
+                // 변환 실패한 문서는 건너뛰고 계속 진행
+              }
             });
             
             // 클라이언트에서 정렬
