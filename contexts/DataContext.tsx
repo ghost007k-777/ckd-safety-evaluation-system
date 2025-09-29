@@ -109,11 +109,15 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         // 1단계: 캐시된 데이터 즉시 로드
         console.log('📦 [DataProvider] 캐시 데이터 로드 중...');
         const cachedData = await dataManager.getCachedSubmissions();
+        console.log(`📦 [DataProvider] 캐시 데이터 개수: ${cachedData.length}`);
+        
         if (cachedData.length > 0) {
           dispatch({ type: 'SET_SUBMISSIONS', payload: cachedData });
           console.log(`✅ [DataProvider] ${cachedData.length}개 캐시 데이터 로드 완료`);
         } else {
+          console.log('📦 [DataProvider] 캐시 데이터 없음, 로딩 상태 해제');
           dispatch({ type: 'SET_LOADING', payload: false });
+          dispatch({ type: 'SET_SUBMISSIONS', payload: [] });
         }
 
         // 2단계: Firebase 연결 및 실시간 동기화

@@ -24,6 +24,21 @@ const AppContent: React.FC = () => {
   const loading = useDataLoading();
   const error = useDataError();
 
+  // 디버그 로그 추가
+  console.log('🔍 [App] 상태 확인:', {
+    currentView,
+    loading,
+    error,
+    connectionStatus,
+    submissionsCount: state.submissions?.length || 0,
+    lastSyncTime: state.lastSyncTime?.toISOString(),
+    submissions: state.submissions?.slice(0, 2).map(s => ({
+      id: s.id,
+      companyName: s.projectInfo?.companyName,
+      status: s.status
+    }))
+  });
+
   // 로딩 화면
   const renderLoadingScreen = () => (
         <div className="flex flex-col justify-center items-center h-96 space-y-4">
@@ -82,6 +97,11 @@ const AppContent: React.FC = () => {
 
   // 메인 콘텐츠 렌더링
   const renderMainContent = () => {
+    console.log('🔍 [App] renderMainContent:', {
+      currentView,
+      submissionsCount: state.submissions?.length || 0
+    });
+    
     switch (currentView) {
       case 'form':
         return (
@@ -121,17 +141,29 @@ const AppContent: React.FC = () => {
 
   // 메인 렌더링 로직
   const renderContent = () => {
-    // 초기 로딩 중
-    if (loading && state.submissions.length === 0) {
+    console.log('🔍 [App] renderContent 조건 확인:', {
+      loading,
+      submissionsLength: state.submissions.length,
+      error,
+      connectionStatus,
+      shouldShowLoading: loading && state.submissions.length === 0,
+      shouldShowError: error && connectionStatus === 'offline'
+    });
+
+    // 초기 로딩 중 (연결 상태가 connecting이고 데이터가 없을 때)
+    if (loading && state.submissions.length === 0 && connectionStatus === 'connecting') {
+      console.log('🔍 [App] 로딩 화면 표시');
       return renderLoadingScreen();
     }
 
-    // 에러가 있지만 데이터는 있는 경우 (오프라인 모드)
-    if (error && connectionStatus === 'offline') {
+    // 심각한 에러가 있는 경우
+    if (error && connectionStatus === 'offline' && state.submissions.length === 0) {
+      console.log('🔍 [App] 에러 화면 표시');
       return renderErrorScreen();
     }
 
-    // 정상 상태
+    // 정상 상태 (데이터가 있거나 로딩이 완료된 경우)
+    console.log('🔍 [App] 메인 콘텐츠 표시');
     return renderMainContent();
   };
 
