@@ -17,8 +17,6 @@ interface VideoConfig {
 }
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
-  const [currentVideoCompleted, setCurrentVideoCompleted] = useState(false);
-
   // Video configurations (URLs will be provided later)
   const videoConfigs: VideoConfig[] = [
     { type: 'general', title: '일반작업 안전교육', url: 'placeholder-general-video-url' },
@@ -29,35 +27,17 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
 
   // Get selected video types
   const selectedVideos = videoConfigs.filter(config => data.workTypes[config.type]);
-  const currentVideo = selectedVideos[data.currentVideoIndex];
-  const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
 
-  const handleVideoComplete = () => {
-    setCurrentVideoCompleted(true);
-  };
-
-  const handleNextVideo = () => {
-    if (isLastVideo) {
-      // All videos completed
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    updateData('completed', isChecked);
+    updateData('completionDate', isChecked ? new Date() : null);
+    if (isChecked) {
       updateData('allVideosCompleted', true);
-      updateData('completed', true);
-      updateData('completionDate', new Date());
-      onComplete();
-    } else {
-      // Move to next video
-      updateData('currentVideoIndex', data.currentVideoIndex + 1);
-      setCurrentVideoCompleted(false);
     }
   };
 
-  const handlePreviousVideo = () => {
-    if (data.currentVideoIndex > 0) {
-      updateData('currentVideoIndex', data.currentVideoIndex - 1);
-      setCurrentVideoCompleted(false);
-    }
-  };
-
-  if (!currentVideo) {
+  if (selectedVideos.length === 0) {
     return (
       <Card>
         <CardHeader
@@ -74,92 +54,54 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   return (
     <Card>
       <CardHeader
-        title={
-          <span>
-            안전 교육
-            <span className="text-sm ml-2 text-gray-500">
-              ({data.currentVideoIndex + 1}/{selectedVideos.length})
-            </span>
-          </span>
-        }
-        description={`${currentVideo.title}을 시청해주세요.`}
+        title="안전 교육"
+        description="선택하신 작업 유형에 대한 안전 교육을 진행합니다."
       />
       
       <div className="space-y-8">
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((data.currentVideoIndex + (currentVideoCompleted ? 1 : 0)) / selectedVideos.length) * 100}%` }}
-          ></div>
-        </div>
-
-        {/* Video player area */}
-        <div className="w-full aspect-video bg-gray-200 rounded-xl flex items-center justify-center">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">{currentVideo.title}</h3>
-            <p className="text-gray-500 mb-4">교육 영상이 여기에 표시됩니다.</p>
-            <p className="text-sm text-gray-400">URL: {currentVideo.url}</p>
-            
-            {/* Temporary button to simulate video completion */}
-            <Button 
-              onClick={handleVideoComplete}
-              className="mt-4"
-              disabled={currentVideoCompleted}
-            >
-              {currentVideoCompleted ? '영상 시청 완료' : '영상 시청 완료 (임시)'}
-            </Button>
-          </div>
-        </div>
-
-        {/* Selected work types */}
+        {/* Selected work types display */}
         <div className="p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">교육 대상 작업 유형:</h4>
+          <h4 className="text-sm font-medium text-gray-700 mb-3">교육 대상 작업 유형:</h4>
           <div className="flex flex-wrap gap-2">
-            {selectedVideos.map((video, index) => (
+            {selectedVideos.map((video) => (
               <span
                 key={video.type}
-                className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  index < data.currentVideoIndex 
-                    ? 'bg-green-100 text-green-800' 
-                    : index === data.currentVideoIndex
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
+                className="px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-800"
               >
-                {index < data.currentVideoIndex && '✓ '}{video.title}
+                {video.title}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Navigation buttons */}
-        {currentVideoCompleted && (
-          <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
-            <div>
-              <p className="text-emerald-800 font-medium">
-                {isLastVideo ? '모든 교육이 완료되었습니다!' : '교육 영상 시청이 완료되었습니다.'}
-              </p>
-              <p className="text-sm text-emerald-700 mt-1">
-                {isLastVideo ? '위험성 평가 단계로 이동합니다.' : '다음 교육 영상을 시청해주세요.'}
-              </p>
-            </div>
-            <div className="flex space-x-3">
-              {data.currentVideoIndex > 0 && (
-                <Button variant="secondary" onClick={handlePreviousVideo}>
-                  이전 영상
-                </Button>
-              )}
-              <Button onClick={handleNextVideo}>
-                {isLastVideo ? '다음 단계' : '다음 영상'}
-              </Button>
+        {/* Video placeholder area */}
+        <div className="w-full aspect-video bg-gray-200 rounded-xl flex items-center justify-center">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">안전 교육 영상</h3>
+            <p className="text-gray-500 mb-4">교육 영상이 여기에 표시됩니다.</p>
+            <div className="space-y-2">
+              {selectedVideos.map((video) => (
+                <p key={video.type} className="text-sm text-gray-400">
+                  {video.title}: {video.url}
+                </p>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Completion checkbox */}
+        <div className="p-6 border-l-4 border-indigo-500 bg-indigo-50 rounded-lg">
+          <Checkbox
+            id="training-completed"
+            label="안전 교육을 이수하였습니다."
+            checked={data.completed}
+            onChange={handleCheckboxChange}
+          />
+        </div>
 
         {data.completionDate && (
           <p className="text-sm text-emerald-700 font-medium">
-            교육 완료일: {data.completionDate.toLocaleString('ko-KR')}
+            교육 이수일: {data.completionDate.toLocaleString('ko-KR')}
           </p>
         )}
       </div>
