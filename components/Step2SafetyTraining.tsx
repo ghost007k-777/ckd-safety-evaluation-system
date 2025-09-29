@@ -17,6 +17,18 @@ interface VideoConfig {
 }
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
+  // Helper function to convert YouTube URL to embed URL
+  const getYouTubeEmbedUrl = (url: string): string => {
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    return url; // Return original URL if not a YouTube URL
+  };
+
   // Video configurations
   const videoConfigs: VideoConfig[] = [
     { type: 'general', title: '일반작업 안전교육', url: 'placeholder-general-video-url' },
@@ -74,19 +86,37 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           </div>
         </div>
 
-        {/* Video placeholder area */}
-        <div className="w-full aspect-video bg-gray-200 rounded-xl flex items-center justify-center">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">안전 교육 영상</h3>
-            <p className="text-gray-500 mb-4">교육 영상이 여기에 표시됩니다.</p>
-            <div className="space-y-2">
-              {selectedVideos.map((video) => (
-                <p key={video.type} className="text-sm text-gray-400">
-                  {video.title}: {video.url}
-                </p>
-              ))}
+        {/* Video display area */}
+        <div className="space-y-6">
+          {selectedVideos.map((video) => (
+            <div key={video.type} className="border border-gray-200 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">{video.title}</h3>
+              
+              {video.url.startsWith('placeholder-') ? (
+                // Placeholder for videos without URLs
+                <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-gray-500 mb-2">교육 영상이 준비 중입니다</p>
+                    <p className="text-sm text-gray-400">{video.url}</p>
+                  </div>
+                </div>
+              ) : (
+                // Actual video iframe for YouTube URLs
+                <div className="w-full aspect-video rounded-lg overflow-hidden">
+                  <iframe
+                    src={getYouTubeEmbedUrl(video.url)}
+                    title={video.title}
+                    className="w-full h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-400 mt-2">URL: {video.url}</p>
             </div>
-          </div>
+          ))}
         </div>
 
         {/* Completion checkbox */}
