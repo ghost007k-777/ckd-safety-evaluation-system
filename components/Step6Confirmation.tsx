@@ -292,18 +292,26 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
       />
       <div className="space-y-4">
         <Section title="프로젝트 정보">
-          <Field label="공사 위치" value={data.projectInfo.location === '기타' ? data.projectInfo.locationOther : data.projectInfo.location} />
-          <Field label="공사명" value={data.projectInfo.constructionName} />
-          <Field label="업체명" value={data.projectInfo.companyName} />
-          <Field label="담당자" value={data.projectInfo.contactPerson} />
+          <Field label="공사 위치" value={
+            data.projectInfo?.location === '기타' 
+              ? data.projectInfo?.locationOther || '기타 위치 미입력'
+              : data.projectInfo?.location || '위치 미입력'
+          } />
+          <Field label="공사명" value={data.projectInfo?.constructionName || '공사명 미입력'} />
+          <Field label="업체명" value={data.projectInfo?.companyName || '업체명 미입력'} />
+          <Field label="담당자" value={data.projectInfo?.contactPerson || '담당자 미입력'} />
         </Section>
         
         <Section title="안전 교육">
-            <Field label="이수 여부" value={data.safetyTraining.completed ? `완료, 이수일: ${data.safetyTraining.completionDate?.toLocaleString('ko-KR')}` : "미이수"} />
+            <Field label="이수 여부" value={
+              data.safetyTraining?.completed 
+                ? `완료, 이수일: ${data.safetyTraining.completionDate?.toLocaleString('ko-KR') || '날짜 미상'}`
+                : "미이수"
+            } />
         </Section>
         
         <Section title="위험성 평가">
-            {data.riskAssessment.length > 0 ? (
+            {data.riskAssessment?.length > 0 ? (
                  <div className="overflow-x-auto border border-gray-200 rounded-xl" data-section="risk-table">
                     <table className="min-w-full divide-y divide-gray-200 text-sm" data-pdf-table="risk-assessment">
                         <thead className="bg-gray-50">
@@ -318,21 +326,21 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {data.riskAssessment.map((item) => {
-                                const riskScore = item.likelihood * item.severity;
+                            {(data.riskAssessment || []).map((item, index) => {
+                                const riskScore = (item?.likelihood || 1) * (item?.severity || 1);
                                 const riskColorClass = riskScore >= 9 ? 'bg-rose-50' : riskScore >= 4 ? 'bg-amber-50' : '';
                                 return (
-                                    <tr key={item.id} className={riskColorClass}>
-                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item.location}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item.task}</td>
-                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item.hazard}</td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item.disasterType}</td>
-                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item.safetyMeasures}</td>
+                                    <tr key={item?.id || `risk-${index}`} className={riskColorClass}>
+                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item?.location || '위치 미상'}</td>
+                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item?.task || '작업 미상'}</td>
+                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item?.hazard || '위험요인 미상'}</td>
+                                        <td className="px-4 py-4 whitespace-nowrap text-gray-800">{item?.disasterType || '재해유형 미상'}</td>
+                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item?.safetyMeasures || '안전조치 미상'}</td>
                                         <td className="px-4 py-4 whitespace-nowrap text-center text-gray-800">
                                             <div className="font-bold text-lg">{riskScore}</div>
-                                            <div className="text-xs text-gray-500">({item.likelihood}×{item.severity})</div>
+                                            <div className="text-xs text-gray-500">({item?.likelihood || 1}×{item?.severity || 1})</div>
                                         </td>
-                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item.reductionMeasures}</td>
+                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item?.reductionMeasures || '감소대책 미상'}</td>
                                     </tr>
                                 );
                             })}
@@ -352,7 +360,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                                 <span className="font-medium text-gray-600 min-w-[20px]">{index + 1}.</span>
                                 <span className="text-gray-800">{text}</span>
                                 <span className="ml-auto text-indigo-600 font-semibold">
-                                    {data.safetyPledge.agreements[key] ? '✓' : '✗'}
+                                    {data.safetyPledge?.agreements?.[key] ? '✓' : '✗'}
                                 </span>
                             </div>
                         ))}
@@ -367,23 +375,32 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-                    <Field label="성명" value={data.safetyPledge.name} />
-                    <Field label="전체 동의" value={data.safetyPledge.agreeToAll ? '예' : '아니오'} />
-                    <Field label="서명" value={data.safetyPledge.signature ? <img src={data.safetyPledge.signature} alt="signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> : '서명 없음'} />
+                    <Field label="성명" value={data.safetyPledge?.name || '성명 미입력'} />
+                    <Field label="전체 동의" value={data.safetyPledge?.agreeToAll ? '예' : '아니오'} />
+                    <Field label="서명" value={
+                      data.safetyPledge?.signature 
+                        ? <img src={data.safetyPledge.signature} alt="signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> 
+                        : '서명 없음'
+                    } />
                 </div>
             </div>
         </Section>
 
         <Section title="작업 허가서" className="" data-section="work-permit">
             <div className="space-y-3 mb-6">
-                <Field label="유형" value={data.workPermit.type === 'hazardous' ? '위험' : '일반'} />
+                <Field label="유형" value={
+                  data.workPermit?.type === 'hazardous' ? '위험' : 
+                  data.workPermit?.type === 'general' ? '일반' : '유형 미설정'
+                } />
             </div>
 
-            {data.workPermit.type === 'general' ? (
+            {data.workPermit?.type === 'general' ? (
                 <GeneralPermitConfirmation data={data.workPermit} />
-            ) : data.workPermit.type === 'hazardous' ? (
+            ) : data.workPermit?.type === 'hazardous' ? (
                 <HazardousPermitConfirmation data={data.workPermit} />
-            ) : null}
+            ) : (
+                <p className="text-gray-500">작업 허가서 유형이 설정되지 않았습니다.</p>
+            )}
         </Section>
       </div>
     </Card>
