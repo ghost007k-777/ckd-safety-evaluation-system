@@ -81,7 +81,12 @@ const Step3RiskAssessment: React.FC<Step3Props> = ({ data, setData }) => {
   return (
     <Card>
       <CardHeader
-        title="위험성 평가"
+        title={
+          <span>
+            위험성평가
+            <span className="text-sm ml-1">(최소 1건 이상 작성)</span>
+          </span>
+        }
         description="잠재적 위험 요소를 식별하고 완화 조치를 작성합니다."
       />
       

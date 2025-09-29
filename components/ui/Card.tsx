@@ -16,7 +16,7 @@ Card.displayName = 'Card';
 
 
 interface CardHeaderProps {
-    title: string;
+    title: string | React.ReactNode;
     description: string;
 }
 
