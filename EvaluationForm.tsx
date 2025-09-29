@@ -58,7 +58,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
         hazardousSafetyCheckList: HAZARDOUS_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})),
         gasMeasurements: [{id: generateUniqueId(), name: '', concentration: '', time: ''}],
         // Confined space type fields
-        confinedSpaceSafetyCheckList: CONFINED_SPACE_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})),
+        confinedSpaceSafetyCheckList: CONFINED_SPACE_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', confirmed: false})),
       },
       safetyPledge: { agreements: {}, agreeToAll: false, name: '', signature: '' }
     };

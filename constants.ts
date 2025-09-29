@@ -41,18 +41,18 @@ export const HAZARDOUS_SAFETY_CHECK_ITEMS = [
 ] as const;
 
 export const CONFINED_SPACE_SAFETY_CHECK_ITEMS = [
-    // 일반항목
-    { id: 'conf-gen1', category: '일반항목', text: '관리감독자 지정 및 감시인 배치' },
-    { id: 'conf-gen2', category: '일반항목', text: '밀폐공간작업 관련 안전인 배치' },
-    { id: 'conf-gen3', category: '일반항목', text: '발부자, 명판 설치, 물질안전자료' },
-    { id: 'conf-gen4', category: '일반항목', text: '전기회로, 기계장비 가동정지, 유입세정' },
-    { id: 'conf-gen5', category: '일반항목', text: '산소농도 및 유해가스 측정' },
-    { id: 'conf-gen6', category: '일반항목', text: '환기시설 설치 및 환기 실시여부' },
-    { id: 'conf-gen7', category: '일반항목', text: '전화 및 무선기기 구비' },
-    { id: 'conf-gen8', category: '일반항목', text: '조명 비치' },
-    { id: 'conf-gen9', category: '일반항목', text: '공기호흡기 또는 송기마스크 비치' },
-    { id: 'conf-gen10', category: '일반항목', text: '필요한 안전장구 구비' },
-    { id: 'conf-gen11', category: '일반항목', text: '안전보건교육 실시' },
+    { id: 'conf1', text: '관리감독자 지정 및 감시인 배치' },
+    { id: 'conf2', text: '밀폐공간작업 관계자 외 출입금지 표지판 게시' },
+    { id: 'conf3', text: '발부자단, 명판 설치, 물질안전가스 자료, 응기세정' },
+    { id: 'conf4', text: '전기회로, 기계장비 가동정지, 유압, 압축공기 잠금 및 시건조치' },
+    { id: 'conf5', text: '산소농도 및 유해가스 측정' },
+    { id: 'conf6', text: '환기시설 설치 및 환기 실시여부' },
+    { id: 'conf7', text: '전화 및 무선기기 구비' },
+    { id: 'conf8', text: '방폭형 전기기계기구의 사용' },
+    { id: 'conf9', text: '소화기 비치' },
+    { id: 'conf10', text: '공기호흡기 또는 송기마스크 비치' },
+    { id: 'conf11', text: '필요한 안전장구 구비' },
+    { id: 'conf12', text: '안전보건교육 실시' },
 ] as const;
 
 

@@ -245,7 +245,7 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
 const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
-    const handleConfinedSpaceSafetyCheckChange = (id: string, field: 'applicable' | 'implemented', value: 'O' | 'X') => {
+    const handleConfinedSpaceSafetyCheckChange = (id: string, field: 'applicable' | 'confirmed', value: '유' | '무' | boolean) => {
         const newList = (data.confinedSpaceSafetyCheckList ?? []).map(item => item.id === id ? { ...item, [field]: value } : item);
         updateData({ confinedSpaceSafetyCheckList: newList as ConfinedSpaceSafetyCheckItem[] });
     };
@@ -387,32 +387,58 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
 
             <div className="divide-y divide-gray-200">
                 <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
-                    <div className="col-span-2">구분</div>
-                    <div className="col-span-6">안전조치 요구사항</div>
-                    <div className="col-span-2 text-center">해당여부 (O,X)</div>
-                    <div className="col-span-2 text-center">실시여부 (O,X)</div>
+                    <div className="col-span-6">확인항목</div>
+                    <div className="col-span-3 text-center">해당여부</div>
+                    <div className="col-span-3 text-center">확인결과</div>
                 </div>
 
                 {/* Confined Space Safety Checks */}
-                <div className="md:grid md:grid-cols-12">
-                    <div className="p-3 font-bold text-gray-800 md:col-span-2 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">일반항목</div>
-                    <div className="px-4 pb-4 md:p-0 md:col-span-10 md:divide-y md:divide-gray-200">
-                        {(data.confinedSpaceSafetyCheckList || []).map((item, index) => (
-                             <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                <div className="md:col-span-6 text-gray-800">{index+1}. {item.text}</div>
-                                <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                    </div>
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                    </div>
+                <div className="divide-y divide-gray-200">
+                    {(data.confinedSpaceSafetyCheckList || []).map((item, index) => (
+                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-4">
+                            <div className="md:col-span-6 text-gray-800 mb-3 md:mb-0">{index+1}. {item.text}</div>
+                            <div className="md:col-span-3 mb-3 md:mb-0">
+                                <span className="text-sm font-medium text-gray-700 md:hidden block mb-2">해당여부</span>
+                                <div className="flex items-center space-x-6">
+                                    <label className="flex items-center cursor-pointer">
+                                        <input 
+                                            type="radio" 
+                                            name={`applicable-${item.id}`} 
+                                            value="유" 
+                                            checked={item.applicable === '유'} 
+                                            onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'applicable', e.target.value as '유' | '무')} 
+                                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                        />
+                                        <span className="ml-2 text-gray-800">유</span>
+                                    </label>
+                                    <label className="flex items-center cursor-pointer">
+                                        <input 
+                                            type="radio" 
+                                            name={`applicable-${item.id}`} 
+                                            value="무" 
+                                            checked={item.applicable === '무'} 
+                                            onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'applicable', e.target.value as '유' | '무')} 
+                                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                                        />
+                                        <span className="ml-2 text-gray-800">무</span>
+                                    </label>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                            <div className="md:col-span-3">
+                                <span className="text-sm font-medium text-gray-700 md:hidden block mb-2">확인결과</span>
+                                <div className="flex justify-center md:justify-center">
+                                    <label className="flex items-center cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={item.confirmed} 
+                                            onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'confirmed', e.target.checked)} 
+                                            className="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 

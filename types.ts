@@ -64,10 +64,9 @@ export interface HazardousSafetyCheckItem {
 
 export interface ConfinedSpaceSafetyCheckItem {
   id: string;
-  category: '일반항목';
   text: string;
-  applicable: 'O' | 'X' | '';
-  implemented: 'O' | 'X' | '';
+  applicable: '유' | '무' | '';
+  confirmed: boolean;
 }
 
 export interface GasMeasurement {
