@@ -46,6 +46,12 @@ jobs:
     - name: Build project
       run: npm run build
 
+    - name: Clean build context
+      run: |
+        echo "Cleaning potential problematic files..."
+        find . -name "*.tmp" -delete || true
+        find . -name ".DS_Store" -delete || true
+
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
@@ -59,7 +65,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+        docker build --no-cache -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
         docker tag gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA gcr.io/$PROJECT_ID/$SERVICE_NAME:latest
 
     - name: Push Docker image
