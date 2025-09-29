@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useData, useConnectionStatus } from '../contexts/DataContext.tsx';
 import { DataManager } from '../services/DataManager.ts';
-import { testFirebaseConnection } from '../services/firestoreService.ts';
+import { testFirebaseConnection, getSubmissions } from '../services/firestoreService.ts';
 
 export const DebugInfo: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [debugData, setDebugData] = useState<any>(null);
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [firebaseDataResult, setFirebaseDataResult] = useState<string | null>(null);
   const { state } = useData();
   const connectionStatus = useConnectionStatus();
 
@@ -30,6 +31,11 @@ export const DebugInfo: React.FC = () => {
       
       // DataManager Status
       dataManager: managerStatus,
+      
+      // Firebase 실제 데이터 테스트
+      firebaseDataTest: {
+        note: 'Firebase에서 직접 데이터를 조회한 결과'
+      },
       
       // LocalStorage
       localStorage: {
@@ -68,6 +74,32 @@ export const DebugInfo: React.FC = () => {
       setTestResult(result ? '✅ 연결 성공!' : '❌ 연결 실패');
     } catch (error) {
       setTestResult(`❌ 에러: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  };
+
+  const testFirebaseData = async () => {
+    setFirebaseDataResult('데이터 조회 중...');
+    try {
+      const submissions = await getSubmissions();
+      setFirebaseDataResult(`✅ Firebase에서 ${submissions.length}개 데이터 조회 성공!`);
+      
+      // 디버그 정보에 실제 데이터 추가
+      if (debugData) {
+        setDebugData({
+          ...debugData,
+          firebaseDataTest: {
+            count: submissions.length,
+            data: submissions.slice(0, 2).map(sub => ({
+              id: sub.id,
+              companyName: sub.projectInfo?.companyName || 'N/A',
+              status: sub.status,
+              submittedAt: sub.submittedAt.toISOString()
+            }))
+          }
+        });
+      }
+    } catch (error) {
+      setFirebaseDataResult(`❌ 데이터 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
   };
 
@@ -151,10 +183,25 @@ export const DebugInfo: React.FC = () => {
                 padding: '6px 12px',
                 borderRadius: '3px',
                 cursor: 'pointer',
+                marginRight: '10px',
                 fontSize: '12px'
               }}
             >
               🔥 Firebase 테스트
+            </button>
+            <button
+              onClick={testFirebaseData}
+              style={{
+                background: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              📊 데이터 조회
             </button>
           </div>
           
@@ -164,10 +211,23 @@ export const DebugInfo: React.FC = () => {
               background: testResult.includes('✅') ? '#d4edda' : '#f8d7da',
               border: `1px solid ${testResult.includes('✅') ? '#c3e6cb' : '#f5c6cb'}`,
               borderRadius: '3px',
-              marginBottom: '15px',
+              marginBottom: '10px',
               fontSize: '12px'
             }}>
               {testResult}
+            </div>
+          )}
+
+          {firebaseDataResult && (
+            <div style={{ 
+              padding: '8px', 
+              background: firebaseDataResult.includes('✅') ? '#d4edda' : '#f8d7da',
+              border: `1px solid ${firebaseDataResult.includes('✅') ? '#c3e6cb' : '#f5c6cb'}`,
+              borderRadius: '3px',
+              marginBottom: '15px',
+              fontSize: '12px'
+            }}>
+              {firebaseDataResult}
             </div>
           )}
           
