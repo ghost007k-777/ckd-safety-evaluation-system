@@ -564,7 +564,7 @@ const Step4WorkPermit: React.FC<Step4Props> = ({ data, updateData }) => {
             </label>
             <label className="flex items-center text-md cursor-pointer">
               <input type="radio" name="workType" value="hazardous" checked={data.type === 'hazardous'} onChange={handleTypeChange} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
-              <span className="ml-2">위험</span>
+              <span className="ml-2">위험(화기, 고소작업)</span>
             </label>
           </div>
         </div>
