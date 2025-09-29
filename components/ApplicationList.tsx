@@ -34,6 +34,17 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
 
+  // 디버그 로그 추가
+  console.log('🔍 [ApplicationList] 렌더링:', {
+    submissionsCount: submissions?.length || 0,
+    connectionStatus,
+    submissions: submissions?.slice(0, 2).map(s => ({
+      id: s.id,
+      companyName: s.projectInfo?.companyName,
+      status: s.status
+    }))
+  });
+
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
@@ -52,19 +63,31 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
     }
   };
 
-  const sortedSubmissions = [...submissions].sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+  // 안전한 데이터 처리
+  const safeSubmissions = submissions || [];
+  console.log('🔍 [ApplicationList] 안전한 submissions:', safeSubmissions.length);
+  
+  const sortedSubmissions = [...safeSubmissions].sort((a, b) => {
+    const aTime = a.submittedAt?.getTime() || 0;
+    const bTime = b.submittedAt?.getTime() || 0;
+    return bTime - aTime;
+  });
 
   const groupedSubmissions = sortedSubmissions.reduce((acc, submission) => {
-    const dateKey = submission.submittedAt.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long',
-    });
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
+    try {
+      const dateKey = submission.submittedAt?.toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+      }) || '날짜 미상';
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(submission);
+    } catch (error) {
+      console.warn('⚠️ [ApplicationList] 날짜 변환 실패:', error);
     }
-    acc[dateKey].push(submission);
     return acc;
   }, {} as Record<string, Submission[]>);
 
@@ -110,9 +133,11 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                 onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
                             >
                                 <div>
-                                <p className="font-bold text-lg text-gray-800">{sub.projectInfo.constructionName}</p>
-                                <p className="text-sm text-gray-500 mt-1">{sub.projectInfo.companyName}</p>
-                                <p className="text-xs text-gray-400 mt-2">{sub.submittedAt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
+                                <p className="font-bold text-lg text-gray-800">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
+                                <p className="text-sm text-gray-500 mt-1">{sub.projectInfo?.companyName || '회사명 없음'}</p>
+                                <p className="text-xs text-gray-400 mt-2">
+                                  {sub.submittedAt?.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) || '시간 미상'}
+                                </p>
                                 </div>
                                 <div className="flex items-center space-x-4">
                                     <StatusBadge status={sub.status} />

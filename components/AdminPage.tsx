@@ -41,6 +41,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
 
+  // 디버그 로그 추가
+  console.log('🔍 [AdminPage] 렌더링:', {
+    submissionsCount: submissions?.length || 0,
+    connectionStatus,
+    isAuthenticated,
+    submissions: submissions?.slice(0, 2).map(s => ({
+      id: s.id,
+      companyName: s.projectInfo?.companyName,
+      status: s.status
+    }))
+  });
+
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
@@ -104,8 +116,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
     );
   }
   
-  const pendingSubmissions = submissions.filter(s => s.status === 'pending');
-  const processedSubmissions = submissions
+  // 안전한 데이터 처리
+  const safeSubmissions = submissions || [];
+  const pendingSubmissions = safeSubmissions.filter(s => s.status === 'pending');
+  const processedSubmissions = safeSubmissions
     .filter(s => s.status !== 'pending')
     .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
 
@@ -188,9 +202,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                       onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
                     >
                         <div className="flex-grow">
-                            <p className="font-bold text-lg text-gray-800">{sub.projectInfo.constructionName}</p>
-                            <p className="text-sm text-gray-500 mt-1">{sub.projectInfo.companyName}</p>
-                            <p className="text-xs text-gray-400 mt-2">{sub.submittedAt.toLocaleString('ko-KR')}</p>
+                            <p className="font-bold text-lg text-gray-800">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
+                            <p className="text-sm text-gray-500 mt-1">{sub.projectInfo?.companyName || '회사명 없음'}</p>
+                            <p className="text-xs text-gray-400 mt-2">{sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}</p>
                         </div>
                         <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
                             <StatusBadge status={sub.status} />
