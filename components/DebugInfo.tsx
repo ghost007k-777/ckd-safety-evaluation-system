@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useData, useConnectionStatus } from '../contexts/DataContext.tsx';
 import { DataManager } from '../services/DataManager.ts';
+import { testFirebaseConnection } from '../services/firestoreService.ts';
 
 export const DebugInfo: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [debugData, setDebugData] = useState<any>(null);
+  const [testResult, setTestResult] = useState<string | null>(null);
   const { state } = useData();
   const connectionStatus = useConnectionStatus();
 
@@ -38,8 +40,13 @@ export const DebugInfo: React.FC = () => {
       
       // Firebase Config
       firebaseConfig: {
-        projectId: 'ckd-app-001',
-        authDomain: 'ckd-app-001.firebaseapp.com'
+        apiKey: (import.meta as any).env?.VITE_FIREBASE_API_KEY ? 'SET' : 'MISSING',
+        authDomain: (import.meta as any).env?.VITE_FIREBASE_AUTH_DOMAIN || 'MISSING',
+        projectId: (import.meta as any).env?.VITE_FIREBASE_PROJECT_ID || 'MISSING',
+        storageBucket: (import.meta as any).env?.VITE_FIREBASE_STORAGE_BUCKET || 'MISSING',
+        messagingSenderId: (import.meta as any).env?.VITE_FIREBASE_MESSAGING_SENDER_ID || 'MISSING',
+        appId: (import.meta as any).env?.VITE_FIREBASE_APP_ID ? 'SET' : 'MISSING',
+        measurementId: (import.meta as any).env?.VITE_FIREBASE_MEASUREMENT_ID || 'MISSING'
       },
       
       // Browser Info
@@ -54,6 +61,16 @@ export const DebugInfo: React.FC = () => {
     setDebugData(info);
   };
 
+  const testFirebase = async () => {
+    setTestResult('테스트 중...');
+    try {
+      const result = await testFirebaseConnection();
+      setTestResult(result ? '✅ 연결 성공!' : '❌ 연결 실패');
+    } catch (error) {
+      setTestResult(`❌ 에러: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  };
+
   useEffect(() => {
     if (isVisible) {
       collectDebugInfo();
@@ -62,7 +79,8 @@ export const DebugInfo: React.FC = () => {
 
   // 개발 모드에서만 표시 (또는 특정 조건)
   const showDebugButton = window.location.hostname === 'localhost' || 
-                         window.location.search.includes('debug=true');
+                         window.location.search.includes('debug=true') ||
+                         window.location.hostname.includes('run.app');
 
   if (!showDebugButton) return null;
 
@@ -108,21 +126,50 @@ export const DebugInfo: React.FC = () => {
             </button>
           </div>
           
-          <button
-            onClick={collectDebugInfo}
-            style={{
-              background: '#28a745',
-              color: 'white',
-              border: 'none',
-              padding: '6px 12px',
+          <div style={{ marginBottom: '15px' }}>
+            <button
+              onClick={collectDebugInfo}
+              style={{
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                marginRight: '10px',
+                fontSize: '12px'
+              }}
+            >
+              🔄 새로고침
+            </button>
+            <button
+              onClick={testFirebase}
+              style={{
+                background: '#007cba',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              🔥 Firebase 테스트
+            </button>
+          </div>
+          
+          {testResult && (
+            <div style={{ 
+              padding: '8px', 
+              background: testResult.includes('✅') ? '#d4edda' : '#f8d7da',
+              border: `1px solid ${testResult.includes('✅') ? '#c3e6cb' : '#f5c6cb'}`,
               borderRadius: '3px',
-              cursor: 'pointer',
               marginBottom: '15px',
               fontSize: '12px'
-            }}
-          >
-            🔄 새로고침
-          </button>
+            }}>
+              {testResult}
+            </div>
+          )}
           
           {debugData && (
             <div>

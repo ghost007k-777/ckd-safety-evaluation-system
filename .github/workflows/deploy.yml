@@ -35,7 +35,13 @@ jobs:
         echo "VITE_FIREBASE_PROJECT_ID=ckd-safety-system-new" >> .env.local
         echo "VITE_FIREBASE_STORAGE_BUCKET=ckd-safety-system-new.appspot.com" >> .env.local
         echo "VITE_FIREBASE_MESSAGING_SENDER_ID=410764463066" >> .env.local
-        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.local
+        # App ID 설정 (시크릿이 없으면 기본값 사용)
+        if [ -n "${{ secrets.VITE_FIREBASE_APP_ID }}" ]; then
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env.local
+        else
+          echo "VITE_FIREBASE_APP_ID=1:410764463066:web:placeholder" >> .env.local
+          echo "⚠️ Warning: VITE_FIREBASE_APP_ID secret not set, using placeholder"
+        fi
         echo "VITE_FIREBASE_MEASUREMENT_ID=" >> .env.local
         echo "VITE_FIREBASE_USE_FETCH_STREAMS=false" >> .env.local
         echo "VITE_FIREBASE_FORCE_LONG_POLLING=false" >> .env.local
