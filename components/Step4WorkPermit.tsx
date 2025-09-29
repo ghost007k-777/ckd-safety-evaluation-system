@@ -242,6 +242,95 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     );
 };
 
+const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
+    const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
+
+    return (
+        <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
+            {/* Signatures */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-gray-300">
+                {/* Applicant */}
+                <div className="p-4 space-y-3">
+                    <h3 className="font-semibold text-center text-gray-700 mb-4">신청자 (시공 업체)</h3>
+                    <div className="grid grid-cols-[80px,1fr] items-center gap-3">
+                        <label className="font-semibold text-sm text-gray-600">팀</label>
+                        <input type="text" className={inputClasses} value={data.applicantTeam || ''} onChange={e => updateData({ applicantTeam: e.target.value })}/>
+                    </div>
+                    <div className="grid grid-cols-[80px,1fr] items-start gap-3">
+                        <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
+                        <div>
+                            <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.applicantName || ''} onChange={e => updateData({ applicantName: e.target.value })}/>
+                            <SignaturePad onEnd={(sig) => updateData({ applicantSignature: sig })} signatureDataUrl={data.applicantSignature || ''} />
+                        </div>
+                    </div>
+                </div>
+                {/* Manager */}
+                <div className="p-4 space-y-3 border-t lg:border-t-0 border-gray-300">
+                    <h3 className="font-semibold text-center text-gray-700 mb-4">시행부서 팀장 (허가서 및 안전조치 확인)</h3>
+                    <div className="grid grid-cols-[80px,1fr] items-center gap-3">
+                        <label className="font-semibold text-sm text-gray-600">팀</label>
+                        <input type="text" className={inputClasses} value={data.managerTeam || ''} onChange={e => updateData({ managerTeam: e.target.value })}/>
+                    </div>
+                     <div className="grid grid-cols-[80px,1fr] items-start gap-3">
+                        <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
+                        <div>
+                            <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.managerName || ''} onChange={e => updateData({ managerName: e.target.value })}/>
+                            <SignaturePad onEnd={(sig) => updateData({ managerSignature: sig })} signatureDataUrl={data.managerSignature || ''} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Work Details */}
+            <div className="p-4 space-y-4">
+                 <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                    <label className="font-semibold text-sm text-gray-600">작업장소</label>
+                    <input type="text" className={inputClasses} value={data.location} onChange={e => updateData({ location: e.target.value })} required />
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                    <label className="font-semibold text-sm text-gray-600">작업일시</label>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })}/>
+                        <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
+                        <span className="hidden sm:inline">~</span>
+                        <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                    </div>
+                </div>
+            </div>
+
+            {/* Work Description */}
+            <div className="p-4">
+                 <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
+                    <label className="font-semibold text-sm text-gray-600 mt-2">작업내용</label>
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <span className="flex items-center text-gray-800">○ 작업 인원 : <input type="number" min="1" max="20" className={`${inputClasses} w-24 ml-2`} value={data.workerCount} onChange={e => updateData({ workerCount: parseInt(e.target.value) || 1 })}/> 명</span>
+                            <span className="flex items-center text-gray-800">○ 작업 내용 : <input type="text" className={`${inputClasses} ml-2 flex-1`} value={data.description} onChange={e => updateData({ description: e.target.value })}/></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Confined Space Specific Content - To be filled later */}
+            <div className="p-4">
+                <div className="text-center font-bold bg-gray-100 p-3 text-gray-800 mb-4">[밀폐공간작업 안전조치 확인사항]</div>
+                <div className="p-8 bg-gray-50 rounded-lg text-center">
+                    <p className="text-gray-500 text-lg">밀폐공간작업 허가서 내용</p>
+                    <p className="text-gray-400 text-sm mt-2">상세 내용이 추가될 예정입니다</p>
+                </div>
+            </div>
+
+            {/* Special Notes */}
+            <div className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
+                    <label className="font-semibold text-sm text-gray-600 pt-2">기타 특이사항</label>
+                    <textarea className={`${inputClasses} h-24`} placeholder="안전조치 외 주의사항 등 기재" value={data.specialNotes} onChange={e => updateData({ specialNotes: e.target.value })}></textarea>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
@@ -557,7 +646,7 @@ const Step4WorkPermit: React.FC<Step4Props> = ({ data, updateData }) => {
       <div className="space-y-8">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">작업 유형</label>
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap gap-4">
             <label className="flex items-center text-md cursor-pointer">
               <input type="radio" name="workType" value="general" checked={data.type === 'general'} onChange={handleTypeChange} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
               <span className="ml-2">일반</span>
@@ -566,12 +655,18 @@ const Step4WorkPermit: React.FC<Step4Props> = ({ data, updateData }) => {
               <input type="radio" name="workType" value="hazardous" checked={data.type === 'hazardous'} onChange={handleTypeChange} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
               <span className="ml-2">위험(화기, 고소작업)</span>
             </label>
+            <label className="flex items-center text-md cursor-pointer">
+              <input type="radio" name="workType" value="confined" checked={data.type === 'confined'} onChange={handleTypeChange} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
+              <span className="ml-2">밀폐공간작업</span>
+            </label>
           </div>
         </div>
         
         {data.type === 'general' && <GeneralWorkPermitForm data={data} updateData={updateData} />}
 
         {data.type === 'hazardous' && <HazardousWorkPermitForm data={data} updateData={updateData} />}
+
+        {data.type === 'confined' && <ConfinedSpaceWorkPermitForm data={data} updateData={updateData} />}
 
       </div>
     </Card>

@@ -77,7 +77,7 @@ export interface WorkerInfo {
 
 
 export interface WorkPermit {
-  type: 'general' | 'hazardous' | '';
+  type: 'general' | 'hazardous' | 'confined' | '';
   
   // common fields for both types
   workDate: string;
