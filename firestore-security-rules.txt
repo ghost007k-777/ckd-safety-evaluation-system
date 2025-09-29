@@ -1,0 +1,15 @@
+// Firestore 보안 규칙 (프로덕션용)
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // submissions 컬렉션: 읽기/쓰기 허용 (인증 없이)
+    match /submissions/{document} {
+      allow read, write: if true;
+    }
+    
+    // 다른 모든 문서는 접근 금지
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

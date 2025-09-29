@@ -198,6 +198,24 @@ export class DataManager {
   }
 
   /**
+   * 중복 데이터 제거 (ID 기준)
+   */
+  private deduplicateSubmissions(submissions: Submission[]): Submission[] {
+    const seen = new Set<string>();
+    const unique: Submission[] = [];
+    
+    for (const submission of submissions) {
+      if (!seen.has(submission.id)) {
+        seen.add(submission.id);
+        unique.push(submission);
+      }
+    }
+    
+    console.log(`🔄 [DataManager] 중복 제거: ${submissions.length} → ${unique.length}`);
+    return unique;
+  }
+
+  /**
    * Firebase와 동기화
    */
   private async syncWithFirebase(): Promise<void> {
@@ -206,7 +224,9 @@ export class DataManager {
       const submissions = await firebaseGetSubmissions();
       console.log(`✅ [DataManager] ${submissions.length}개 데이터 동기화 완료`);
       
-      this.submissions = submissions;
+      // 중복 제거 적용
+      const uniqueSubmissions = this.deduplicateSubmissions(submissions);
+      this.submissions = uniqueSubmissions;
       this.saveToCache();
       this.emitDataChange();
       
@@ -335,11 +355,13 @@ export class DataManager {
         // Firebase에 저장
         const firebaseId = await firebaseAddSubmission(formData);
         
-        // ID 업데이트
+        // ID 업데이트 및 중복 제거
         const updatedSubmission = { ...newSubmission, id: firebaseId };
         this.submissions = this.submissions.map(sub => 
           sub.id === newSubmission.id ? updatedSubmission : sub
         );
+        // 중복 제거 적용
+        this.submissions = this.deduplicateSubmissions(this.submissions);
         this.saveToCache();
         this.emitDataChange();
         
@@ -497,7 +519,9 @@ export class DataManager {
       try {
         this.firebaseUnsubscribe = subscribeToSubmissions(
           (submissions) => {
-            this.submissions = submissions;
+            // 중복 제거: ID 기준으로 고유한 데이터만 유지
+            const uniqueSubmissions = this.deduplicateSubmissions(submissions);
+            this.submissions = uniqueSubmissions;
             this.saveToCache();
             this.emitDataChange();
           },
