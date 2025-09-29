@@ -197,23 +197,24 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
       <header className="bg-white shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-10 h-10 overflow-hidden flex-shrink-0">
+        <div className="max-w-7xl mx-auto py-3 sm:py-4 px-3 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 overflow-hidden flex-shrink-0">
               <img 
                 src="https://i.ibb.co/rGGGfDqc/2025-09-02-165735.png" 
                 alt="시스템 로고" 
-                className="h-10"
+                className="h-8 sm:h-10"
               />
             </div>
-            <span className="ml-4 text-xl font-bold text-gray-800">
-              CKD 적격 수급업체 안전 평가 시스템
+            <span className="ml-2 sm:ml-4 text-sm sm:text-xl font-bold text-gray-800 truncate">
+              <span className="hidden sm:inline">CKD 적격 수급업체 안전 평가 시스템</span>
+              <span className="sm:hidden">CKD 안전평가</span>
             </span>
           </div>
           
           {/* 연결 상태 및 데이터 정보 표시 */}
-          <div className="flex items-center space-x-4">
-            <div className="text-xs text-gray-500">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <div className="hidden sm:block text-xs text-gray-500">
               {state.submissions.length}개 신청서
               {state.lastSyncTime && (
                 <span className="ml-1">
@@ -221,15 +222,16 @@ const AppContent: React.FC = () => {
                 </span>
               )}
               </div>
-            <div className={`flex items-center space-x-1 text-sm ${connectionDisplay.color}`}>
+            <div className={`flex items-center space-x-1 text-xs sm:text-sm ${connectionDisplay.color}`}>
               <div className={`w-2 h-2 rounded-full ${connectionDisplay.bgColor}`}></div>
-              <span>{connectionDisplay.text}</span>
+              <span className="hidden sm:inline">{connectionDisplay.text}</span>
+              <span className="sm:hidden">{state.submissions.length}</span>
               </div>
           </div>
         </div>
       </header>
       
-      <main className="max-w-6xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-6xl mx-auto py-4 sm:py-10 px-3 sm:px-6 lg:px-8">
         {renderContent()}
       </main>
       

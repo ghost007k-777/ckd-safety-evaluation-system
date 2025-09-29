@@ -112,24 +112,28 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
 
   return (
     <Card>
-      <div className="flex justify-between items-start mb-6">
-        <CardHeader
-          title="신청 목록"
-          description="제출된 평가 신청서 목록입니다. 항목을 클릭하여 세부 내용을 확인하세요."
-        />
-        <div className="flex-shrink-0 ml-4">
+      {/* 모바일 반응형 헤더 */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <div className="flex-1">
+          <CardHeader
+            title="신청 목록"
+            description="제출된 평가 신청서 목록입니다. 항목을 클릭하여 세부 내용을 확인하세요."
+          />
+        </div>
+        <div className="flex-shrink-0">
           <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 text-sm w-full sm:w-auto"
           >
             {isRefreshing ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <Spinner />
-                <span>새로고침 중...</span>
+                <span className="hidden sm:inline">새로고침 중...</span>
+                <span className="sm:hidden">로딩...</span>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -165,7 +169,7 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                         {subs.map((sub) => (
                             <div key={sub.id} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
                             <div
-                                className="flex justify-between items-center p-5 cursor-pointer hover:bg-gray-50"
+                                className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-5 cursor-pointer hover:bg-gray-50 gap-3 sm:gap-0"
                                 onClick={() => toggleExpand(sub.id)}
                                 role="button"
                                 tabIndex={0}
@@ -173,16 +177,16 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                 aria-controls={`submission-details-${sub.id}`}
                                 onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
                             >
-                                <div>
-                                <p className="font-bold text-lg text-gray-800">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
-                                <p className="text-sm text-gray-500 mt-1">{sub.projectInfo?.companyName || '회사명 없음'}</p>
+                                <div className="flex-1 min-w-0">
+                                <p className="font-bold text-base sm:text-lg text-gray-800 truncate">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
+                                <p className="text-sm text-gray-500 mt-1 truncate">{sub.projectInfo?.companyName || '회사명 없음'}</p>
                                 <p className="text-xs text-gray-400 mt-2">
                                   {sub.submittedAt?.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) || '시간 미상'}
                                 </p>
                                 </div>
-                                <div className="flex items-center space-x-4">
+                                <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4 flex-shrink-0">
                                     <StatusBadge status={sub.status} />
-                                    <svg className={`w-6 h-6 text-gray-500 transform transition-transform ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <svg className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-500 transform transition-transform ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>
                                 </div>

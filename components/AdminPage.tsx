@@ -188,18 +188,21 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         </Card>
 
         <Card>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h3 className="text-xl font-semibold text-gray-900">승인 완료 및 거부된 신청서</h3>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">승인 완료 및 거부된 신청서</h3>
                     <p className="text-sm text-gray-600">이미 처리된 신청서 목록입니다.</p>
                 </div>
-                <Button 
-                    variant="primary" 
-                    onClick={() => downloadSubmissionsAsExcel(submissions)}
-                    className="bg-green-600 hover:bg-green-700"
-                >
-                    📊 엑셀로 다운로드
-                </Button>
+                <div className="flex-shrink-0">
+                    <Button 
+                        variant="primary" 
+                        onClick={() => downloadSubmissionsAsExcel(submissions)}
+                        className="bg-green-600 hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base"
+                    >
+                        <span className="hidden sm:inline">📊 엑셀로 다운로드</span>
+                        <span className="sm:hidden">📊 엑셀</span>
+                    </Button>
+                </div>
             </div>
             {processedSubmissions.length === 0 ? (
                 <>
@@ -211,18 +214,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                 {processedSubmissions.map((sub) => (
                     <div key={sub.id} className="border border-gray-200 rounded-xl overflow-hidden">
                     <div
-                      className="flex justify-between items-center p-5 cursor-pointer hover:bg-gray-50"
+                      className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-5 cursor-pointer hover:bg-gray-50 gap-3 sm:gap-4"
                       onClick={() => toggleExpand(sub.id)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
                     >
-                        <div className="flex-grow">
-                            <p className="font-bold text-lg text-gray-800">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
-                            <p className="text-sm text-gray-500 mt-1">{sub.projectInfo?.companyName || '회사명 없음'}</p>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-base sm:text-lg text-gray-800 truncate">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
+                            <p className="text-sm text-gray-500 mt-1 truncate">{sub.projectInfo?.companyName || '회사명 없음'}</p>
                             <p className="text-xs text-gray-400 mt-2">{sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}</p>
                         </div>
-                        <div className="flex items-center space-x-4 flex-shrink-0 ml-4">
+                        <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4 flex-shrink-0">
                             <StatusBadge status={sub.status} />
                             <Button
                                 variant="danger"
@@ -230,9 +233,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     e.stopPropagation();
                                     handleDelete(sub.id);
                                 }}
-                                className="px-4 py-2 text-sm"
+                                className="px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm"
                             >
-                                삭제
+                                <span className="hidden sm:inline">삭제</span>
+                                <span className="sm:hidden">🗑️</span>
                             </Button>
                             <div
                                 role="button"
