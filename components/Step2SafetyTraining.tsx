@@ -17,10 +17,10 @@ interface VideoConfig {
 }
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
-  // Video configurations (URLs will be provided later)
+  // Video configurations
   const videoConfigs: VideoConfig[] = [
     { type: 'general', title: '일반작업 안전교육', url: 'placeholder-general-video-url' },
-    { type: 'confined', title: '밀폐공간작업 안전교육', url: 'placeholder-confined-video-url' },
+    { type: 'confined', title: '밀폐공간작업 안전교육', url: 'https://www.youtube.com/watch?v=6886vrKJ9-g' },
     { type: 'heightWork', title: '고소작업 안전교육', url: 'placeholder-height-video-url' },
     { type: 'hotWork', title: '화기작업 안전교육', url: 'placeholder-hot-video-url' }
   ];
