@@ -5,7 +5,8 @@ import { Button } from './ui/Button.tsx';
 import Step6Confirmation from './Step6Confirmation.tsx';
 import { Spinner } from './ui/Spinner.tsx';
 import { downloadSubmissionAsPdf } from '../utils.ts';
-import { useConnectionStatus } from '../contexts/DataContext.tsx';
+import { useConnectionStatus, useData } from '../contexts/DataContext.tsx';
+import { getSubmissions } from '../services/firestoreService.ts';
 
 interface ApplicationListProps {
   submissions: Submission[];
@@ -31,8 +32,10 @@ const StatusBadge: React.FC<{ status: SubmissionStatus }> = ({ status }) => {
 export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, onBack }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
+  const { actions } = useData();
 
   // 디버그 로그 추가
   console.log('🔍 [ApplicationList] 렌더링:', {
@@ -60,6 +63,21 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
       alert("PDF 다운로드에 실패했습니다.");
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      console.log('🔄 [ApplicationList] 수동 새로고침 시작');
+      await actions.manualSync();
+      console.log('✅ [ApplicationList] 수동 새로고침 완료');
+    } catch (error) {
+      console.error('❌ [ApplicationList] 새로고침 실패:', error);
+      alert('데이터 새로고침에 실패했습니다.');
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -94,10 +112,33 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
 
   return (
     <Card>
-      <CardHeader
-        title="신청 목록"
-        description="제출된 평가 신청서 목록입니다. 항목을 클릭하여 세부 내용을 확인하세요."
-      />
+      <div className="flex justify-between items-start mb-6">
+        <CardHeader
+          title="신청 목록"
+          description="제출된 평가 신청서 목록입니다. 항목을 클릭하여 세부 내용을 확인하세요."
+        />
+        <div className="flex-shrink-0 ml-4">
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
+          >
+            {isRefreshing ? (
+              <div className="flex items-center space-x-2">
+                <Spinner />
+                <span>새로고침 중...</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>새로고침</span>
+              </div>
+            )}
+          </Button>
+        </div>
+      </div>
       
       {/* 연결 상태 표시 */}
       {connectionStatus === 'offline' && (

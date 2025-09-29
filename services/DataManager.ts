@@ -198,15 +198,42 @@ export class DataManager {
   }
 
   /**
-   * 중복 데이터 제거 (ID 기준)
+   * 중복 데이터 제거 (ID 기준 + 내용 기준)
    */
   private deduplicateSubmissions(submissions: Submission[]): Submission[] {
     const seen = new Set<string>();
+    const seenContent = new Map<string, Submission>();
     const unique: Submission[] = [];
     
     for (const submission of submissions) {
+      // ID 기준 중복 제거
       if (!seen.has(submission.id)) {
         seen.add(submission.id);
+        
+        // 내용 기준 중복 제거 (같은 회사명 + 제출시간이 비슷한 경우)
+        const contentKey = `${submission.projectInfo?.companyName || 'unknown'}_${submission.projectInfo?.constructionName || 'unknown'}`;
+        const existingSubmission = seenContent.get(contentKey);
+        
+        if (existingSubmission) {
+          // 제출 시간이 1분 이내로 비슷하면 중복으로 간주
+          const timeDiff = Math.abs(submission.submittedAt.getTime() - existingSubmission.submittedAt.getTime());
+          if (timeDiff < 60000) { // 1분 = 60000ms
+            // Firebase ID가 있는 것을 우선 선택
+            if (submission.id.startsWith('temp_') && !existingSubmission.id.startsWith('temp_')) {
+              continue; // 임시 ID인 경우 건너뛰기
+            } else if (!submission.id.startsWith('temp_') && existingSubmission.id.startsWith('temp_')) {
+              // 기존 임시 항목 제거하고 새 항목 추가
+              const index = unique.findIndex(s => s.id === existingSubmission.id);
+              if (index !== -1) {
+                unique.splice(index, 1);
+              }
+            } else {
+              continue; // 둘 다 같은 타입이면 기존 것 유지
+            }
+          }
+        }
+        
+        seenContent.set(contentKey, submission);
         unique.push(submission);
       }
     }
