@@ -30,6 +30,7 @@ jobs:
 
     - name: Create .env.local
       run: |
+        # Firebase 프로젝트 설정 - ckd-safety-system-new (임시로 하드코딩)
         echo "VITE_FIREBASE_API_KEY=AIzaSyCZ2osPamQDtle4Smk2wCYFTvqmyGVniCs" > .env.local
         echo "VITE_FIREBASE_AUTH_DOMAIN=ckd-safety-system-new.firebaseapp.com" >> .env.local
         echo "VITE_FIREBASE_PROJECT_ID=ckd-safety-system-new" >> .env.local
