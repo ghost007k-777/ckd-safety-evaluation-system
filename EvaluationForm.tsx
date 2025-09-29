@@ -9,7 +9,7 @@ import Step3RiskAssessment from './components/Step3RiskAssessment.tsx';
 import Step4WorkPermit from './components/Step4WorkPermit.tsx';
 import Step5SafetyPledge from './components/Step5SafetyPledge.tsx';
 import Step6Confirmation from './components/Step6Confirmation.tsx';
-import { SAFETY_CHECK_LIST_ITEMS, HAZARDOUS_SAFETY_CHECK_ITEMS } from './constants.ts';
+import { SAFETY_CHECK_LIST_ITEMS, HAZARDOUS_SAFETY_CHECK_ITEMS, CONFINED_SPACE_SAFETY_CHECK_ITEMS } from './constants.ts';
 import { Card } from './components/ui/Card.tsx';
 import { generateUniqueId } from './utils.ts';
 
@@ -57,6 +57,8 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
         isHotWork: '',
         hazardousSafetyCheckList: HAZARDOUS_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})),
         gasMeasurements: [{id: generateUniqueId(), name: '', concentration: '', time: ''}],
+        // Confined space type fields
+        confinedSpaceSafetyCheckList: CONFINED_SPACE_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})),
       },
       safetyPledge: { agreements: {}, agreeToAll: false, name: '', signature: '' }
     };

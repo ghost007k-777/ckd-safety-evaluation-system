@@ -1,5 +1,5 @@
 import React from 'react';
-import { WorkPermit, SafetyCheckItem, HazardousSafetyCheckItem, GasMeasurement, WorkerInfo } from '../types.ts';
+import { WorkPermit, SafetyCheckItem, HazardousSafetyCheckItem, ConfinedSpaceSafetyCheckItem, GasMeasurement, WorkerInfo } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { SignaturePad } from './SignaturePad.tsx';
 import { Button } from './ui/Button.tsx';
@@ -245,6 +245,38 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
 const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
+    const handleConfinedSpaceSafetyCheckChange = (id: string, field: 'applicable' | 'implemented', value: 'O' | 'X') => {
+        const newList = (data.confinedSpaceSafetyCheckList ?? []).map(item => item.id === id ? { ...item, [field]: value } : item);
+        updateData({ confinedSpaceSafetyCheckList: newList as ConfinedSpaceSafetyCheckItem[] });
+    };
+
+    const handleWorkerCountChange = (count: number) => {
+        const currentWorkers = data.workers || [];
+        const newWorkers: WorkerInfo[] = [];
+        
+        for (let i = 0; i < count; i++) {
+            if (currentWorkers[i]) {
+                newWorkers.push(currentWorkers[i]);
+            } else {
+                newWorkers.push({
+                    id: generateUniqueId(),
+                    name: '',
+                    phoneNumber: ''
+                });
+            }
+        }
+        
+        updateData({ workerCount: count, workers: newWorkers });
+    };
+    
+    const handleWorkerChange = (index: number, field: 'name' | 'phoneNumber', value: string) => {
+        const newWorkers = [...(data.workers || [])];
+        if (newWorkers[index]) {
+            newWorkers[index] = { ...newWorkers[index], [field]: value };
+            updateData({ workers: newWorkers });
+        }
+    };
+
     return (
         <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
             {/* Signatures */}
@@ -304,19 +336,83 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
                     <label className="font-semibold text-sm text-gray-600 mt-2">작업내용</label>
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <span className="flex items-center text-gray-800">○ 작업 인원 : <input type="number" min="1" max="20" className={`${inputClasses} w-24 ml-2`} value={data.workerCount} onChange={e => updateData({ workerCount: parseInt(e.target.value) || 1 })}/> 명</span>
+                            <span className="flex items-center text-gray-800">○ 작업 인원 : <input type="number" min="1" max="20" className={`${inputClasses} w-24 ml-2`} value={data.workerCount} onChange={e => handleWorkerCountChange(parseInt(e.target.value) || 1)}/> 명</span>
                             <span className="flex items-center text-gray-800">○ 작업 내용 : <input type="text" className={`${inputClasses} ml-2 flex-1`} value={data.description} onChange={e => updateData({ description: e.target.value })}/></span>
                         </div>
+                        
+                        {/* Worker Information */}
+                        {data.workerCount > 0 && (
+                            <div className="mt-4">
+                                <h4 className="text-sm font-semibold text-gray-700 mb-3">작업자 정보</h4>
+                                <div className="space-y-2">
+                                    {Array.from({ length: data.workerCount }, (_, index) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center p-3 bg-gray-50 rounded-lg">
+                                            <span className="text-sm font-medium text-gray-600">작업자 {index + 1}</span>
+                                            <input 
+                                                type="text" 
+                                                placeholder="성명" 
+                                                className={inputClasses}
+                                                value={data.workers?.[index]?.name || ''}
+                                                onChange={e => handleWorkerChange(index, 'name', e.target.value)}
+                                            />
+                                            <input 
+                                                type="tel" 
+                                                placeholder="휴대번호 (예: 010-1234-5678)" 
+                                                className={inputClasses}
+                                                value={data.workers?.[index]?.phoneNumber || ''}
+                                                onChange={e => handleWorkerChange(index, 'phoneNumber', e.target.value)}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Confined Space Specific Content - To be filled later */}
+            {/* Attachments */}
             <div className="p-4">
-                <div className="text-center font-bold bg-gray-100 p-3 text-gray-800 mb-4">[밀폐공간작업 안전조치 확인사항]</div>
-                <div className="p-8 bg-gray-50 rounded-lg text-center">
-                    <p className="text-gray-500 text-lg">밀폐공간작업 허가서 내용</p>
-                    <p className="text-gray-400 text-sm mt-2">상세 내용이 추가될 예정입니다</p>
+                <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                    <label className="font-semibold text-sm text-gray-600">첨부서류</label>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-y-4 gap-x-12">
+                        <RadioGroup label="작업절차서" name="procedureDocStatus" value={data.procedureDocStatus || ''} options={[{label: '유', value: 'yes'}, {label: '무', value: 'no'}]} onChange={e => updateData({ procedureDocStatus: e.target.value as 'yes' | 'no'})} />
+                        <RadioGroup label="위험성평가" name="riskAssessmentStatus" value={data.riskAssessmentStatus || ''} options={[{label: '유', value: 'yes'}, {label: '무', value: 'no'}]} onChange={e => updateData({ riskAssessmentStatus: e.target.value as 'yes' | 'no'})} />
+                    </div>
+                </div>
+            </div>
+
+            {/* Safety Checks Header */}
+            <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[밀폐공간작업 안전조치 확인사항]</div>
+
+            <div className="divide-y divide-gray-200">
+                <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
+                    <div className="col-span-2">구분</div>
+                    <div className="col-span-6">안전조치 요구사항</div>
+                    <div className="col-span-2 text-center">해당여부 (O,X)</div>
+                    <div className="col-span-2 text-center">실시여부 (O,X)</div>
+                </div>
+
+                {/* Confined Space Safety Checks */}
+                <div className="md:grid md:grid-cols-12">
+                    <div className="p-3 font-bold text-gray-800 md:col-span-2 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">일반항목</div>
+                    <div className="px-4 pb-4 md:p-0 md:col-span-10 md:divide-y md:divide-gray-200">
+                        {(data.confinedSpaceSafetyCheckList || []).map((item, index) => (
+                             <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                <div className="md:col-span-6 text-gray-800">{index+1}. {item.text}</div>
+                                <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                    </div>
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleConfinedSpaceSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -633,7 +729,7 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
 const Step4WorkPermit: React.FC<Step4Props> = ({ data, updateData }) => {
   
   const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newType = e.target.value as 'general' | 'hazardous';
+    const newType = e.target.value as 'general' | 'hazardous' | 'confined';
     updateData({ type: newType });
   };
   

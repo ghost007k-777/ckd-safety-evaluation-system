@@ -62,6 +62,14 @@ export interface HazardousSafetyCheckItem {
   implemented: 'O' | 'X' | '';
 }
 
+export interface ConfinedSpaceSafetyCheckItem {
+  id: string;
+  category: '일반항목';
+  text: string;
+  applicable: 'O' | 'X' | '';
+  implemented: 'O' | 'X' | '';
+}
+
 export interface GasMeasurement {
   id: string;
   name: string;
@@ -105,6 +113,9 @@ export interface WorkPermit {
   isHotWork?: 'yes' | 'no' | '';
   hazardousSafetyCheckList?: HazardousSafetyCheckItem[];
   gasMeasurements?: GasMeasurement[];
+  
+  // Fields for 'confined' type
+  confinedSpaceSafetyCheckList?: ConfinedSpaceSafetyCheckItem[];
 }
 
 

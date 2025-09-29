@@ -40,6 +40,21 @@ export const HAZARDOUS_SAFETY_CHECK_ITEMS = [
     { id: 'haz-high4', category: '고소작업', text: '2인1조 작업자 배치' },
 ] as const;
 
+export const CONFINED_SPACE_SAFETY_CHECK_ITEMS = [
+    // 일반항목
+    { id: 'conf-gen1', category: '일반항목', text: '관리감독자 지정 및 감시인 배치' },
+    { id: 'conf-gen2', category: '일반항목', text: '밀폐공간작업 관련 안전인 배치' },
+    { id: 'conf-gen3', category: '일반항목', text: '발부자, 명판 설치, 물질안전자료' },
+    { id: 'conf-gen4', category: '일반항목', text: '전기회로, 기계장비 가동정지, 유입세정' },
+    { id: 'conf-gen5', category: '일반항목', text: '산소농도 및 유해가스 측정' },
+    { id: 'conf-gen6', category: '일반항목', text: '환기시설 설치 및 환기 실시여부' },
+    { id: 'conf-gen7', category: '일반항목', text: '전화 및 무선기기 구비' },
+    { id: 'conf-gen8', category: '일반항목', text: '조명 비치' },
+    { id: 'conf-gen9', category: '일반항목', text: '공기호흡기 또는 송기마스크 비치' },
+    { id: 'conf-gen10', category: '일반항목', text: '필요한 안전장구 구비' },
+    { id: 'conf-gen11', category: '일반항목', text: '안전보건교육 실시' },
+] as const;
+
 
 export const PLEDGE_ITEMS = {
   item1: "사업장 내 이상 발생 시(물적,인적) 시행부서 팀장/안전·보건관리자에게 알린다.",
