@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Step, FormData, ProjectInfo, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge } from './types.ts';
+import { Step, FormData, ProjectInfo, WorkTypeSelection, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge } from './types.ts';
 import { Stepper } from './components/Stepper.tsx';
 import { Button } from './components/ui/Button.tsx';
 import { Step1ProjectInfo } from './components/Step1ProjectInfo.tsx';
+import { Step2WorkTypeSelection } from './components/Step2WorkTypeSelection.tsx';
 import { Step2SafetyTraining } from './components/Step2SafetyTraining.tsx';
 import Step3RiskAssessment from './components/Step3RiskAssessment.tsx';
 import Step4WorkPermit from './components/Step4WorkPermit.tsx';
@@ -30,7 +31,14 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
   const [formData, setFormData] = useState<FormData>(() => {
     const initialFormData: FormData = {
       projectInfo: { location: '', locationOther: '', constructionName: '', companyName: '', contactPerson: '' },
-      safetyTraining: { completed: false, completionDate: null },
+      workTypeSelection: { general: false, confined: false, heightWork: false, hotWork: false },
+      safetyTraining: { 
+        completed: false, 
+        completionDate: null,
+        workTypes: { general: false, confined: false, heightWork: false, hotWork: false },
+        currentVideoIndex: 0,
+        allVideosCompleted: false
+      },
       riskAssessment: [],
       workPermit: { 
         type: '', 
@@ -62,7 +70,19 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
     setFormData(prev => ({ ...prev, projectInfo: { ...prev.projectInfo, [field]: value } }));
   }, []);
 
-  const updateSafetyTraining = useCallback((field: keyof SafetyTraining, value: boolean | Date | null) => {
+  const updateWorkTypeSelection = useCallback((field: keyof WorkTypeSelection, value: boolean) => {
+    setValidationError(null);
+    setFormData(prev => ({ 
+      ...prev, 
+      workTypeSelection: { ...prev.workTypeSelection, [field]: value },
+      safetyTraining: { 
+        ...prev.safetyTraining, 
+        workTypes: { ...prev.safetyTraining.workTypes, [field]: value }
+      }
+    }));
+  }, []);
+
+  const updateSafetyTraining = useCallback((field: keyof SafetyTraining, value: boolean | Date | null | number) => {
     setValidationError(null);
     setFormData(prev => ({ ...prev, safetyTraining: { ...prev.safetyTraining, [field]: value } }));
   }, []);
@@ -91,6 +111,13 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
             if (!constructionName) return { isValid: false, message: '공사명을 입력해주세요.' };
             if (!companyName) return { isValid: false, message: '업체명을 입력해주세요.' };
             if (!contactPerson) return { isValid: false, message: '담당자 성명을 입력해주세요.' };
+            return { isValid: true, message: '' };
+        }
+        case Step.WorkTypeSelection: {
+            const { general, confined, heightWork, hotWork } = formData.workTypeSelection;
+            if (!general && !confined && !heightWork && !hotWork) {
+                return { isValid: false, message: '하나 이상의 작업 유형을 선택해주세요.' };
+            }
             return { isValid: true, message: '' };
         }
         case Step.SafetyTraining:
@@ -178,12 +205,30 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
     setCurrentStep(Step.Submitted);
   }
 
+  const handleWorkTypeNext = () => {
+    setCurrentStep(Step.SafetyTraining);
+  };
+
+  const handleSafetyTrainingComplete = () => {
+    setCurrentStep(Step.RiskAssessment);
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case Step.ProjectInfo:
         return <Step1ProjectInfo data={formData.projectInfo} updateData={updateProjectInfo} />;
+      case Step.WorkTypeSelection:
+        return <Step2WorkTypeSelection 
+          data={formData.workTypeSelection} 
+          updateData={updateWorkTypeSelection} 
+          onNext={handleWorkTypeNext}
+        />;
       case Step.SafetyTraining:
-        return <Step2SafetyTraining data={formData.safetyTraining} updateData={updateSafetyTraining} />;
+        return <Step2SafetyTraining 
+          data={formData.safetyTraining} 
+          updateData={updateSafetyTraining} 
+          onComplete={handleSafetyTrainingComplete}
+        />;
       case Step.RiskAssessment:
         return <Step3RiskAssessment data={formData.riskAssessment} setData={setRiskAssessment} />;
       case Step.WorkPermit:

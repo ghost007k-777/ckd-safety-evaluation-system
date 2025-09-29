@@ -7,6 +7,7 @@ interface StepperProps {
 
 const steps = [
   { id: Step.ProjectInfo, name: '프로젝트 정보' },
+  { id: Step.WorkTypeSelection, name: '작업 유형' },
   { id: Step.SafetyTraining, name: '안전 교육' },
   { id: Step.RiskAssessment, name: '위험성 평가' },
   { id: Step.WorkPermit, name: '작업 허가' },
