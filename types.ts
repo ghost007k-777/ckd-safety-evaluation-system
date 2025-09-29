@@ -1,11 +1,12 @@
 export enum Step {
   ProjectInfo = 1,
-  SafetyTraining = 2,
-  RiskAssessment = 3,
-  WorkPermit = 4,
-  SafetyPledge = 5,
-  Confirmation = 6,
-  Submitted = 7,
+  WorkTypeSelection = 2,
+  SafetyTraining = 3,
+  RiskAssessment = 4,
+  WorkPermit = 5,
+  SafetyPledge = 6,
+  Confirmation = 7,
+  Submitted = 8,
 }
 
 export interface ProjectInfo {
@@ -16,9 +17,19 @@ export interface ProjectInfo {
   contactPerson: string;
 }
 
+export interface WorkTypeSelection {
+  general: boolean;
+  confined: boolean;
+  heightWork: boolean;
+  hotWork: boolean;
+}
+
 export interface SafetyTraining {
   completed: boolean;
   completionDate: Date | null;
+  workTypes: WorkTypeSelection;
+  currentVideoIndex: number;
+  allVideosCompleted: boolean;
 }
 
 export interface RiskItem {
@@ -106,6 +117,7 @@ export interface SafetyPledge {
 
 export interface FormData {
   projectInfo: ProjectInfo;
+  workTypeSelection: WorkTypeSelection;
   safetyTraining: SafetyTraining;
   riskAssessment: RiskAssessment;
   workPermit: WorkPermit;
