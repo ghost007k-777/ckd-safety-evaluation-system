@@ -73,10 +73,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
 
 
   const handleLogin = () => {
+    console.log('🔐 [AdminPage] 로그인 시도:', { password: password === 'admin' ? '올바름' : '틀림' });
     if (password === 'admin') {
+      console.log('✅ [AdminPage] 로그인 성공, 인증 상태 변경');
       setIsAuthenticated(true);
       setError('');
     } else {
+      console.log('❌ [AdminPage] 로그인 실패');
       setError('비밀번호가 올바르지 않습니다.');
       setPassword('');
     }
@@ -123,6 +126,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
     .filter(s => s.status !== 'pending')
     .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
 
+  console.log('🔐 [AdminPage] 인증 후 데이터 처리:', {
+    isAuthenticated,
+    totalSubmissions: safeSubmissions.length,
+    pendingCount: pendingSubmissions.length,
+    processedCount: processedSubmissions.length
+  });
+
   return (
     <div>
         <div className="mb-8">
@@ -148,7 +158,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                 description="검토가 필요한 신청서 목록입니다."
             />
             {pendingSubmissions.length === 0 ? (
-                <p className="text-center text-gray-500 py-16">승인 대기 중인 신청서가 없습니다.</p>
+                <>
+                  {console.log('📝 [AdminPage] 승인 대기 신청서 없음 메시지 표시')}
+                  <p className="text-center text-gray-500 py-16">승인 대기 중인 신청서가 없습니다.</p>
+                </>
             ) : (
                 <div className="space-y-10">
                 {pendingSubmissions.map((sub) => (
@@ -189,7 +202,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                 </Button>
             </div>
             {processedSubmissions.length === 0 ? (
-                 <p className="text-center text-gray-500 py-16">처리된 신청서가 없습니다.</p>
+                <>
+                  {console.log('📝 [AdminPage] 처리된 신청서 없음 메시지 표시')}
+                  <p className="text-center text-gray-500 py-16">처리된 신청서가 없습니다.</p>
+                </>
             ) : (
                 <div className="space-y-4">
                 {processedSubmissions.map((sub) => (

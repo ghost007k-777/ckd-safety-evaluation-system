@@ -258,6 +258,32 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) =
 
 
 const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }, ref) => {
+  // 디버그 로그 추가
+  console.log('📋 [Step6Confirmation] 렌더링 시작:', {
+    hasData: !!data,
+    hasProjectInfo: !!data?.projectInfo,
+    hasSafetyTraining: !!data?.safetyTraining,
+    hasRiskAssessment: !!data?.riskAssessment,
+    hasWorkPermit: !!data?.workPermit,
+    hasSafetyPledge: !!data?.safetyPledge
+  });
+
+  // 데이터가 없으면 에러 메시지 표시
+  if (!data) {
+    console.error('❌ [Step6Confirmation] 데이터가 없습니다');
+    return (
+      <Card ref={ref}>
+        <CardHeader
+          title="데이터 오류"
+          description="신청서 데이터를 불러올 수 없습니다."
+        />
+        <div className="p-6 text-center text-red-600">
+          신청서 데이터가 누락되었습니다. 다시 시도해주세요.
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card ref={ref}>
       <CardHeader
