@@ -360,6 +360,17 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
     hasWorkPermit: !!data?.workPermit,
     hasSafetyPledge: !!data?.safetyPledge
   });
+  
+  // 밀폐공간작업 관련 추가 디버그 로그
+  if (data?.workPermit) {
+    console.log('🔍 [Step6Confirmation] WorkPermit 상세 데이터:', {
+      type: data.workPermit.type,
+      hasConfinedSpaceSafetyCheckList: !!data.workPermit.confinedSpaceSafetyCheckList,
+      confinedSpaceSafetyCheckListLength: data.workPermit.confinedSpaceSafetyCheckList?.length || 0,
+      workPermitKeys: Object.keys(data.workPermit),
+      confinedSpaceSafetyCheckList: data.workPermit.confinedSpaceSafetyCheckList
+    });
+  }
 
   // 데이터가 없으면 에러 메시지 표시
   if (!data) {

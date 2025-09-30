@@ -364,6 +364,17 @@ export class DataManager {
     console.log('📝 [DataManager] 회사명:', formData.projectInfo.companyName);
     console.log('📝 [DataManager] 현재 submissions 개수:', this.submissions.length);
     
+    // 밀폐공간작업 관련 디버그 로그
+    if (formData.workPermit?.type === 'confined') {
+      console.log('🔍 [DataManager] 밀폐공간작업 데이터 확인:', {
+        type: formData.workPermit.type,
+        hasConfinedSpaceSafetyCheckList: !!formData.workPermit.confinedSpaceSafetyCheckList,
+        confinedSpaceSafetyCheckListLength: formData.workPermit.confinedSpaceSafetyCheckList?.length || 0,
+        workPermitKeys: Object.keys(formData.workPermit),
+        fullWorkPermit: formData.workPermit
+      });
+    }
+    
     const newSubmission: Submission = {
       id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       status: 'pending',
