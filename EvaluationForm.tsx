@@ -43,8 +43,12 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
       workPermit: { 
         type: '', 
         workDate: '', workStartTime: '', workEndTime: '', 
-        location: '', description: '', workerCount: 1,
-        workers: [{ id: generateUniqueId(), name: '', phoneNumber: '' }], // 초기 작업자 1명 추가
+        location: '', description: '', workerCount: 3,
+        workers: [
+          { id: generateUniqueId(), name: '', phoneNumber: '', role: '관리감독자' },
+          { id: generateUniqueId(), name: '', phoneNumber: '', role: '감시인' },
+          { id: generateUniqueId(), name: '', phoneNumber: '', role: '작업자' }
+        ], // 밀폐공간작업 기본: 관리감독자, 감시인, 작업자 1명
         // Common fields
         applicantTeam: '', applicantName: '', applicantSignature: '',
         managerTeam: '', managerName: '', managerSignature: '',

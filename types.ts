@@ -80,6 +80,7 @@ export interface WorkerInfo {
   id: string;
   name: string;
   phoneNumber: string;
+  role?: '관리감독자' | '감시인' | '작업자';
 }
 
 

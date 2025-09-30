@@ -254,19 +254,29 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
         const currentWorkers = data.workers || [];
         const newWorkers: WorkerInfo[] = [];
         
-        for (let i = 0; i < count; i++) {
+        // 밀폐공간작업의 경우 최소 3명 (관리감독자, 감시인, 작업자 1명)
+        const minCount = 3;
+        const actualCount = Math.max(count, minCount);
+        
+        for (let i = 0; i < actualCount; i++) {
             if (currentWorkers[i]) {
                 newWorkers.push(currentWorkers[i]);
             } else {
+                // 기본 역할 설정
+                let role: '관리감독자' | '감시인' | '작업자' = '작업자';
+                if (i === 0) role = '관리감독자';
+                else if (i === 1) role = '감시인';
+                
                 newWorkers.push({
                     id: generateUniqueId(),
                     name: '',
-                    phoneNumber: ''
+                    phoneNumber: '',
+                    role: role
                 });
             }
         }
         
-        updateData({ workerCount: count, workers: newWorkers });
+        updateData({ workerCount: actualCount, workers: newWorkers });
     };
     
     const handleWorkerChange = (index: number, field: 'name' | 'phoneNumber', value: string) => {
@@ -347,7 +357,9 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
                                 <div className="space-y-2">
                                     {Array.from({ length: data.workerCount }, (_, index) => (
                                         <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center p-3 bg-gray-50 rounded-lg">
-                                            <span className="text-sm font-medium text-gray-600">작업자 {index + 1}</span>
+                                            <span className="text-sm font-medium text-gray-600">
+                                                {data.workers?.[index]?.role || `작업자 ${index + 1}`}
+                                            </span>
                                             <input 
                                                 type="text" 
                                                 placeholder="성명" 
