@@ -256,6 +256,99 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) =
     );
 };
 
+const ConfinedSpacePermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => {
+    const renderChecklist = (items: typeof data.confinedSpaceSafetyCheckList) => {
+        if (!items || items.length === 0) return null;
+        return (
+            <div className="divide-y divide-gray-200">
+                {items.map((item, index) => (
+                    <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
+                        <div className="md:col-span-6 text-gray-800">{index + 1}. {item.text}</div>
+                        <div className="md:col-span-3 text-center mt-2 md:mt-0">
+                            <span className="font-semibold md:hidden">해당여부: </span>
+                            {item.applicable || '미입력'}
+                        </div>
+                        <div className="md:col-span-3 text-center mt-2 md:mt-0">
+                            <span className="font-semibold md:hidden">확인결과: </span>
+                            {item.confirmed ? '✓' : '✗'}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    return (
+        <div className="border border-gray-300 rounded-xl divide-y divide-gray-300 text-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-gray-300">
+                <div className="p-4 space-y-2">
+                    <div className="font-semibold text-center text-gray-700 mb-4">신청자 (시공 업체)</div>
+                    <Field label="팀" value={data.applicantTeam || '미입력'} />
+                    <Field label="성명" value={data.applicantName || '미입력'} />
+                    <Field label="서명" value={
+                        data.applicantSignature 
+                            ? <img src={data.applicantSignature} alt="applicant signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> 
+                            : '서명 없음'
+                    } />
+                </div>
+                <div className="p-4 space-y-2 border-t lg:border-t-0 border-gray-300">
+                    <div className="font-semibold text-center text-gray-700 mb-4">시행부서 팀장 (허가서 및 안전조치 확인)</div>
+                    <Field label="팀" value={data.managerTeam || '미입력'} />
+                    <Field label="성명" value={data.managerName || '미입력'} />
+                    <Field label="서명" value={
+                        data.managerSignature 
+                            ? <img src={data.managerSignature} alt="manager signature" className="h-16 max-w-[200px] bg-gray-100 border rounded-md p-1 object-contain" style={{imageRendering: 'high-quality'}} /> 
+                            : '서명 없음'
+                    } />
+                </div>
+            </div>
+            <div className="p-4 space-y-2">
+                <Field label="작업장소" value={data.location || '미입력'} />
+                <Field label="작업일시" value={`${data.workDate || '미입력'} ${data.workStartTime || '미입력'} ~ ${data.workEndTime || '미입력'}`} />
+            </div>
+            <div className="p-4 space-y-2">
+                <Field label="작업 인원" value={`${data.workerCount} 명`} />
+                <Field label="작업 내용" value={data.description} />
+                {data.workers && data.workers.length > 0 && (
+                    <Field label="작업자 정보" value={
+                        <div className="space-y-2">
+                            {data.workers.map((worker, index) => (
+                                <div key={worker.id} className="flex items-center space-x-4 text-sm">
+                                    <span className="font-medium text-gray-600">
+                                        {worker.role || `작업자 ${index + 1}`}:
+                                    </span>
+                                    <span>{worker.name || '미입력'}</span>
+                                    <span className="text-gray-500">{worker.phoneNumber || '미입력'}</span>
+                                </div>
+                            ))}
+                        </div>
+                    } />
+                )}
+            </div>
+            <div className="p-4">
+                <Field label="첨부서류" value={
+                    <div className="flex flex-col sm:flex-row sm:gap-6">
+                        <span>작업절차서: <span className="font-semibold">{data.procedureDocStatus === 'yes' ? '유' : '무'}</span></span>
+                        <span>위험성평가: <span className="font-semibold">{data.riskAssessmentStatus === 'yes' ? '유' : '무'}</span></span>
+                    </div>
+                } />
+            </div>
+            <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[밀폐공간작업 안전조치 확인사항]</div>
+            <div className="divide-y divide-gray-200">
+                <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
+                    <div className="col-span-6">확인항목</div>
+                    <div className="col-span-3 text-center">해당여부</div>
+                    <div className="col-span-3 text-center">확인결과</div>
+                </div>
+                {renderChecklist(data.confinedSpaceSafetyCheckList)}
+            </div>
+            <div className="p-4">
+                <Field label="기타 특이사항" value={data.specialNotes || '없음'} />
+            </div>
+        </div>
+    );
+};
+
 
 const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }, ref) => {
   // 디버그 로그 추가
@@ -390,7 +483,8 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             <div className="space-y-3 mb-6">
                 <Field label="유형" value={
                   data.workPermit?.type === 'hazardous' ? '위험' : 
-                  data.workPermit?.type === 'general' ? '일반' : '유형 미설정'
+                  data.workPermit?.type === 'general' ? '일반' : 
+                  data.workPermit?.type === 'confined' ? '밀폐공간' : '유형 미설정'
                 } />
             </div>
 
@@ -398,6 +492,8 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 <GeneralPermitConfirmation data={data.workPermit} />
             ) : data.workPermit?.type === 'hazardous' ? (
                 <HazardousPermitConfirmation data={data.workPermit} />
+            ) : data.workPermit?.type === 'confined' ? (
+                <ConfinedSpacePermitConfirmation data={data.workPermit} />
             ) : (
                 <p className="text-gray-500">작업 허가서 유형이 설정되지 않았습니다.</p>
             )}
