@@ -43,7 +43,7 @@ export const HAZARDOUS_SAFETY_CHECK_ITEMS = [
 export const CONFINED_SPACE_SAFETY_CHECK_ITEMS = [
     { id: 'conf1', text: '관리감독자 지정 및 감시인 배치' },
     { id: 'conf2', text: '밀폐공간작업 관계자 외 출입금지 표지판 게시' },
-    { id: 'conf3', text: '발부자단, 명판 설치, 물질안전가스 자료, 응기세정' },
+    { id: 'conf3', text: '밸브차단, 명판 설치, 불활성가스 치환, 용기 세정' },
     { id: 'conf4', text: '전기회로, 기계장비 가동정지, 유압, 압축공기 잠금 및 시건조치' },
     { id: 'conf5', text: '산소농도 및 유해가스 측정' },
     { id: 'conf6', text: '환기시설 설치 및 환기 실시여부' },
