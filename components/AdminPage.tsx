@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Submission, SubmissionStatus } from '../types.ts';
+import { Submission, SubmissionStatus, ApprovalInfo } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import Step6Confirmation from './Step6Confirmation.tsx';
@@ -10,10 +10,76 @@ import { useConnectionStatus } from '../contexts/DataContext.tsx';
 
 interface AdminPageProps {
   submissions: Submission[];
-  onUpdateStatus: (id: string, status: SubmissionStatus) => void;
+  onUpdateStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => void;
   onDelete: (id: string) => void;
   onBack: () => void;
 }
+
+// 승인자 이름 입력 팝업 컴포넌트
+interface ApprovalPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (approverName: string) => void;
+  title: string;
+  description: string;
+}
+
+const ApprovalPopup: React.FC<ApprovalPopupProps> = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  title, 
+  description 
+}) => {
+  const [approverName, setApproverName] = useState('');
+  
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (approverName.trim()) {
+      onConfirm(approverName.trim());
+      setApproverName('');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <p className="text-gray-600 mb-4">{description}</p>
+        
+        <form onSubmit={handleSubmit}>
+          <Input
+            id="approver-name"
+            label="승인자 이름"
+            value={approverName}
+            onChange={(e) => setApproverName(e.target.value)}
+            placeholder="승인자 이름을 입력해주세요"
+            autoFocus
+            required
+          />
+          
+          <div className="flex justify-end space-x-3 mt-6">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                onClose();
+                setApproverName('');
+              }}
+            >
+              취소
+            </Button>
+            <Button type="submit" variant="primary">
+              승인
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
   pending: { text: '신청 중', dot: 'bg-amber-500', textBg: 'bg-amber-100 text-amber-800' },
@@ -38,6 +104,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [approvalPopup, setApprovalPopup] = useState<{
+    isOpen: boolean;
+    submissionId: string;
+    approvalType: 'safetyManager' | 'departmentManager';
+  }>({
+    isOpen: false,
+    submissionId: '',
+    approvalType: 'safetyManager'
+  });
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
 
@@ -88,6 +163,83 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const handleDelete = (submissionId: string) => {
     if (window.confirm('이 신청서를 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
         onDelete(submissionId);
+    }
+  };
+
+  // 승인 버튼 클릭 핸들러
+  const handleApprovalClick = (submissionId: string, approvalType: 'safetyManager' | 'departmentManager') => {
+    setApprovalPopup({
+      isOpen: true,
+      submissionId,
+      approvalType
+    });
+  };
+
+  // 승인 확인 핸들러
+  const handleApprovalConfirm = (approverName: string) => {
+    const { submissionId, approvalType } = approvalPopup;
+    const submission = submissions.find(s => s.id === submissionId);
+    
+    if (!submission) return;
+
+    const currentApprovalInfo = submission.approvalInfo || {};
+    let newApprovalInfo: ApprovalInfo;
+    let newStatus: SubmissionStatus = submission.status;
+
+    if (approvalType === 'safetyManager') {
+      newApprovalInfo = {
+        ...currentApprovalInfo,
+        safetyManagerApproval: {
+          approved: true,
+          approverName,
+          approvedAt: new Date()
+        }
+      };
+      // 안전보건관리자가 승인했지만 아직 부서팀장 승인이 필요한 상태
+      newStatus = 'pending';
+    } else {
+      // 부서팀장 승인 - 최종 승인
+      newApprovalInfo = {
+        ...currentApprovalInfo,
+        departmentManagerApproval: {
+          approved: true,
+          approverName,
+          approvedAt: new Date()
+        }
+      };
+      // 최종 승인 완료
+      newStatus = 'approved';
+    }
+
+    onUpdateStatus(submissionId, newStatus, newApprovalInfo);
+    
+    // 팝업 닫기
+    setApprovalPopup({
+      isOpen: false,
+      submissionId: '',
+      approvalType: 'safetyManager'
+    });
+  };
+
+  // 승인 팝업 닫기
+  const handleApprovalCancel = () => {
+    setApprovalPopup({
+      isOpen: false,
+      submissionId: '',
+      approvalType: 'safetyManager'
+    });
+  };
+
+  // 승인 단계 확인 함수
+  const getApprovalStep = (submission: Submission) => {
+    const approvalInfo = submission.approvalInfo;
+    
+    if (!approvalInfo?.safetyManagerApproval?.approved) {
+      return 'safetyManager'; // 안전보건관리자 승인 대기
+    } else if (!approvalInfo?.departmentManagerApproval?.approved) {
+      return 'departmentManager'; // 안전보건부서팀장 승인 대기
+    } else {
+      return 'completed'; // 승인 완료
     }
   };
 
@@ -164,25 +316,76 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                 </>
             ) : (
                 <div className="space-y-10">
-                {pendingSubmissions.map((sub) => (
+                {pendingSubmissions.map((sub) => {
+                  const approvalStep = getApprovalStep(sub);
+                  return (
                     <div key={sub.id}>
                         <Step6Confirmation data={sub} />
-                        <div className="mt-6 flex justify-end space-x-4">
+                        <div className="mt-6">
+                          {/* 승인 상태 표시 */}
+                          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 className="font-semibold text-blue-900 mb-2">승인 진행 상황</h4>
+                            <div className="space-y-2 text-sm">
+                              <div className={`flex items-center ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                안전보건관리자 승인 
+                                {sub.approvalInfo?.safetyManagerApproval?.approved && (
+                                  <span className="ml-2 text-green-700 font-medium">
+                                    (승인자: {sub.approvalInfo.safetyManagerApproval.approverName})
+                                  </span>
+                                )}
+                              </div>
+                              <div className={`flex items-center ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                안전보건부서팀장 승인
+                                {sub.approvalInfo?.departmentManagerApproval?.approved && (
+                                  <span className="ml-2 text-green-700 font-medium">
+                                    (승인자: {sub.approvalInfo.departmentManagerApproval.approverName})
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* 승인 버튼들 */}
+                          <div className="flex flex-wrap justify-end gap-3">
                             <Button
                                 variant="danger"
                                 onClick={() => handleDelete(sub.id)}
                             >
                                 삭제
                             </Button>
-                            <Button variant="secondary" onClick={() => onUpdateStatus(sub.id, 'rejected')}>
+                            <Button 
+                              variant="secondary" 
+                              onClick={() => onUpdateStatus(sub.id, 'rejected')}
+                            >
                                 승인 거부
                             </Button>
-                            <Button variant="primary" onClick={() => onUpdateStatus(sub.id, 'approved')}>
-                                승인
+                            
+                            {approvalStep === 'safetyManager' && (
+                              <Button 
+                                variant="primary" 
+                                onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                안전보건관리자 승인
+                              </Button>
+                            )}
+                            
+                            {approvalStep === 'departmentManager' && (
+                              <Button 
+                                variant="primary" 
+                                onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                안전보건부서팀장 승인
                             </Button>
+                            )}
+                          </div>
                         </div>
                     </div>
-                ))}
+                  );
+                })}
                 </div>
             )}
         </Card>
@@ -276,6 +479,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
             홈으로 돌아가기
             </Button>
       </div>
+
+        {/* 승인자 이름 입력 팝업 */}
+        <ApprovalPopup
+          isOpen={approvalPopup.isOpen}
+          onClose={handleApprovalCancel}
+          onConfirm={handleApprovalConfirm}
+          title={
+            approvalPopup.approvalType === 'safetyManager' 
+              ? '안전보건관리자 승인' 
+              : '안전보건부서팀장 승인'
+          }
+          description={
+            approvalPopup.approvalType === 'safetyManager'
+              ? '안전보건관리자 승인을 위해 승인자 이름을 입력해주세요.'
+              : '안전보건부서팀장 승인을 위해 승인자 이름을 입력해주세요. 이 승인으로 최종 승인이 완료됩니다.'
+          }
+        />
     </div>
   );
 };

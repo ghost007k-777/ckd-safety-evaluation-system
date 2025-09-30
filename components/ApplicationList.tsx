@@ -15,12 +15,33 @@ interface ApplicationListProps {
 
 const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
   pending: { text: '신청 중', dot: 'bg-amber-500', textBg: 'bg-amber-100 text-amber-800' },
-  approved: { text: '승인', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' },
+  approved: { text: '승인 완료', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' },
   rejected: { text: '승인 거부', dot: 'bg-rose-500', textBg: 'bg-rose-100 text-rose-800' },
 };
 
-const StatusBadge: React.FC<{ status: SubmissionStatus }> = ({ status }) => {
-  const { text, dot, textBg } = statusMap[status];
+// 승인 상태를 더 세부적으로 표시하는 함수
+const getDetailedApprovalStatus = (submission: Submission) => {
+  if (submission.status === 'rejected') {
+    return { text: '승인 거부', dot: 'bg-rose-500', textBg: 'bg-rose-100 text-rose-800' };
+  }
+  
+  if (submission.status === 'approved') {
+    return { text: '승인 완료', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' };
+  }
+
+  const approvalInfo = submission.approvalInfo;
+  
+  if (!approvalInfo?.safetyManagerApproval?.approved) {
+    return { text: '안전보건관리자 승인 중', dot: 'bg-blue-500', textBg: 'bg-blue-100 text-blue-800' };
+  } else if (!approvalInfo?.departmentManagerApproval?.approved) {
+    return { text: '안전보건부서팀장 승인 중', dot: 'bg-yellow-500', textBg: 'bg-yellow-100 text-yellow-800' };
+  } else {
+    return { text: '승인 완료', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' };
+  }
+};
+
+const StatusBadge: React.FC<{ submission: Submission }> = ({ submission }) => {
+  const { text, dot, textBg } = getDetailedApprovalStatus(submission);
   return (
     <span className={`inline-flex items-center px-3 py-1 text-sm font-bold rounded-full ${textBg}`}>
       <span className={`w-2 h-2 mr-2 rounded-full ${dot}`}></span>
@@ -185,7 +206,20 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                 </p>
                                 </div>
                                 <div className="flex items-center justify-between sm:justify-end space-x-3 sm:space-x-4 flex-shrink-0">
-                                    <StatusBadge status={sub.status} />
+                                    <div className="flex flex-col items-end space-y-1">
+                                      <StatusBadge submission={sub} />
+                                      {/* 승인자 이름 표시 */}
+                                      {sub.approvalInfo && (
+                                        <div className="text-xs text-gray-500">
+                                          {sub.approvalInfo.safetyManagerApproval?.approved && (
+                                            <div>안전관리자: {sub.approvalInfo.safetyManagerApproval.approverName}</div>
+                                          )}
+                                          {sub.approvalInfo.departmentManagerApproval?.approved && (
+                                            <div>부서팀장: {sub.approvalInfo.departmentManagerApproval.approverName}</div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
                                     <svg className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-500 transform transition-transform ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>

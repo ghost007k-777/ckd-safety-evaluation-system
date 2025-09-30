@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { Submission, SubmissionStatus, FormData } from '../types.ts';
+import { Submission, SubmissionStatus, FormData, ApprovalInfo } from '../types.ts';
 import { DataManager } from '../services/DataManager.ts';
 
 // 상태 타입 정의
@@ -81,7 +81,7 @@ interface DataContextType {
   state: DataState;
   actions: {
     addSubmission: (formData: FormData) => Promise<void>;
-    updateSubmissionStatus: (id: string, status: SubmissionStatus) => Promise<void>;
+    updateSubmissionStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => Promise<void>;
     deleteSubmission: (id: string) => Promise<void>;
     refreshData: () => Promise<void>;
     manualSync: () => Promise<void>;
@@ -174,12 +174,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     },
 
-    updateSubmissionStatus: async (id: string, status: SubmissionStatus) => {
+    updateSubmissionStatus: async (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => {
       try {
         dispatch({ type: 'SET_ERROR', payload: null });
-        await dataManager.updateSubmissionStatus(id, status);
-        dispatch({ type: 'UPDATE_SUBMISSION', payload: { id, updates: { status } } });
-        console.log('✅ [DataProvider] 상태 업데이트 완료:', id, status);
+        
+        // 승인 정보가 있으면 함께 업데이트
+        const updates: Partial<Submission> = { status };
+        if (approvalInfo) {
+          updates.approvalInfo = approvalInfo;
+        }
+        
+        await dataManager.updateSubmissionStatus(id, status, approvalInfo);
+        dispatch({ type: 'UPDATE_SUBMISSION', payload: { id, updates } });
+        console.log('✅ [DataProvider] 상태 업데이트 완료:', id, status, approvalInfo);
       } catch (error) {
         console.error('❌ [DataProvider] 상태 업데이트 실패:', error);
         dispatch({ type: 'SET_ERROR', payload: '상태 업데이트에 실패했습니다.' });

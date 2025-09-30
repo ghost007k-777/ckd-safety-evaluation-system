@@ -1,4 +1,4 @@
-import { Submission, SubmissionStatus, FormData } from '../types.ts';
+import { Submission, SubmissionStatus, FormData, ApprovalInfo } from '../types.ts';
 import { 
   addSubmission as firebaseAddSubmission,
   getSubmissions as firebaseGetSubmissions,
@@ -419,18 +419,22 @@ export class DataManager {
   /**
    * 신청서 상태 업데이트
    */
-  public async updateSubmissionStatus(id: string, status: SubmissionStatus): Promise<void> {
+  public async updateSubmissionStatus(id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo): Promise<void> {
     // 로컬에서 즉시 업데이트
     this.submissions = this.submissions.map(sub =>
-      sub.id === id ? { ...sub, status } : sub
+      sub.id === id ? { 
+        ...sub, 
+        status,
+        ...(approvalInfo && { approvalInfo })
+      } : sub
     );
     this.saveToCache();
     this.emitDataChange();
 
     try {
       if (this.connectionStatus === 'online') {
-        await firebaseUpdateStatus(id, status);
-        console.log('✅ [DataManager] 상태 Firebase 업데이트 완료:', id, status);
+        await firebaseUpdateStatus(id, status, approvalInfo);
+        console.log('✅ [DataManager] 상태 Firebase 업데이트 완료:', id, status, approvalInfo);
       } else {
         console.log('⚠️ [DataManager] 오프라인 모드 - 로컬에만 업데이트');
       }

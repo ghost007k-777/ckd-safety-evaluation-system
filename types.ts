@@ -137,8 +137,22 @@ export interface FormData {
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected';
 
+export interface ApprovalInfo {
+  safetyManagerApproval?: {
+    approved: boolean;
+    approverName: string;
+    approvedAt: Date;
+  };
+  departmentManagerApproval?: {
+    approved: boolean;
+    approverName: string;
+    approvedAt: Date;
+  };
+}
+
 export interface Submission extends FormData {
   id: string;
   status: SubmissionStatus;
   submittedAt: Date;
+  approvalInfo?: ApprovalInfo;
 }

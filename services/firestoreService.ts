@@ -11,7 +11,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { db } from '../firebase.ts';
-import { FormData, Submission, SubmissionStatus } from '../types.ts';
+import { FormData, Submission, SubmissionStatus, ApprovalInfo } from '../types.ts';
 import { generateUniqueId } from '../utils.ts';
 
 const SUBMISSIONS_COLLECTION = 'submissions';
@@ -23,6 +23,26 @@ const convertFirestoreToSubmission = (doc: any): Submission => {
   // 안전한 데이터 변환 - safetyTraining이 없을 수도 있음
   const safetyTraining = data.safetyTraining || {};
   
+  // ApprovalInfo 변환
+  let approvalInfo: ApprovalInfo | undefined;
+  if (data.approvalInfo) {
+    approvalInfo = {};
+    
+    if (data.approvalInfo.safetyManagerApproval) {
+      approvalInfo.safetyManagerApproval = {
+        ...data.approvalInfo.safetyManagerApproval,
+        approvedAt: data.approvalInfo.safetyManagerApproval.approvedAt?.toDate() || new Date()
+      };
+    }
+    
+    if (data.approvalInfo.departmentManagerApproval) {
+      approvalInfo.departmentManagerApproval = {
+        ...data.approvalInfo.departmentManagerApproval,
+        approvedAt: data.approvalInfo.departmentManagerApproval.approvedAt?.toDate() || new Date()
+      };
+    }
+  }
+  
   return {
     id: doc.id,
     ...data,
@@ -32,7 +52,8 @@ const convertFirestoreToSubmission = (doc: any): Submission => {
       completionDate: safetyTraining.completionDate 
         ? safetyTraining.completionDate.toDate() 
         : null
-    }
+    },
+    ...(approvalInfo && { approvalInfo })
   };
 };
 
@@ -135,12 +156,37 @@ export const getSubmissions = async (): Promise<Submission[]> => {
 // 신청서 상태 업데이트
 export const updateSubmissionStatus = async (
   id: string, 
-  status: SubmissionStatus
+  status: SubmissionStatus,
+  approvalInfo?: ApprovalInfo
 ): Promise<void> => {
   try {
     const submissionRef = doc(db, SUBMISSIONS_COLLECTION, id);
-    await updateDoc(submissionRef, { status });
-    console.log('신청서 상태가 업데이트되었습니다:', id, status);
+    const updateData: any = { status };
+    
+    // 승인 정보가 있으면 함께 업데이트
+    if (approvalInfo) {
+      // ApprovalInfo의 Date 객체들을 Timestamp로 변환
+      const convertedApprovalInfo: any = {};
+      
+      if (approvalInfo.safetyManagerApproval) {
+        convertedApprovalInfo.safetyManagerApproval = {
+          ...approvalInfo.safetyManagerApproval,
+          approvedAt: Timestamp.fromDate(approvalInfo.safetyManagerApproval.approvedAt)
+        };
+      }
+      
+      if (approvalInfo.departmentManagerApproval) {
+        convertedApprovalInfo.departmentManagerApproval = {
+          ...approvalInfo.departmentManagerApproval,
+          approvedAt: Timestamp.fromDate(approvalInfo.departmentManagerApproval.approvedAt)
+        };
+      }
+      
+      updateData.approvalInfo = convertedApprovalInfo;
+    }
+    
+    await updateDoc(submissionRef, updateData);
+    console.log('신청서 상태가 업데이트되었습니다:', id, status, approvalInfo);
   } catch (error) {
     console.error('신청서 상태 업데이트 중 오류 발생:', error);
     throw error;
