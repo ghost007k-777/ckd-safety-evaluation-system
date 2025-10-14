@@ -39,51 +39,55 @@ const AppContent: React.FC = () => {
     }))
   });
 
-  // 로딩 화면
+  // 로딩 화면 (KRDS 스타일)
   const renderLoadingScreen = () => (
-        <div className="flex flex-col justify-center items-center h-96 space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          <p className="text-gray-600">데이터를 불러오는 중...</p>
-      <p className="text-sm text-gray-500">
-        {connectionStatus === 'connecting' && '서버 연결 중...'}
-        {connectionStatus === 'online' && '온라인 동기화 중...'}
-        {connectionStatus === 'offline' && '캐시된 데이터 로딩 중...'}
-      </p>
+        <div className="flex flex-col justify-center items-center h-96 space-y-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#0066CC] border-t-transparent"></div>
+          <div className="text-center">
+            <p className="text-lg font-semibold text-[#343A40] mb-2">데이터를 불러오는 중입니다</p>
+            <p className="text-sm text-[#6C757D]">
+              {connectionStatus === 'connecting' && '서버에 연결하고 있습니다...'}
+              {connectionStatus === 'online' && '온라인 데이터를 동기화하고 있습니다...'}
+              {connectionStatus === 'offline' && '캐시된 데이터를 불러오고 있습니다...'}
+            </p>
+          </div>
         </div>
       );
 
-  // 에러 화면
+  // 에러 화면 (KRDS 스타일)
   const renderErrorScreen = () => (
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-            <div className="flex items-center mb-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-[#F8D7DA] border-2 border-[#DC3545] rounded-xl p-6 sm:p-8 mb-8">
+            <div className="flex items-start mb-4">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-6 w-6 text-[#DC3545]" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
-              <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">시스템 오류</h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>{error}</p>
-              <p className="mt-2">현재 {state.submissions.length}개의 캐시된 데이터를 표시하고 있습니다.</p>
+              <div className="ml-4 flex-1">
+                <h3 className="text-lg font-bold text-[#DC3545] mb-2">시스템 오류가 발생했습니다</h3>
+                <div className="text-sm text-[#721C24] space-y-2">
+                  <p className="font-medium">{error}</p>
+                  <p className="bg-white bg-opacity-50 p-3 rounded-lg">
+                    현재 <strong>{state.submissions.length}개</strong>의 캐시된 데이터를 표시하고 있습니다.
+                  </p>
                 </div>
-            <div className="mt-4 space-x-2">
+                <div className="mt-6 flex flex-wrap gap-3">
                   <button
                     onClick={() => window.location.reload()}
-                    className="bg-red-100 hover:bg-red-200 text-red-800 px-4 py-2 rounded-md text-sm font-medium"
+                    className="bg-[#DC3545] hover:bg-[#C82333] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
                   >
                     새로고침
                   </button>
                   <button
                     onClick={() => actions.manualSync()}
-                    className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm font-medium"
+                    className="bg-[#0066CC] hover:bg-[#0052A3] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
                   >
                     수동 동기화
                   </button>
                   <button
                     onClick={() => actions.refreshData()}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium"
+                    className="bg-white hover:bg-[#F1F3F5] text-[#343A40] border-2 border-[#DEE2E6] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
                   >
                     다시 시도
                   </button>
@@ -167,27 +171,27 @@ const AppContent: React.FC = () => {
     return renderMainContent();
   };
 
-  // 연결 상태에 따른 상태 표시
+  // 연결 상태에 따른 상태 표시 (KRDS 스타일)
   const getConnectionStatusDisplay = () => {
     switch (connectionStatus) {
       case 'online':
         return {
-          color: 'text-green-600',
-          bgColor: 'bg-green-500',
+          color: 'text-[#28A745]',
+          bgColor: 'bg-[#28A745]',
           text: '온라인'
         };
       case 'offline':
         return {
-          color: 'text-red-600',
-          bgColor: 'bg-red-500',
+          color: 'text-[#DC3545]',
+          bgColor: 'bg-[#DC3545]',
           text: '오프라인'
         };
       case 'connecting':
       default:
         return {
-          color: 'text-gray-500',
-          bgColor: 'bg-gray-400 animate-pulse',
-          text: '연결 중...'
+          color: 'text-[#FFC107]',
+          bgColor: 'bg-[#FFC107] animate-pulse',
+          text: '연결 중'
         };
     }
   };
@@ -195,45 +199,88 @@ const AppContent: React.FC = () => {
   const connectionDisplay = getConnectionStatusDisplay();
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans text-gray-800">
-      <header className="bg-white shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto py-3 sm:py-4 px-3 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center min-w-0 flex-1">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 overflow-hidden flex-shrink-0">
-              <img 
-                src="https://i.ibb.co/rGGGfDqc/2025-09-02-165735.png" 
-                alt="시스템 로고" 
-                className="h-8 sm:h-10"
-              />
+    <div className="min-h-screen bg-[#F8F9FA] font-sans text-[#212529]">
+      {/* KRDS 스타일 헤더 */}
+      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-[#E9ECEF]">
+        <div className="max-w-7xl mx-auto py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* 로고 및 타이틀 */}
+            <div className="flex items-center min-w-0 flex-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+                <img 
+                  src="https://i.ibb.co/rGGGfDqc/2025-09-02-165735.png" 
+                  alt="시스템 로고" 
+                  className="h-10 sm:h-12 object-contain"
+                />
+              </div>
+              <div className="ml-3 sm:ml-4 min-w-0">
+                <h1 className="text-base sm:text-xl font-bold text-[#212529] truncate leading-tight">
+                  <span className="hidden sm:inline">CKD 적격 수급업체 안전 평가 시스템</span>
+                  <span className="sm:hidden">CKD 안전평가</span>
+                </h1>
+                <p className="text-xs text-[#6C757D] mt-0.5 hidden sm:block">Korea Design System 적용</p>
+              </div>
             </div>
-            <span className="ml-2 sm:ml-4 text-sm sm:text-xl font-bold text-gray-800 truncate">
-              <span className="hidden sm:inline">CKD 적격 수급업체 안전 평가 시스템</span>
-              <span className="sm:hidden">CKD 안전평가</span>
-            </span>
-          </div>
-          
-          {/* 연결 상태 및 데이터 정보 표시 */}
-          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-            <div className="hidden sm:block text-xs text-gray-500">
-              {state.submissions.length}개 신청서
-              {state.lastSyncTime && (
-                <span className="ml-1">
-                  (마지막 동기화: {state.lastSyncTime.toLocaleTimeString()})
+            
+            {/* 연결 상태 및 데이터 정보 */}
+            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+              {/* 신청서 수 (데스크톱) */}
+              <div className="hidden md:flex items-center px-3 py-1.5 bg-[#F1F3F5] rounded-lg">
+                <svg className="w-4 h-4 text-[#0066CC] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-sm font-semibold text-[#343A40]">
+                  {state.submissions.length}
+                  <span className="text-xs text-[#6C757D] ml-1">건</span>
                 </span>
+              </div>
+
+              {/* 동기화 시간 (데스크톱) */}
+              {state.lastSyncTime && (
+                <div className="hidden lg:block text-xs text-[#6C757D]">
+                  <span className="font-medium">마지막 동기화</span>
+                  <span className="ml-1">{state.lastSyncTime.toLocaleTimeString()}</span>
+                </div>
               )}
+
+              {/* 연결 상태 */}
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
+                connectionStatus === 'online' ? 'bg-[#D4EDDA]' :
+                connectionStatus === 'offline' ? 'bg-[#F8D7DA]' :
+                'bg-[#FFF3CD]'
+              }`}>
+                <div className={`w-2 h-2 rounded-full ${connectionDisplay.bgColor}`}></div>
+                <span className={`text-sm font-semibold hidden sm:inline ${connectionDisplay.color}`}>
+                  {connectionDisplay.text}
+                </span>
+                {/* 모바일에서는 신청서 수 표시 */}
+                <span className="sm:hidden text-sm font-semibold text-[#343A40]">
+                  {state.submissions.length}
+                </span>
               </div>
-            <div className={`flex items-center space-x-1 text-xs sm:text-sm ${connectionDisplay.color}`}>
-              <div className={`w-2 h-2 rounded-full ${connectionDisplay.bgColor}`}></div>
-              <span className="hidden sm:inline">{connectionDisplay.text}</span>
-              <span className="sm:hidden">{state.submissions.length}</span>
-              </div>
+            </div>
           </div>
         </div>
       </header>
       
-      <main className="max-w-6xl mx-auto py-4 sm:py-10 px-3 sm:px-6 lg:px-8">
+      {/* KRDS 스타일 메인 콘텐츠 */}
+      <main className="max-w-7xl mx-auto py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
         {renderContent()}
       </main>
+
+      {/* 푸터 (KRDS 스타일) */}
+      <footer className="bg-white border-t border-[#E9ECEF] mt-12">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-sm text-[#6C757D]">
+              © 2025 CKD 적격 수급업체 안전 평가 시스템. All rights reserved.
+            </p>
+            <p className="text-xs text-[#ADB5BD] mt-2">
+              Korea Design System (KRDS) 기반으로 제작되었습니다.
+            </p>
+          </div>
+        </div>
+      </footer>
       
       <DebugInfo />
     </div>

@@ -44,10 +44,10 @@ const ApprovalPopup: React.FC<ApprovalPopupProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-600 mb-4">{description}</p>
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+        <h3 className="text-2xl font-bold text-[#212529] mb-3">{title}</h3>
+        <p className="text-[#6C757D] mb-6 leading-relaxed">{description}</p>
         
         <form onSubmit={handleSubmit}>
           <Input
@@ -60,10 +60,11 @@ const ApprovalPopup: React.FC<ApprovalPopupProps> = ({
             required
           />
           
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="flex justify-end gap-3 mt-8">
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
+              size="lg"
               onClick={() => {
                 onClose();
                 setApproverName('');
@@ -71,7 +72,7 @@ const ApprovalPopup: React.FC<ApprovalPopupProps> = ({
             >
               취소
             </Button>
-            <Button type="submit" variant="primary">
+            <Button type="submit" variant="primary" size="lg">
               승인
             </Button>
           </div>
@@ -82,16 +83,16 @@ const ApprovalPopup: React.FC<ApprovalPopupProps> = ({
 };
 
 const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
-  pending: { text: '신청 중', dot: 'bg-amber-500', textBg: 'bg-amber-100 text-amber-800' },
-  approved: { text: '승인', dot: 'bg-emerald-500', textBg: 'bg-emerald-100 text-emerald-800' },
-  rejected: { text: '승인 거부', dot: 'bg-rose-500', textBg: 'bg-rose-100 text-rose-800' },
+  pending: { text: '신청 중', dot: 'bg-[#FFC107]', textBg: 'bg-[#FFF3CD] text-[#856404] border border-[#FFC107]' },
+  approved: { text: '승인', dot: 'bg-[#28A745]', textBg: 'bg-[#D4EDDA] text-[#155724] border border-[#28A745]' },
+  rejected: { text: '승인 거부', dot: 'bg-[#DC3545]', textBg: 'bg-[#F8D7DA] text-[#721C24] border border-[#DC3545]' },
 };
 
 const StatusBadge: React.FC<{ status: SubmissionStatus }> = ({ status }) => {
   const { text, dot, textBg } = statusMap[status];
   return (
-    <span className={`inline-flex items-center px-3 py-1 text-sm font-bold rounded-full ${textBg}`}>
-      <span className={`w-2 h-2 mr-2 rounded-full ${dot}`}></span>
+    <span className={`inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-lg ${textBg} transition-all`}>
+      <span className={`w-2.5 h-2.5 mr-2 rounded-full ${dot} animate-pulse`}></span>
       {text}
     </span>
   );

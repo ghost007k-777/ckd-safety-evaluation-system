@@ -23,26 +23,113 @@
 }
 </script>
 <style>
+    /* KRDS 디자인 토큰 */
+    :root {
+        /* Primary Colors - 정부 청색 */
+        --color-primary-50: #E6F0FF;
+        --color-primary-100: #CCE1FF;
+        --color-primary-200: #99C3FF;
+        --color-primary-300: #66A5FF;
+        --color-primary-400: #3387FF;
+        --color-primary-500: #0066CC;  /* Main Brand */
+        --color-primary-600: #0052A3;
+        --color-primary-700: #003E7A;
+        --color-primary-800: #002A52;
+        --color-primary-900: #001629;
+
+        /* Neutral Colors */
+        --color-neutral-50: #F8F9FA;
+        --color-neutral-100: #F1F3F5;
+        --color-neutral-200: #E9ECEF;
+        --color-neutral-300: #DEE2E6;
+        --color-neutral-400: #CED4DA;
+        --color-neutral-500: #ADB5BD;
+        --color-neutral-600: #6C757D;
+        --color-neutral-700: #495057;
+        --color-neutral-800: #343A40;
+        --color-neutral-900: #212529;
+
+        /* Semantic Colors */
+        --color-success: #28A745;
+        --color-success-light: #D4EDDA;
+        --color-warning: #FFC107;
+        --color-warning-light: #FFF3CD;
+        --color-error: #DC3545;
+        --color-error-light: #F8D7DA;
+        --color-info: #17A2B8;
+        --color-info-light: #D1ECF1;
+
+        /* Spacing */
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+        --spacing-2xl: 3rem;
+        --spacing-3xl: 4rem;
+
+        /* Border Radius */
+        --radius-sm: 0.25rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
     body {
-        font-family: 'Pretendard', sans-serif;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        color: var(--color-neutral-900);
+        background-color: var(--color-neutral-50);
+        line-height: 1.6;
     }
     
     * {
-        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, 
+                    color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.15s ease-out;
     }
 
+    /* 접근성 - 포커스 스타일 */
+    *:focus-visible {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
+    }
+
+    /* Date/Time Picker 스타일 */
     input[type="date"]::-webkit-calendar-picker-indicator,
     input[type="time"]::-webkit-calendar-picker-indicator {
       cursor: pointer;
-      opacity: 0.8; 
-      filter: invert(0.2);
+      opacity: 0.6; 
+      filter: invert(0.3);
     }
 
     input[type="date"]::-webkit-calendar-picker-indicator:hover,
     input[type="time"]::-webkit-calendar-picker-indicator:hover {
       opacity: 1;
-      filter: invert(0);
-      transform: scale(1.1);
+      filter: invert(0.5);
+    }
+
+    /* 스크롤바 스타일 */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--color-neutral-100);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-neutral-400);
+        border-radius: var(--radius-md);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-neutral-500);
     }
 </style>
 <!-- 빌드 산출물에 index.css가 없으므로 링크 제거 -->
