@@ -9,10 +9,15 @@ export const SAFETY_CHECK_LIST_ITEMS = [
     { id: 'gen5', category: '일반항목', text: '작업장 정리정돈 실시(미끄럼 방지 조치, 요철 확인 등)' },
     { id: 'gen6', category: '일반항목', text: '중량물 낙하 및 구름 방지 조치, 적재상태 확인' },
     { id: 'gen7', category: '일반항목', text: '조도, 채광 및 조명 상태' },
-    { id: 'high1', category: '고소작업', text: '사다리 및 작업발판 등의 상태 점검' },
-    { id: 'high2', category: '고소작업', text: '사다리, 작업발판 안전조치 확인(아웃트리거, 미끄럼 방지 패드)' },
-    { id: 'high3', category: '고소작업', text: '틀비계 안전조치 확인(틀비계 안전난간 등)' },
-    { id: 'high4', category: '고소작업', text: '2인1조 작업자 배치' },
+    { id: 'high1', category: '고소작업', text: '사다리, 작업발판' },
+    { id: 'high2', category: '고소작업', text: '아웃트리거, 및 안전난간 등 안전장치 설치' },
+    { id: 'high3', category: '고소작업', text: '통래제' },
+    { id: 'high4', category: '고소작업', text: '사다리 안전주의 준수(2인 1조, 작업 위치 등)' },
+    { id: 'high5', category: '고소작업', text: '최대적재하중 표시' },
+    { id: 'high6', category: '고소작업', text: '로프 2개 이상 견고하게 결속 및 로프 보호대, 클립방지장치' },
+    { id: 'high7', category: '고소작업', text: '공구 추락방지조치(하부인원 통제, 이탈방지구 제공)' },
+    { id: 'high8', category: '고소작업', text: '로프, 결속장치 등 마모/손상 여부 확인' },
+    { id: 'high9', category: '고소작업', text: '지상/옥상 작업지휘자 배치' },
 ] as const;
 
 export const HAZARDOUS_SAFETY_CHECK_ITEMS = [
@@ -34,10 +39,15 @@ export const HAZARDOUS_SAFETY_CHECK_ITEMS = [
     { id: 'haz-hot7', category: '화기작업', text: '밀폐공간 내 화기 작업 전 및 작업 중 가스농도의 측정' },
     { id: 'haz-hot8', category: '화기작업', text: '배관계통도 검토를 통한 맨판 설치, 밸브차단 등의 조치' },
     // 고소작업
-    { id: 'haz-high1', category: '고소작업', text: '사다리 및 작업발판 등의 상태 점검' },
-    { id: 'haz-high2', category: '고소작업', text: '사다리, 작업발판 안전조치 확인(아웃트리거, 미끄럼 방지 패드)' },
-    { id: 'haz-high3', category: '고소작업', text: '틀비계 안전조치 확인(틀비계 안전난간 등)' },
-    { id: 'haz-high4', category: '고소작업', text: '2인1조 작업자 배치' },
+    { id: 'haz-high1', category: '고소작업', text: '사다리, 작업발판' },
+    { id: 'haz-high2', category: '고소작업', text: '아웃트리거, 및 안전난간 등 안전장치 설치' },
+    { id: 'haz-high3', category: '고소작업', text: '통래제' },
+    { id: 'haz-high4', category: '고소작업', text: '사다리 안전주의 준수(2인 1조, 작업 위치 등)' },
+    { id: 'haz-high5', category: '고소작업', text: '최대적재하중 표시' },
+    { id: 'haz-high6', category: '고소작업', text: '로프 2개 이상 견고하게 결속 및 로프 보호대, 클립방지장치' },
+    { id: 'haz-high7', category: '고소작업', text: '공구 추락방지조치(하부인원 통제, 이탈방지구 제공)' },
+    { id: 'haz-high8', category: '고소작업', text: '로프, 결속장치 등 마모/손상 여부 확인' },
+    { id: 'haz-high9', category: '고소작업', text: '지상/옥상 작업지휘자 배치' },
 ] as const;
 
 export const CONFINED_SPACE_SAFETY_CHECK_ITEMS = [
