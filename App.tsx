@@ -115,14 +115,12 @@ const AppContent: React.FC = () => {
               setCurrentView('landing');
               setEditingSubmission(null);
             }} 
-            onSubmit={editingSubmission 
-              ? (formData) => {
-                  actions.updateSubmission(editingSubmission.id, formData);
-                  setEditingSubmission(null);
-                  setCurrentView('list');
-                }
-              : actions.addSubmission
-            }
+            onSubmit={(formData) => {
+              // 수정 모드일 때도 새로운 신청서로 등록
+              actions.addSubmission(formData);
+              setEditingSubmission(null);
+              setCurrentView('list');
+            }}
             onViewList={() => setCurrentView('list')} 
             initialData={editingSubmission || undefined}
             isEditMode={!!editingSubmission}

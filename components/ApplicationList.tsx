@@ -285,8 +285,8 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                       </Button>
                                     )}
                                     
-                                    {/* 신청중 또는 거부된 경우: 수정 버튼 */}
-                                    {(sub.status === 'pending' || sub.status === 'rejected') && onEdit && (
+                                    {/* 거부된 경우 또는 신청중(안전보건관리자 승인 전)인 경우: 수정 버튼 */}
+                                    {(sub.status === 'rejected' || (sub.status === 'pending' && !sub.approvalInfo?.safetyManagerApproval?.approved)) && onEdit && (
                                       <Button 
                                         variant="secondary" 
                                         size="md"
