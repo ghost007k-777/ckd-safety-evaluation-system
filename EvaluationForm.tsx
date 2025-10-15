@@ -272,23 +272,29 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
       {renderStep()}
 
       {currentStep < Step.Submitted && (
-        <div className="mt-10 flex flex-col-reverse gap-4 sm:flex-row sm:justify-between sm:items-center">
-          <Button variant="secondary" onClick={handlePrev} className="w-full sm:w-auto">
-            {currentStep === Step.ProjectInfo ? '홈으로' : '이전'}
-          </Button>
-
-          <div className="flex w-full sm:w-auto flex-col-reverse items-stretch text-right sm:flex-row sm:items-center gap-4">
-            {validationError && (
-              <p className="text-sm font-medium text-red-600">
-                {validationError}
-              </p>
+        <div className="mt-10">
+          {validationError && (
+            <p className="text-sm font-medium text-red-600 text-center mb-4">
+              {validationError}
+            </p>
+          )}
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:items-center">
+            {currentStep !== Step.ProjectInfo && (
+              <Button variant="secondary" onClick={handlePrev} className="w-full sm:w-40">
+                이전
+              </Button>
             )}
+            
+            <Button variant="ghost" onClick={onBackToHome} className="w-full sm:w-40">
+              홈으로
+            </Button>
+
             {currentStep === Step.Confirmation ? (
-                 <Button onClick={handleSubmit} className="w-full sm:w-auto">제출하기</Button>
+              <Button onClick={handleSubmit} className="w-full sm:w-40">제출하기</Button>
             ) : (
-                  <Button onClick={handleNext} className="w-full sm:w-auto">
-                      다음
-                  </Button>
+              <Button onClick={handleNext} className="w-full sm:w-40">
+                다음
+              </Button>
             )}
           </div>
         </div>

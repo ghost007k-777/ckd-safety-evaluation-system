@@ -274,9 +274,6 @@ const AppContent: React.FC = () => {
             <p className="text-sm text-[#6C757D]">
               © 2025 CKD 적격 수급업체 안전 평가 시스템. All rights reserved.
             </p>
-            <p className="text-xs text-[#ADB5BD] mt-2">
-              Korea Design System (KRDS) 기반으로 제작되었습니다.
-            </p>
           </div>
         </div>
       </footer>
