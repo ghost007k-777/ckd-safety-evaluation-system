@@ -11,8 +11,17 @@ const Section: React.FC<{
     title: string;
     children: React.ReactNode;
     className?: string;
-} & React.HTMLAttributes<HTMLDivElement>> = ({title, children, className, ...rest}) => (
-    <div className={`py-6 border-b border-gray-200 last:border-b-0 pdf-section ${className}`} {...rest}>
+    pageBreakBefore?: boolean;
+} & React.HTMLAttributes<HTMLDivElement>> = ({title, children, className, pageBreakBefore = false, ...rest}) => (
+    <div 
+        className={`py-6 border-b border-gray-200 last:border-b-0 pdf-section ${className}`} 
+        style={{
+            pageBreakInside: 'avoid',
+            breakInside: 'avoid',
+            ...(pageBreakBefore ? { pageBreakBefore: 'always', breakBefore: 'page' } : {})
+        }}
+        {...rest}
+    >
         <h3 className="text-xl font-bold text-gray-900 mb-4">{title}</h3>
         <div className="space-y-3 text-sm text-gray-700">{children}</div>
     </div>
@@ -490,7 +499,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             </div>
         </Section>
 
-        <Section title="작업 허가서" className="" data-section="work-permit">
+        <Section title="작업 허가서" className="" data-section="work-permit" pageBreakBefore={true}>
             <div className="space-y-3 mb-6">
                 <Field label="유형" value={
                   data.workPermit?.type === 'hazardous' ? '위험' : 

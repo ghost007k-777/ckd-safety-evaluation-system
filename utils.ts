@@ -210,7 +210,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       const canvasHeightPx = canvas.height;
       // html2canvas scale=1.5 고려하여 mm/px 비율 계산
       const mmPerPixel = usableWidth / (canvasWidthPx / 1.5);
-      const pageHeightPx = Math.floor(usableHeight / mmPerPixel);
+      // 페이지 높이를 95%로 줄여서 여유 공간 확보 (내용이 잘리는 것 방지)
+      const pageHeightPx = Math.floor((usableHeight * 0.95) / mmPerPixel);
       let pages = 0;
 
       for (let y = 0; y < canvasHeightPx; y += pageHeightPx) {
