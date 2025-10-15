@@ -62,7 +62,9 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
     const generalChecks = data.safetyCheckList?.filter(item => item.category === '일반항목') || [];
-    const highAltitudeChecks = data.safetyCheckList?.filter(item => item.category === '고소작업') || [];
+    const highAltitudeLadderChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-사다리') || [];
+    const highAltitudeScaffoldChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-틀비계') || [];
+    const highAltitudeHangingChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-달비계') || [];
 
     return (
         <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
@@ -212,21 +214,69 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                                 <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{label: '유', value: 'yes'}, {label: '무', value: 'no'}]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
                             </div>
                         </div>
-                        {data.isHighAltitudeWork === 'yes' && highAltitudeChecks.map((item, index) => (
-                             <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                <div className="md:col-span-6 text-gray-800">{index+1}. {item.text}</div>
-                                <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                    </div>
-                                    <div>
-                                        <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                    </div>
+                        {data.isHighAltitudeWork === 'yes' && (
+                            <>
+                                {/* 사다리, 작업발판 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
                                 </div>
-                            </div>
-                        ))}
+                                {highAltitudeLadderChecks.map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* 틀비계 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
+                                </div>
+                                {highAltitudeScaffoldChecks.map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* 달비계 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                </div>
+                                {highAltitudeHangingChecks.map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -697,21 +747,69 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                                <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{label: '유', value: 'yes'}, {label: '무', value: 'no'}]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
                            </div>
                         </div>
-                        {data.isHighAltitudeWork === 'yes' && (data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업') || []).map((item, index) => (
-                           <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                              <div className="md:col-span-6 text-gray-800">{index+1}. {item.text}</div>
-                              <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                  <div>
-                                      <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                      <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                  </div>
-                                  <div>
-                                      <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                      <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                  </div>
-                              </div>
-                          </div>
-                        ))}
+                        {data.isHighAltitudeWork === 'yes' && (
+                            <>
+                                {/* 사다리, 작업발판 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
+                                </div>
+                                {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-사다리') || []).map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* 틀비계 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
+                                </div>
+                                {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-틀비계') || []).map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* 달비계 */}
+                                <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                    <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                </div>
+                                {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-달비계') || []).map((item, index) => (
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{label: 'O', value: 'O'}, {label: 'X', value: 'X'}]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

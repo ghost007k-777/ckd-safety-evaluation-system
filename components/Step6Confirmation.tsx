@@ -36,7 +36,9 @@ const Field: React.FC<{label: string; value: React.ReactNode}> = ({label, value}
 
 const GeneralPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => {
     const generalChecks = data.safetyCheckList?.filter(item => item.category === '일반항목') || [];
-    const highAltitudeChecks = data.safetyCheckList?.filter(item => item.category === '고소작업') || [];
+    const highAltitudeLadderChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-사다리') || [];
+    const highAltitudeScaffoldChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-틀비계') || [];
+    const highAltitudeHangingChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-달비계') || [];
 
     const renderChecklist = (items: typeof generalChecks, title: string, condition: boolean = true) => {
         if (!condition || items.length === 0) return null;
@@ -119,15 +121,51 @@ const GeneralPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => 
                              <div className="md:col-span-6">해당 작업 유/무</div>
                              <div className="md:col-span-4 text-left md:text-center font-semibold">{data.isHighAltitudeWork === 'yes' ? '유' : '무'}</div>
                          </div>
-                         {highAltitudeChecks.map((item, index) => (
-                             <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                <div className="md:col-span-6 text-gray-800">{index + 1}. {item.text}</div>
-                                <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
-                                    <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
-                                    <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
-                                </div>
-                            </div>
-                         ))}
+                         {data.isHighAltitudeWork === 'yes' && (
+                             <>
+                                 {/* 사다리, 작업발판 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
+                                 </div>
+                                 {highAltitudeLadderChecks.map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                                 
+                                 {/* 틀비계 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
+                                 </div>
+                                 {highAltitudeScaffoldChecks.map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                                 
+                                 {/* 달비계 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                 </div>
+                                 {highAltitudeHangingChecks.map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                             </>
+                         )}
                     </div>
                 </div>
             </div>
@@ -233,7 +271,51 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) =
                              <div className="md:col-span-6">해당 작업 유/무</div>
                              <div className="md:col-span-4 text-left md:text-center font-semibold">{data.isHighAltitudeWork === 'yes' ? '유' : '무'}</div>
                          </div>
-                         {renderChecklist('고소작업', '', data.isHighAltitudeWork === 'yes')}
+                         {data.isHighAltitudeWork === 'yes' && (
+                             <>
+                                 {/* 사다리, 작업발판 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
+                                 </div>
+                                 {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-사다리') || []).map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                                 
+                                 {/* 틀비계 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
+                                 </div>
+                                 {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-틀비계') || []).map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                                 
+                                 {/* 달비계 */}
+                                 <div className="py-2 md:p-3 bg-gray-50 border-b">
+                                     <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                 </div>
+                                 {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-달비계') || []).map((item, index) => (
+                                     <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
+                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
+                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
+                                        </div>
+                                    </div>
+                                 ))}
+                             </>
+                         )}
                     </div>
                 </div>
             </div>

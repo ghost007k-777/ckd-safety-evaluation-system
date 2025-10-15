@@ -150,7 +150,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
                 if (!isHighAltitudeWork) return { isValid: false, message: '고소작업 해당 여부를 선택해주세요.'};
                 
                 const checksToValidate = (safetyCheckList ?? []).filter(item => 
-                    item.category === '일반항목' || (item.category === '고소작업' && isHighAltitudeWork === 'yes')
+                    item.category === '일반항목' || (item.category.startsWith('고소작업') && isHighAltitudeWork === 'yes')
                 );
                 
                 if (checksToValidate.some(item => !item.applicable || !item.implemented)) {
@@ -165,7 +165,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
                 const checksToValidate = (hazardousSafetyCheckList ?? []).filter(item => 
                     item.category === '일반항목' ||
                     (item.category === '화기작업' && isHotWork === 'yes') ||
-                    (item.category === '고소작업' && isHighAltitudeWork === 'yes')
+                    (item.category.startsWith('고소작업') && isHighAltitudeWork === 'yes')
                 );
                 
                 if (checksToValidate.some(item => !item.applicable || !item.implemented)) {
