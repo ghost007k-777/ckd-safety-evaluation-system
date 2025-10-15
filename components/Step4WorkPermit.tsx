@@ -511,6 +511,24 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
                     <textarea className={`${inputClasses} h-24`} placeholder="안전조치 외 주의사항 등 기재" value={data.specialNotes} onChange={e => updateData({ specialNotes: e.target.value })}></textarea>
                 </div>
             </div>
+
+            {/* 필수서류 다운로드 */}
+            <div className="p-4 bg-[#E6F0FF] border-t-2 border-[#0066CC]">
+                <div className="flex flex-col items-center justify-center gap-3">
+                    <a 
+                        href="https://drive.google.com/uc?export=download&id=1TnGiUxb-yvBaFWt0fEn9nwde4QIXb74i"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#0066CC] text-white font-semibold rounded-lg shadow-md hover:bg-[#0052A3] active:bg-[#003E7A] transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        필수서류 다운로드
+                    </a>
+                    <p className="text-xs text-[#6C757D]">(작업 전 체크리스트, 출입대장, 가스 측정표)</p>
+                </div>
+            </div>
         </div>
     );
 };
