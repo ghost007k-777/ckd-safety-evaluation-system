@@ -213,12 +213,11 @@ const AppContent: React.FC = () => {
                   className="h-10 sm:h-12 object-contain"
                 />
               </div>
-              <div className="ml-3 sm:ml-4 min-w-0">
-                <h1 className="text-base sm:text-xl font-bold text-[#212529] truncate leading-tight">
+              <div className="ml-3 sm:ml-4 min-w-0 flex items-center">
+                <h1 className="text-lg sm:text-2xl font-bold text-[#212529] truncate leading-tight">
                   <span className="hidden sm:inline">CKD 적격 수급업체 안전 평가 시스템</span>
                   <span className="sm:hidden">CKD 안전평가</span>
                 </h1>
-                <p className="text-xs text-[#6C757D] mt-0.5 hidden sm:block">Korea Design System 적용</p>
               </div>
             </div>
             
