@@ -25,18 +25,18 @@ const CheckIcon: React.FC<{className?: string}> = ({className}) => (
 export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
   return (
     <nav aria-label="Progress" className="mb-8">
-      <ol role="list" className="flex justify-between items-center w-full">
+      <ol role="list" className="flex justify-between items-start w-full">
         {steps.map((step, stepIdx) => {
           const isCompleted = currentStep > step.id;
           const isCurrent = currentStep === step.id;
 
           return (
-            <li key={step.name} className="relative flex-1">
-              <div className="flex items-center text-sm font-medium">
+            <li key={step.name} className="relative flex-1 flex flex-col items-center">
+              <div className="flex items-center justify-center w-full relative">
                 {/* Line (KRDS 스타일) */}
                 {stepIdx > 0 && (
                   <div 
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-full h-1 transition-colors duration-300 ${
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 right-1/2 h-1 transition-colors duration-300 ${
                       isCompleted || isCurrent ? 'bg-[#0066CC]' : 'bg-[#DEE2E6]'
                     }`} 
                     aria-hidden="true" 
@@ -63,25 +63,24 @@ export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
                       <div className="w-2.5 h-2.5 bg-[#0066CC] rounded-full animate-pulse" />
                     ) : null}
                 </div>
-                
-                {/* Text (KRDS 스타일) */}
-                <span 
-                  className={`
-                    absolute top-10 sm:top-11 left-1/2 -translate-x-1/2 
-                    text-center text-[10px] sm:text-xs 
-                    whitespace-nowrap
-                    transition-all duration-200
-                    ${isCurrent 
-                      ? 'text-[#0066CC] font-bold scale-105' 
-                      : isCompleted
-                        ? 'text-[#495057] font-medium'
-                        : 'text-[#6C757D]'
-                    }
-                  `}
-                >
-                    {step.name}
-                </span>
               </div>
+              
+              {/* Text (KRDS 스타일) - 동그라미 바로 아래 */}
+              <span 
+                className={`
+                  mt-3 text-center text-[10px] sm:text-xs 
+                  whitespace-nowrap
+                  transition-all duration-200
+                  ${isCurrent 
+                    ? 'text-[#0066CC] font-bold scale-105' 
+                    : isCompleted
+                      ? 'text-[#495057] font-medium'
+                      : 'text-[#6C757D]'
+                  }
+                `}
+              >
+                  {step.name}
+              </span>
             </li>
           );
         })}

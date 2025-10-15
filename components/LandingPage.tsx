@@ -95,9 +95,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onS
     <div className="max-w-5xl mx-auto">
       {/* 헤더 섹션 (KRDS 스타일) */}
       <div className="text-center mb-12 sm:mb-16">
-        <div className="inline-block px-4 py-2 bg-[#E6F0FF] rounded-full mb-6">
-          <span className="text-sm font-semibold text-[#0066CC]">Korea Design System</span>
-        </div>
         <h2 className="text-3xl sm:text-5xl font-bold text-[#212529] mb-4 leading-tight">
           무엇을 하시겠습니까?
         </h2>
