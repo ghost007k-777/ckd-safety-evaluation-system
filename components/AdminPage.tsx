@@ -10,7 +10,7 @@ import { useConnectionStatus } from '../contexts/DataContext.tsx';
 
 interface AdminPageProps {
   submissions: Submission[];
-  onUpdateStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => void;
+  onUpdateStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo, rejectionReason?: string) => void;
   onDelete: (id: string) => void;
   onBack: () => void;
 }
@@ -82,6 +82,75 @@ const ApprovalPopup: React.FC<ApprovalPopupProps> = ({
   );
 };
 
+// 거부 사유 입력 팝업 컴포넌트
+interface RejectionPopupProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => void;
+}
+
+const RejectionPopup: React.FC<RejectionPopupProps> = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm 
+}) => {
+  const [reason, setReason] = useState('');
+  
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (reason.trim()) {
+      onConfirm(reason.trim());
+      setReason('');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+        <h3 className="text-2xl font-bold text-[#DC3545] mb-3">승인 거부 사유</h3>
+        <p className="text-[#6C757D] mb-6 leading-relaxed">승인을 거부하는 사유를 입력해주세요.</p>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="mb-6">
+            <label htmlFor="rejection-reason" className="block text-sm font-semibold text-[#343A40] mb-2">
+              거부 사유 <span className="text-[#DC3545]">*</span>
+            </label>
+            <textarea
+              id="rejection-reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="거부 사유를 상세히 입력해주세요"
+              className="block w-full px-4 py-3 border-2 border-[#DEE2E6] rounded-lg text-[#212529] text-base bg-white placeholder-[#ADB5BD] transition-all duration-200 focus:border-[#DC3545] focus:ring-2 focus:ring-[#F8D7DA] hover:border-[#ADB5BD] resize-none"
+              rows={4}
+              autoFocus
+              required
+            />
+          </div>
+          
+          <div className="flex justify-end gap-3 mt-8">
+            <Button
+              type="button"
+              variant="ghost"
+              size="lg"
+              onClick={() => {
+                onClose();
+                setReason('');
+              }}
+            >
+              취소
+            </Button>
+            <Button type="submit" variant="danger" size="lg">
+              거부
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const statusMap: Record<SubmissionStatus, { text: string; dot: string; textBg: string; }> = {
   pending: { text: '신청 중', dot: 'bg-[#FFC107]', textBg: 'bg-[#FFF3CD] text-[#856404] border border-[#FFC107]' },
   approved: { text: '승인', dot: 'bg-[#28A745]', textBg: 'bg-[#D4EDDA] text-[#155724] border border-[#28A745]' },
@@ -113,6 +182,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
     isOpen: false,
     submissionId: '',
     approvalType: 'safetyManager'
+  });
+  const [rejectionPopup, setRejectionPopup] = useState<{
+    isOpen: boolean;
+    submissionId: string;
+  }>({
+    isOpen: false,
+    submissionId: ''
   });
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
@@ -219,6 +295,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
       isOpen: false,
       submissionId: '',
       approvalType: 'safetyManager'
+    });
+  };
+
+  // 거부 버튼 클릭 핸들러
+  const handleRejectionClick = (submissionId: string) => {
+    setRejectionPopup({
+      isOpen: true,
+      submissionId
+    });
+  };
+
+  // 거부 확인 핸들러
+  const handleRejectionConfirm = (reason: string) => {
+    const { submissionId } = rejectionPopup;
+    onUpdateStatus(submissionId, 'rejected', undefined, reason);
+    
+    // 팝업 닫기
+    setRejectionPopup({
+      isOpen: false,
+      submissionId: ''
     });
   };
 
@@ -358,7 +454,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                             </Button>
                             <Button 
                               variant="secondary" 
-                              onClick={() => onUpdateStatus(sub.id, 'rejected')}
+                              onClick={() => handleRejectionClick(sub.id)}
                             >
                                 승인 거부
                             </Button>
@@ -496,6 +592,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
               ? '안전보건관리자 승인을 위해 승인자 이름을 입력해주세요.'
               : '안전보건부서팀장 승인을 위해 승인자 이름을 입력해주세요. 이 승인으로 최종 승인이 완료됩니다.'
           }
+        />
+
+        {/* 거부 사유 입력 팝업 */}
+        <RejectionPopup
+          isOpen={rejectionPopup.isOpen}
+          onClose={() => setRejectionPopup({ isOpen: false, submissionId: '' })}
+          onConfirm={handleRejectionConfirm}
         />
     </div>
   );

@@ -81,7 +81,8 @@ interface DataContextType {
   state: DataState;
   actions: {
     addSubmission: (formData: FormData) => Promise<void>;
-    updateSubmissionStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => Promise<void>;
+    updateSubmissionStatus: (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo, rejectionReason?: string) => Promise<void>;
+    updateSubmission: (id: string, formData: FormData) => Promise<void>;
     deleteSubmission: (id: string) => Promise<void>;
     refreshData: () => Promise<void>;
     manualSync: () => Promise<void>;
@@ -174,7 +175,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
       }
     },
 
-    updateSubmissionStatus: async (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo) => {
+    updateSubmissionStatus: async (id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo, rejectionReason?: string) => {
       try {
         dispatch({ type: 'SET_ERROR', payload: null });
         
@@ -183,13 +184,29 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         if (approvalInfo) {
           updates.approvalInfo = approvalInfo;
         }
+        if (rejectionReason !== undefined) {
+          updates.rejectionReason = rejectionReason;
+        }
         
-        await dataManager.updateSubmissionStatus(id, status, approvalInfo);
+        await dataManager.updateSubmissionStatus(id, status, approvalInfo, rejectionReason);
         dispatch({ type: 'UPDATE_SUBMISSION', payload: { id, updates } });
-        console.log('✅ [DataProvider] 상태 업데이트 완료:', id, status, approvalInfo);
+        console.log('✅ [DataProvider] 상태 업데이트 완료:', id, status, approvalInfo, rejectionReason);
       } catch (error) {
         console.error('❌ [DataProvider] 상태 업데이트 실패:', error);
         dispatch({ type: 'SET_ERROR', payload: '상태 업데이트에 실패했습니다.' });
+        throw error;
+      }
+    },
+
+    updateSubmission: async (id: string, formData: FormData) => {
+      try {
+        dispatch({ type: 'SET_ERROR', payload: null });
+        await dataManager.updateSubmission(id, formData);
+        dispatch({ type: 'UPDATE_SUBMISSION', payload: { id, updates: formData } });
+        console.log('✅ [DataProvider] 신청서 수정 완료:', id);
+      } catch (error) {
+        console.error('❌ [DataProvider] 신청서 수정 실패:', error);
+        dispatch({ type: 'SET_ERROR', payload: '신청서 수정에 실패했습니다.' });
         throw error;
       }
     },

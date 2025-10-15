@@ -17,6 +17,7 @@ type View = 'landing' | 'form' | 'list' | 'admin';
 // 내부 앱 컴포넌트 (DataProvider로 감싸진 상태에서 실행)
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('landing');
+  const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null);
   
   // 새로운 전역 상태 훅들 사용
   const { state, actions } = useData();
@@ -110,9 +111,21 @@ const AppContent: React.FC = () => {
       case 'form':
         return (
           <EvaluationForm 
-                    onBackToHome={() => setCurrentView('landing')} 
-            onSubmit={actions.addSubmission}
-                    onViewList={() => setCurrentView('list')} 
+            onBackToHome={() => {
+              setCurrentView('landing');
+              setEditingSubmission(null);
+            }} 
+            onSubmit={editingSubmission 
+              ? (formData) => {
+                  actions.updateSubmission(editingSubmission.id, formData);
+                  setEditingSubmission(null);
+                  setCurrentView('list');
+                }
+              : actions.addSubmission
+            }
+            onViewList={() => setCurrentView('list')} 
+            initialData={editingSubmission || undefined}
+            isEditMode={!!editingSubmission}
           />
         );
       case 'list':
@@ -120,6 +133,10 @@ const AppContent: React.FC = () => {
           <ApplicationList 
             submissions={state.submissions} 
             onBack={() => setCurrentView('landing')} 
+            onEdit={(submission) => {
+              setEditingSubmission(submission);
+              setCurrentView('form');
+            }}
           />
         );
       case 'admin':

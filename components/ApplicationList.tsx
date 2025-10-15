@@ -11,6 +11,7 @@ import { getSubmissions } from '../services/firestoreService.ts';
 interface ApplicationListProps {
   submissions: Submission[];
   onBack: () => void;
+  onEdit?: (submission: Submission) => void;
 }
 
 // KRDS 스타일 상태 맵
@@ -51,7 +52,7 @@ const StatusBadge: React.FC<{ submission: Submission }> = ({ submission }) => {
   );
 };
 
-export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, onBack }) => {
+export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, onBack, onEdit }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -243,6 +244,13 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                           )}
                                         </div>
                                       )}
+                                      {/* 거부 사유 표시 */}
+                                      {sub.status === 'rejected' && sub.rejectionReason && (
+                                        <div className="mt-2 p-2 bg-[#F8D7DA] border border-[#DC3545] rounded-md">
+                                          <p className="text-xs font-semibold text-[#721C24]">거부 사유:</p>
+                                          <p className="text-xs text-[#721C24] mt-1">{sub.rejectionReason}</p>
+                                        </div>
+                                      )}
                                     </div>
                                     <svg className={`w-6 h-6 text-[#0066CC] transform transition-transform duration-300 ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -251,33 +259,54 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                             </div>
                             {expandedId === sub.id && (
                                 <div id={`submission-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                                  {/* 버튼 영역 */}
+                                  <div className="p-5 flex justify-end gap-3">
+                                    {/* 승인 완료된 경우: PDF 다운로드 버튼 */}
+                                    {sub.status === 'approved' && (
+                                      <Button 
+                                        variant="primary" 
+                                        size="md"
+                                        onClick={() => handleDownloadPdf(sub)} 
+                                        disabled={isDownloading}
+                                      >
+                                          {isDownloading ? (
+                                            <div className="flex items-center gap-2">
+                                              <Spinner size="sm" color="white" />
+                                              <span>다운로드 중</span>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center gap-2">
+                                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                              </svg>
+                                              <span>PDF 다운로드</span>
+                                            </div>
+                                          )}
+                                      </Button>
+                                    )}
+                                    
+                                    {/* 신청중 또는 거부된 경우: 수정 버튼 */}
+                                    {(sub.status === 'pending' || sub.status === 'rejected') && onEdit && (
+                                      <Button 
+                                        variant="secondary" 
+                                        size="md"
+                                        onClick={() => onEdit(sub)}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                          </svg>
+                                          <span>수정</span>
+                                        </div>
+                                      </Button>
+                                    )}
+                                  </div>
+                                  
                                   {sub.status === 'approved' && (
-                                    <div className="p-5 flex justify-end">
-                                        <Button 
-                                          variant="primary" 
-                                          size="md"
-                                          onClick={() => handleDownloadPdf(sub)} 
-                                          disabled={isDownloading}
-                                        >
-                                            {isDownloading ? (
-                                              <div className="flex items-center gap-2">
-                                                <Spinner size="sm" color="white" />
-                                                <span>다운로드 중</span>
-                                              </div>
-                                            ) : (
-                                              <div className="flex items-center gap-2">
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <span>PDF 다운로드</span>
-                                              </div>
-                                            )}
-                                        </Button>
+                                    <div className="p-1">
+                                      <Step6Confirmation data={sub} ref={printRef} />
                                     </div>
                                   )}
-                                  <div className="p-1">
-                                    <Step6Confirmation data={sub} ref={printRef} />
-                                  </div>
                                 </div>
                             )}
                             </div>

@@ -18,6 +18,8 @@ interface EvaluationFormProps {
     onBackToHome: () => void;
     onSubmit: (formData: FormData) => void;
     onViewList: () => void;
+    initialData?: Submission;
+    isEditMode?: boolean;
 }
 
 interface ValidationResult {
@@ -25,10 +27,23 @@ interface ValidationResult {
     message: string;
 }
 
-export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onSubmit, onViewList}) => {
+export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onSubmit, onViewList, initialData, isEditMode = false}) => {
   const [currentStep, setCurrentStep] = useState<Step>(Step.ProjectInfo);
   
   const [formData, setFormData] = useState<FormData>(() => {
+    // 수정 모드일 경우 initialData를 사용
+    if (initialData) {
+      return {
+        projectInfo: initialData.projectInfo,
+        workTypeSelection: initialData.workTypeSelection,
+        safetyTraining: initialData.safetyTraining,
+        riskAssessment: initialData.riskAssessment,
+        workPermit: initialData.workPermit,
+        safetyPledge: initialData.safetyPledge
+      };
+    }
+
+    // 새 신청일 경우 기본값
     const initialFormData: FormData = {
       projectInfo: { location: '', locationOther: '', constructionName: '', companyName: '', contactPerson: '' },
       workTypeSelection: { general: false, confined: false, heightWork: false, hotWork: false },

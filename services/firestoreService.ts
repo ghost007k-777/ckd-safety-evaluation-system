@@ -157,7 +157,8 @@ export const getSubmissions = async (): Promise<Submission[]> => {
 export const updateSubmissionStatus = async (
   id: string, 
   status: SubmissionStatus,
-  approvalInfo?: ApprovalInfo
+  approvalInfo?: ApprovalInfo,
+  rejectionReason?: string
 ): Promise<void> => {
   try {
     const submissionRef = doc(db, SUBMISSIONS_COLLECTION, id);
@@ -184,11 +185,46 @@ export const updateSubmissionStatus = async (
       
       updateData.approvalInfo = convertedApprovalInfo;
     }
+
+    // 거부 사유가 있으면 추가
+    if (rejectionReason !== undefined) {
+      updateData.rejectionReason = rejectionReason;
+    }
     
     await updateDoc(submissionRef, updateData);
-    console.log('신청서 상태가 업데이트되었습니다:', id, status, approvalInfo);
+    console.log('신청서 상태가 업데이트되었습니다:', id, status, approvalInfo, rejectionReason);
   } catch (error) {
     console.error('신청서 상태 업데이트 중 오류 발생:', error);
+    throw error;
+  }
+};
+
+// 신청서 수정
+export const updateSubmission = async (id: string, formData: FormData): Promise<void> => {
+  try {
+    const submissionRef = doc(db, SUBMISSIONS_COLLECTION, id);
+    const submissionDoc = await getDoc(submissionRef);
+    
+    if (!submissionDoc.exists()) {
+      throw new Error('신청서를 찾을 수 없습니다.');
+    }
+
+    const existingData = submissionDoc.data() as Submission;
+    const updateData: any = {
+      ...existingData,
+      ...formData,
+      // 기존 id, submittedAt, status는 유지
+      id: existingData.id,
+      submittedAt: existingData.submittedAt,
+      status: existingData.status,
+      approvalInfo: existingData.approvalInfo,
+      rejectionReason: existingData.rejectionReason
+    };
+    
+    await updateDoc(submissionRef, updateData);
+    console.log('신청서가 수정되었습니다:', id);
+  } catch (error) {
+    console.error('신청서 수정 중 오류 발생:', error);
     throw error;
   }
 };

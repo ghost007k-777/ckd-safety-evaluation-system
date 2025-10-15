@@ -3,6 +3,7 @@ import {
   addSubmission as firebaseAddSubmission,
   getSubmissions as firebaseGetSubmissions,
   updateSubmissionStatus as firebaseUpdateStatus,
+  updateSubmission as firebaseUpdateSubmission,
   deleteSubmission as firebaseDeleteSubmission,
   subscribeToSubmissions,
   testFirebaseConnection
@@ -419,13 +420,14 @@ export class DataManager {
   /**
    * 신청서 상태 업데이트
    */
-  public async updateSubmissionStatus(id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo): Promise<void> {
+  public async updateSubmissionStatus(id: string, status: SubmissionStatus, approvalInfo?: ApprovalInfo, rejectionReason?: string): Promise<void> {
     // 로컬에서 즉시 업데이트
     this.submissions = this.submissions.map(sub =>
       sub.id === id ? { 
         ...sub, 
         status,
-        ...(approvalInfo && { approvalInfo })
+        ...(approvalInfo && { approvalInfo }),
+        ...(rejectionReason !== undefined && { rejectionReason })
       } : sub
     );
     this.saveToCache();
@@ -433,14 +435,41 @@ export class DataManager {
 
     try {
       if (this.connectionStatus === 'online') {
-        await firebaseUpdateStatus(id, status, approvalInfo);
-        console.log('✅ [DataManager] 상태 Firebase 업데이트 완료:', id, status, approvalInfo);
+        await firebaseUpdateStatus(id, status, approvalInfo, rejectionReason);
+        console.log('✅ [DataManager] 상태 Firebase 업데이트 완료:', id, status, approvalInfo, rejectionReason);
       } else {
         console.log('⚠️ [DataManager] 오프라인 모드 - 로컬에만 업데이트');
       }
     } catch (error) {
       console.error('❌ [DataManager] Firebase 업데이트 실패:', error);
       // 로컬 업데이트는 이미 완료되었으므로 에러를 던지지 않음
+    }
+  }
+
+  /**
+   * 신청서 수정
+   */
+  public async updateSubmission(id: string, formData: FormData): Promise<void> {
+    // 로컬에서 즉시 업데이트
+    this.submissions = this.submissions.map(sub =>
+      sub.id === id ? { 
+        ...sub, 
+        ...formData
+      } : sub
+    );
+    this.saveToCache();
+    this.emitDataChange();
+
+    try {
+      if (this.connectionStatus === 'online') {
+        await firebaseUpdateSubmission(id, formData);
+        console.log('✅ [DataManager] 신청서 Firebase 수정 완료:', id);
+      } else {
+        console.log('⚠️ [DataManager] 오프라인 모드 - 로컬에만 수정');
+      }
+    } catch (error) {
+      console.error('❌ [DataManager] Firebase 수정 실패:', error);
+      // 로컬 수정은 이미 완료되었으므로 에러를 던지지 않음
     }
   }
 

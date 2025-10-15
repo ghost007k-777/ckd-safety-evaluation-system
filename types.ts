@@ -155,4 +155,5 @@ export interface Submission extends FormData {
   status: SubmissionStatus;
   submittedAt: Date;
   approvalInfo?: ApprovalInfo;
+  rejectionReason?: string;
 }
