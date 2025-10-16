@@ -34,9 +34,9 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
 
   // Video configurations
   const baseVideoConfigs: VideoConfig[] = [
-    { type: 'general', title: '일반작업 안전교육', url: 'placeholder-general-video-url' },
+    { type: 'general', title: '일반작업 안전교육', url: 'https://youtu.be/AEmvaCOJ9bg?si=vsRnpcKAO7QCMbFu' },
     { type: 'confined', title: '밀폐공간작업 안전교육', url: 'https://www.youtube.com/watch?v=6886vrKJ9-g' },
-    { type: 'hotWork', title: '화기작업 안전교육', url: 'placeholder-hot-video-url' }
+    { type: 'hotWork', title: '화기작업 안전교육', url: 'https://youtu.be/thn3M_DmoWA?si=GC3LziifK6c7OMZR' }
   ];
 
   // Build video list including height work sub-types

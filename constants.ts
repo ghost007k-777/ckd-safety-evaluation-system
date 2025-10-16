@@ -5,15 +5,15 @@ export const LOCATIONS = ["강남", "충남", "전남", "전북", "제주", "기
 export const HEIGHT_WORK_VIDEOS = {
   ladder: {
     title: '사다리, 작업발판 안전교육',
-    url: 'placeholder-ladder-video-url', // 나중에 제공될 영상 링크
+    url: 'https://youtu.be/-uppdDNcolA?si=tN3jyCAhAjnnzlCY',
   },
   scaffold: {
     title: '틀비계 안전교육',
-    url: 'placeholder-scaffold-video-url', // 나중에 제공될 영상 링크
+    url: 'https://youtu.be/v8RLoNEx4VA?si=oglNiqVokoRqZkrL',
   },
   hangingScaffold: {
     title: '달비계 안전교육',
-    url: 'placeholder-hanging-scaffold-video-url', // 나중에 제공될 영상 링크
+    url: 'https://youtu.be/6M-fHIfeYW0?si=P4ioUx55t2ynHhfr',
   }
 } as const;
 
