@@ -230,8 +230,8 @@ const AppContent: React.FC = () => {
               </div>
               <div className="ml-3 sm:ml-4 min-w-0 flex items-center">
                 <h1 className="text-lg sm:text-2xl font-bold text-[#212529] truncate leading-tight">
-                  <span className="hidden sm:inline">CKD 적격 수급업체 안전 평가 시스템</span>
-                  <span className="sm:hidden">CKD 안전평가</span>
+                  <span className="hidden sm:inline">CKD 안전허가서 시스템</span>
+                  <span className="sm:hidden">CKD 안전허가서</span>
                 </h1>
               </div>
             </div>
@@ -287,7 +287,7 @@ const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-sm text-[#6C757D]">
-              © 2025 CKD 적격 수급업체 안전 평가 시스템. All rights reserved.
+              © 2025 CKD 안전허가서 시스템. All rights reserved.
             </p>
           </div>
         </div>
