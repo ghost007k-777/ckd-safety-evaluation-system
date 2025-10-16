@@ -1,6 +1,22 @@
 
 export const LOCATIONS = ["강남", "충남", "전남", "전북", "제주", "기타"];
 
+// 고소작업 하위 유형별 영상 설정
+export const HEIGHT_WORK_VIDEOS = {
+  ladder: {
+    title: '사다리, 작업발판 안전교육',
+    url: 'placeholder-ladder-video-url', // 나중에 제공될 영상 링크
+  },
+  scaffold: {
+    title: '틀비계 안전교육',
+    url: 'placeholder-scaffold-video-url', // 나중에 제공될 영상 링크
+  },
+  hangingScaffold: {
+    title: '달비계 안전교육',
+    url: 'placeholder-hanging-scaffold-video-url', // 나중에 제공될 영상 링크
+  }
+} as const;
+
 export const SAFETY_CHECK_LIST_ITEMS = [
     { id: 'gen1', category: '일반항목', text: '해당 작업 관리감독자 배치' },
     { id: 'gen2', category: '일반항목', text: '작업 전 안전교육 실시' },

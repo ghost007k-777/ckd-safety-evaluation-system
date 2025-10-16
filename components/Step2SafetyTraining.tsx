@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { SafetyTraining, WorkTypeSelection } from '../types.ts';
+import { SafetyTraining, WorkTypeSelection, HeightWorkSubType } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { Checkbox } from './ui/Checkbox.tsx';
 import { Button } from './ui/Button.tsx';
+import { HEIGHT_WORK_VIDEOS } from '../constants.ts';
 
 interface Step2Props {
   data: SafetyTraining;
@@ -11,7 +12,7 @@ interface Step2Props {
 }
 
 interface VideoConfig {
-  type: keyof WorkTypeSelection;
+  type: keyof WorkTypeSelection | 'heightWorkLadder' | 'heightWorkScaffold' | 'heightWorkHangingScaffold';
   title: string;
   url: string; // URL will be provided later
 }
@@ -32,15 +33,61 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   };
 
   // Video configurations
-  const videoConfigs: VideoConfig[] = [
+  const baseVideoConfigs: VideoConfig[] = [
     { type: 'general', title: '일반작업 안전교육', url: 'placeholder-general-video-url' },
     { type: 'confined', title: '밀폐공간작업 안전교육', url: 'https://www.youtube.com/watch?v=6886vrKJ9-g' },
-    { type: 'heightWork', title: '고소작업 안전교육', url: 'placeholder-height-video-url' },
     { type: 'hotWork', title: '화기작업 안전교육', url: 'placeholder-hot-video-url' }
   ];
 
+  // Build video list including height work sub-types
+  const buildVideoList = (): VideoConfig[] => {
+    const videos: VideoConfig[] = [];
+    
+    // Add general work type
+    if (data.workTypes.general) {
+      videos.push(baseVideoConfigs.find(v => v.type === 'general')!);
+    }
+    
+    // Add confined space
+    if (data.workTypes.confined) {
+      videos.push(baseVideoConfigs.find(v => v.type === 'confined')!);
+    }
+    
+    // Add height work sub-types
+    if (data.workTypes.heightWork && data.workTypes.heightWorkSubType) {
+      if (data.workTypes.heightWorkSubType.ladder) {
+        videos.push({
+          type: 'heightWorkLadder',
+          title: HEIGHT_WORK_VIDEOS.ladder.title,
+          url: HEIGHT_WORK_VIDEOS.ladder.url
+        });
+      }
+      if (data.workTypes.heightWorkSubType.scaffold) {
+        videos.push({
+          type: 'heightWorkScaffold',
+          title: HEIGHT_WORK_VIDEOS.scaffold.title,
+          url: HEIGHT_WORK_VIDEOS.scaffold.url
+        });
+      }
+      if (data.workTypes.heightWorkSubType.hangingScaffold) {
+        videos.push({
+          type: 'heightWorkHangingScaffold',
+          title: HEIGHT_WORK_VIDEOS.hangingScaffold.title,
+          url: HEIGHT_WORK_VIDEOS.hangingScaffold.url
+        });
+      }
+    }
+    
+    // Add hot work
+    if (data.workTypes.hotWork) {
+      videos.push(baseVideoConfigs.find(v => v.type === 'hotWork')!);
+    }
+    
+    return videos;
+  };
+
   // Get selected video types
-  const selectedVideos = videoConfigs.filter(config => data.workTypes[config.type]);
+  const selectedVideos = buildVideoList();
   const currentVideo = selectedVideos[data.currentVideoIndex];
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
 

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Step, FormData, ProjectInfo, WorkTypeSelection, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge } from './types.ts';
+import { Step, FormData, ProjectInfo, WorkTypeSelection, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge, HeightWorkSubType, Submission } from './types.ts';
 import { Stepper } from './components/Stepper.tsx';
 import { Button } from './components/ui/Button.tsx';
 import { Step1ProjectInfo } from './components/Step1ProjectInfo.tsx';
@@ -71,10 +71,10 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
         specialNotes: '',
         isHighAltitudeWork: '',
         // General type fields
-        safetyCheckList: SAFETY_CHECK_LIST_ITEMS.map(item => ({ ...item, applicable: '', implemented: '' })),
+        safetyCheckList: SAFETY_CHECK_LIST_ITEMS.map(item => ({ ...item, applicable: '', implemented: '' })) as any,
         // Hazardous type fields
         isHotWork: '',
-        hazardousSafetyCheckList: HAZARDOUS_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})),
+        hazardousSafetyCheckList: HAZARDOUS_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', implemented: ''})) as any,
         gasMeasurements: [{id: generateUniqueId(), name: '', concentration: '', time: ''}],
         // Confined space type fields
         confinedSpaceSafetyCheckList: CONFINED_SPACE_SAFETY_CHECK_ITEMS.map(item => ({...item, applicable: '', confirmed: false})),
@@ -91,7 +91,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
     setFormData(prev => ({ ...prev, projectInfo: { ...prev.projectInfo, [field]: value } }));
   }, []);
 
-  const updateWorkTypeSelection = useCallback((field: keyof WorkTypeSelection, value: boolean) => {
+  const updateWorkTypeSelection = useCallback((field: keyof WorkTypeSelection, value: boolean | HeightWorkSubType) => {
     setValidationError(null);
     setFormData(prev => ({ 
       ...prev, 
@@ -135,9 +135,15 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
             return { isValid: true, message: '' };
         }
         case Step.WorkTypeSelection: {
-            const { general, confined, heightWork, hotWork } = formData.workTypeSelection;
+            const { general, confined, heightWork, hotWork, heightWorkSubType } = formData.workTypeSelection;
             if (!general && !confined && !heightWork && !hotWork) {
                 return { isValid: false, message: '하나 이상의 작업 유형을 선택해주세요.' };
+            }
+            // 고소작업이 선택되었을 때 하위 유형 확인
+            if (heightWork) {
+                if (!heightWorkSubType || (!heightWorkSubType.ladder && !heightWorkSubType.scaffold && !heightWorkSubType.hangingScaffold)) {
+                    return { isValid: false, message: '고소작업 세부 유형을 최소 1개 이상 선택해주세요.' };
+                }
             }
             return { isValid: true, message: '' };
         }

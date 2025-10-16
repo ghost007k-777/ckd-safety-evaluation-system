@@ -17,11 +17,18 @@ export interface ProjectInfo {
   contactPerson: string;
 }
 
+export interface HeightWorkSubType {
+  ladder: boolean;        // 사다리, 작업발판
+  scaffold: boolean;      // 틀비계
+  hangingScaffold: boolean; // 달비계
+}
+
 export interface WorkTypeSelection {
   general: boolean;
   confined: boolean;
   heightWork: boolean;
   hotWork: boolean;
+  heightWorkSubType?: HeightWorkSubType; // 고소작업 하위 유형
 }
 
 export interface SafetyTraining {
@@ -48,7 +55,7 @@ export type RiskAssessment = RiskItem[];
 
 export interface SafetyCheckItem {
   id: string;
-  category: '일반항목' | '고소작업';
+  category: '일반항목' | '고소작업' | '고소작업-사다리' | '고소작업-틀비계' | '고소작업-달비계';
   text: string;
   applicable: 'O' | 'X' | '';
   implemented: 'O' | 'X' | '';
@@ -56,7 +63,7 @@ export interface SafetyCheckItem {
 
 export interface HazardousSafetyCheckItem {
   id: string;
-  category: '일반항목' | '화기작업' | '고소작업';
+  category: '일반항목' | '화기작업' | '고소작업' | '고소작업-사다리' | '고소작업-틀비계' | '고소작업-달비계';
   text: string;
   applicable: 'O' | 'X' | '';
   implemented: 'O' | 'X' | '';
