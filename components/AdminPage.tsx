@@ -404,7 +404,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         <Card className="mb-12">
             <CardHeader 
                 title="승인 대기 신청서"
-                description="검토가 필요한 신청서 목록입니다."
+                description="검토가 필요한 신청서 목록입니다. 항목을 클릭하여 전체 내용을 확인하세요."
             />
             {pendingSubmissions.length === 0 ? (
                 <>
@@ -412,74 +412,153 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                   <p className="text-center text-gray-500 py-16">승인 대기 중인 신청서가 없습니다.</p>
                 </>
             ) : (
-                <div className="space-y-10">
+                <div className="space-y-4">
                 {pendingSubmissions.map((sub) => {
                   const approvalStep = getApprovalStep(sub);
+                  const isExpanded = expandedId === sub.id;
                   return (
-                    <div key={sub.id}>
-                        <Step6Confirmation data={sub} />
-                        <div className="mt-6">
-                          {/* 승인 상태 표시 */}
-                          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <h4 className="font-semibold text-blue-900 mb-2">승인 진행 상황</h4>
-                            <div className="space-y-2 text-sm">
-                              <div className={`flex items-center ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
-                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                안전보건관리자 승인 
-                                {sub.approvalInfo?.safetyManagerApproval?.approved && (
-                                  <span className="ml-2 text-green-700 font-medium">
-                                    (승인자: {sub.approvalInfo.safetyManagerApproval.approverName})
-                                  </span>
-                                )}
-                              </div>
-                              <div className={`flex items-center ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
-                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                안전보건부서팀장 승인
-                                {sub.approvalInfo?.departmentManagerApproval?.approved && (
-                                  <span className="ml-2 text-green-700 font-medium">
-                                    (승인자: {sub.approvalInfo.departmentManagerApproval.approverName})
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* 승인 버튼들 */}
-                          <div className="flex flex-wrap justify-end gap-3">
-                            <Button
-                                variant="danger"
-                                onClick={() => handleDelete(sub.id)}
-                            >
-                                삭제
-                            </Button>
-                            <Button 
-                              variant="secondary" 
-                              onClick={() => handleRejectionClick(sub.id)}
-                            >
-                                승인 거부
-                            </Button>
-                            
-                            {approvalStep === 'safetyManager' && (
-                              <Button 
-                                variant="primary" 
-                                onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
-                                className="bg-blue-600 hover:bg-blue-700"
-                              >
-                                안전보건관리자 승인
-                              </Button>
-                            )}
-                            
-                            {approvalStep === 'departmentManager' && (
-                              <Button 
-                                variant="primary" 
-                                onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                안전보건부서팀장 승인
-                            </Button>
-                            )}
+                    <div key={sub.id} className="border-2 border-[#E9ECEF] rounded-2xl overflow-hidden bg-white hover:border-[#0066CC] hover:shadow-lg transition-all duration-300">
+                      {/* 요약본 */}
+                      <div
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 sm:p-6 cursor-pointer hover:bg-[#F8F9FA] gap-4 sm:gap-0 transition-colors"
+                        onClick={() => toggleExpand(sub.id)}
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={isExpanded}
+                        aria-controls={`pending-details-${sub.id}`}
+                        onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-lg sm:text-xl text-[#212529] truncate">
+                            {sub.projectInfo?.constructionName || '프로젝트명 없음'}
+                          </p>
+                          <p className="text-sm text-[#6C757D] mt-1.5 truncate">
+                            {sub.projectInfo?.companyName || '회사명 없음'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <svg className="w-4 h-4 text-[#ADB5BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-xs text-[#6C757D] font-medium">
+                              {sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}
+                            </p>
                           </div>
                         </div>
+                        <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0">
+                          <div className="flex flex-col items-end gap-2">
+                            <StatusBadge status={sub.status} />
+                            {/* 승인 진행 상황 간단 표시 */}
+                            <div className="text-xs text-[#6C757D] space-y-0.5">
+                              {sub.approvalInfo?.safetyManagerApproval?.approved ? (
+                                <div className="flex items-center gap-1 text-green-600">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>안전관리자 승인 완료</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                                  <span>안전관리자 승인 대기</span>
+                                </div>
+                              )}
+                              {sub.approvalInfo?.departmentManagerApproval?.approved ? (
+                                <div className="flex items-center gap-1 text-green-600">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>부서팀장 승인 완료</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                                  <span>부서팀장 승인 대기</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <svg 
+                            className={`w-6 h-6 text-[#0066CC] transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor"
+                          >
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      {/* 확장된 전체 내용 */}
+                      {isExpanded && (
+                        <div id={`pending-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                          <div className="p-1">
+                            <Step6Confirmation data={sub} />
+                          </div>
+                          
+                          <div className="p-5 border-t-2 border-[#E9ECEF] bg-white">
+                            {/* 승인 상태 표시 */}
+                            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                              <h4 className="font-semibold text-blue-900 mb-3">승인 진행 상황</h4>
+                              <div className="space-y-2 text-sm">
+                                <div className={`flex items-center ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                  안전보건관리자 승인 
+                                  {sub.approvalInfo?.safetyManagerApproval?.approved && (
+                                    <span className="ml-2 text-green-700 font-medium">
+                                      (승인자: {sub.approvalInfo.safetyManagerApproval.approverName})
+                                    </span>
+                                  )}
+                                </div>
+                                <div className={`flex items-center ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                  <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                  안전보건부서팀장 승인
+                                  {sub.approvalInfo?.departmentManagerApproval?.approved && (
+                                    <span className="ml-2 text-green-700 font-medium">
+                                      (승인자: {sub.approvalInfo.departmentManagerApproval.approverName})
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* 승인 버튼들 */}
+                            <div className="flex flex-wrap justify-end gap-3">
+                              <Button
+                                  variant="danger"
+                                  onClick={() => handleDelete(sub.id)}
+                              >
+                                  삭제
+                              </Button>
+                              <Button 
+                                variant="secondary" 
+                                onClick={() => handleRejectionClick(sub.id)}
+                              >
+                                  승인 거부
+                              </Button>
+                              
+                              {approvalStep === 'safetyManager' && (
+                                <Button 
+                                  variant="primary" 
+                                  onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                  안전보건관리자 승인
+                                </Button>
+                              )}
+                              
+                              {approvalStep === 'departmentManager' && (
+                                <Button 
+                                  variant="primary" 
+                                  onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  안전보건부서팀장 승인
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
