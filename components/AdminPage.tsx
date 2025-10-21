@@ -370,10 +370,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   
   // 안전한 데이터 처리
   const safeSubmissions = submissions || [];
-  const pendingSubmissions = safeSubmissions.filter(s => s.status === 'pending');
+  const pendingSubmissions = safeSubmissions
+    .filter(s => s.status === 'pending')
+    .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
   const processedSubmissions = safeSubmissions
     .filter(s => s.status !== 'pending')
     .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
+
+  // 날짜별 그룹화 함수
+  const groupByDate = (submissionsList: Submission[]) => {
+    return submissionsList.reduce((acc, submission) => {
+      try {
+        const dateKey = submission.submittedAt?.toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+        }) || '날짜 미상';
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(submission);
+      } catch (error) {
+        console.warn('⚠️ [AdminPage] 날짜 변환 실패:', error);
+      }
+      return acc;
+    }, {} as Record<string, Submission[]>);
+  };
+
+  const groupedPendingSubmissions = groupByDate(pendingSubmissions);
+  const groupedProcessedSubmissions = groupByDate(processedSubmissions);
 
   console.log('🔐 [AdminPage] 인증 후 데이터 처리:', {
     isAuthenticated,
@@ -412,8 +438,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                   <p className="text-center text-gray-500 py-16">승인 대기 중인 신청서가 없습니다.</p>
                 </>
             ) : (
-                <div className="space-y-4">
-                {pendingSubmissions.map((sub) => {
+                <div className="space-y-10">
+                {Object.entries(groupedPendingSubmissions).map(([date, subs]) => (
+                  <section key={date} aria-labelledby={`pending-date-header-${date}`}>
+                    <h3 id={`pending-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#0066CC] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
+                      {date}
+                    </h3>
+                    <div className="space-y-4">
+                {subs.map((sub) => {
                   const approvalStep = getApprovalStep(sub);
                   const isExpanded = expandedId === sub.id;
                   return (
@@ -562,6 +594,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                     </div>
                   );
                 })}
+                    </div>
+                  </section>
+                ))}
                 </div>
             )}
         </Card>
@@ -589,8 +624,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                   <p className="text-center text-gray-500 py-16">처리된 허가서가 없습니다.</p>
                 </>
             ) : (
-                <div className="space-y-4">
-                {processedSubmissions.map((sub) => {
+                <div className="space-y-10">
+                {Object.entries(groupedProcessedSubmissions).map(([date, subs]) => (
+                  <section key={date} aria-labelledby={`processed-date-header-${date}`}>
+                    <h3 id={`processed-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#0066CC] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
+                      {date}
+                    </h3>
+                    <div className="space-y-4">
+                {subs.map((sub) => {
                   const isExpanded = expandedId === sub.id;
                   return (
                     <div key={sub.id} className="border-2 border-[#E9ECEF] rounded-2xl overflow-hidden bg-white hover:border-[#0066CC] hover:shadow-lg transition-all duration-300">
@@ -716,6 +757,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                     </div>
                   );
                 })}
+                    </div>
+                  </section>
+                ))}
                 </div>
             )}
         </Card>
