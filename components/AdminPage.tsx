@@ -569,8 +569,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         <Card>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">승인 완료 및 거부된 신청서</h3>
-                    <p className="text-sm text-gray-600">이미 처리된 신청서 목록입니다.</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">승인 완료 및 거부된 허가서</h3>
+                    <p className="text-sm text-gray-600">이미 처리된 허가서 목록입니다. 항목을 클릭하여 전체 내용을 확인하세요.</p>
                 </div>
                 <div className="flex-shrink-0">
                     <Button 
@@ -586,66 +586,136 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
             {processedSubmissions.length === 0 ? (
                 <>
                   {console.log('📝 [AdminPage] 처리된 신청서 없음 메시지 표시')}
-                  <p className="text-center text-gray-500 py-16">처리된 신청서가 없습니다.</p>
+                  <p className="text-center text-gray-500 py-16">처리된 허가서가 없습니다.</p>
                 </>
             ) : (
                 <div className="space-y-4">
-                {processedSubmissions.map((sub) => (
-                    <div key={sub.id} className="border border-gray-200 rounded-xl overflow-hidden">
-                    <div
-                      className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-5 cursor-pointer hover:bg-gray-50 gap-3 sm:gap-4"
-                      onClick={() => toggleExpand(sub.id)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
-                    >
+                {processedSubmissions.map((sub) => {
+                  const isExpanded = expandedId === sub.id;
+                  return (
+                    <div key={sub.id} className="border-2 border-[#E9ECEF] rounded-2xl overflow-hidden bg-white hover:border-[#0066CC] hover:shadow-lg transition-all duration-300">
+                      {/* 요약본 */}
+                      <div
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 sm:p-6 cursor-pointer hover:bg-[#F8F9FA] gap-4 sm:gap-0 transition-colors"
+                        onClick={() => toggleExpand(sub.id)}
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={isExpanded}
+                        aria-controls={`processed-details-${sub.id}`}
+                        onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
+                      >
                         <div className="flex-1 min-w-0">
-                            <p className="font-bold text-base sm:text-lg text-gray-800 truncate">{sub.projectInfo?.constructionName || '프로젝트명 없음'}</p>
-                            <p className="text-sm text-gray-500 mt-1 truncate">{sub.projectInfo?.companyName || '회사명 없음'}</p>
-                            <p className="text-xs text-gray-400 mt-2">{sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}</p>
+                          <p className="font-bold text-lg sm:text-xl text-[#212529] truncate">
+                            {sub.projectInfo?.constructionName || '프로젝트명 없음'}
+                          </p>
+                          <p className="text-sm text-[#6C757D] mt-1.5 truncate">
+                            {sub.projectInfo?.companyName || '회사명 없음'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <svg className="w-4 h-4 text-[#ADB5BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-xs text-[#6C757D] font-medium">
+                              {sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-4 flex-shrink-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0">
+                          <div className="flex flex-col items-end gap-2">
                             <StatusBadge status={sub.status} />
-                            <Button
-                                variant="danger"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(sub.id);
-                                }}
-                                className="px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm"
-                            >
-                                <span className="hidden sm:inline">삭제</span>
-                                <span className="sm:hidden">🗑️</span>
-                            </Button>
-                            <div
-                                role="button"
-                                aria-label="세부 정보 보기"
-                                onClick={(e) => { e.stopPropagation(); toggleExpand(sub.id); }}
-                                onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); toggleExpand(sub.id);}}}
-                                className="p-1 rounded-full hover:bg-gray-200"
-                            >
-                                <svg className={`w-6 h-6 text-gray-500 transform transition-transform ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                            </div>
+                            {/* 승인자 정보 간단 표시 */}
+                            {sub.status === 'approved' && sub.approvalInfo && (
+                              <div className="text-xs text-[#6C757D] space-y-0.5">
+                                {sub.approvalInfo.safetyManagerApproval?.approved && (
+                                  <div className="flex items-center gap-1">
+                                    <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    <span>안전관리자: {sub.approvalInfo.safetyManagerApproval.approverName}</span>
+                                  </div>
+                                )}
+                                {sub.approvalInfo.departmentManagerApproval?.approved && (
+                                  <div className="flex items-center gap-1">
+                                    <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    <span>부서팀장: {sub.approvalInfo.departmentManagerApproval.approverName}</span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {/* 거부 사유 간단 표시 */}
+                            {sub.status === 'rejected' && sub.rejectionReason && (
+                              <div className="text-xs text-[#DC3545] max-w-xs truncate">
+                                거부 사유: {sub.rejectionReason}
+                              </div>
+                            )}
+                          </div>
+                          <svg 
+                            className={`w-6 h-6 text-[#0066CC] transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor"
+                          >
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
                         </div>
-                    </div>
-                    {expandedId === sub.id && (
-                        <div className="border-t bg-white">
-                           {sub.status === 'approved' && (
-                            <div className="p-4 bg-gray-50 flex justify-end">
-                                <Button onClick={() => handleDownloadPdf(sub)} disabled={isDownloading}>
-                                    {isDownloading ? <Spinner /> : 'PDF 다운로드'}
-                                </Button>
+                      </div>
+                      
+                      {/* 확장된 전체 내용 */}
+                      {isExpanded && (
+                        <div id={`processed-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                          {/* 거부 사유 전체 표시 */}
+                          {sub.status === 'rejected' && sub.rejectionReason && (
+                            <div className="p-5 bg-[#F8D7DA] border-b-2 border-[#DC3545]">
+                              <h4 className="font-semibold text-[#721C24] mb-2">거부 사유</h4>
+                              <p className="text-sm text-[#721C24]">{sub.rejectionReason}</p>
                             </div>
                           )}
+                          
                           <div className="p-1">
                             <Step6Confirmation data={sub} ref={printRef} />
                           </div>
+                          
+                          <div className="p-5 border-t-2 border-[#E9ECEF] bg-white">
+                            <div className="flex flex-wrap justify-end gap-3">
+                              <Button
+                                variant="danger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(sub.id);
+                                }}
+                              >
+                                삭제
+                              </Button>
+                              {sub.status === 'approved' && (
+                                <Button 
+                                  variant="primary"
+                                  onClick={() => handleDownloadPdf(sub)} 
+                                  disabled={isDownloading}
+                                >
+                                  {isDownloading ? (
+                                    <div className="flex items-center gap-2">
+                                      <Spinner />
+                                      <span>다운로드 중</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2">
+                                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                      <span>PDF 다운로드</span>
+                                    </div>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                    )}
+                      )}
                     </div>
-                ))}
+                  );
+                })}
                 </div>
             )}
         </Card>
