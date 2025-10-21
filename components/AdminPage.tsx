@@ -174,6 +174,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'approved' | 'rejected'>('approved');
   const [approvalPopup, setApprovalPopup] = useState<{
     isOpen: boolean;
     submissionId: string;
@@ -373,8 +374,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const pendingSubmissions = safeSubmissions
     .filter(s => s.status === 'pending')
     .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
-  const processedSubmissions = safeSubmissions
-    .filter(s => s.status !== 'pending')
+  const approvedSubmissions = safeSubmissions
+    .filter(s => s.status === 'approved')
+    .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
+  const rejectedSubmissions = safeSubmissions
+    .filter(s => s.status === 'rejected')
     .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
 
   // 날짜별 그룹화 함수
@@ -399,13 +403,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   };
 
   const groupedPendingSubmissions = groupByDate(pendingSubmissions);
-  const groupedProcessedSubmissions = groupByDate(processedSubmissions);
+  const groupedApprovedSubmissions = groupByDate(approvedSubmissions);
+  const groupedRejectedSubmissions = groupByDate(rejectedSubmissions);
 
   console.log('🔐 [AdminPage] 인증 후 데이터 처리:', {
     isAuthenticated,
     totalSubmissions: safeSubmissions.length,
     pendingCount: pendingSubmissions.length,
-    processedCount: processedSubmissions.length
+    approvedCount: approvedSubmissions.length,
+    rejectedCount: rejectedSubmissions.length
   });
 
   return (
@@ -602,10 +608,33 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         </Card>
 
         <Card>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            {/* 탭 헤더 */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                 <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900">승인 완료 및 거부된 허가서</h3>
-                    <p className="text-sm text-gray-600">이미 처리된 허가서 목록입니다. 항목을 클릭하여 전체 내용을 확인하세요.</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">처리된 허가서</h3>
+                    {/* 탭 버튼 */}
+                    <div className="flex gap-2 border-b-2 border-[#E9ECEF]">
+                        <button
+                            onClick={() => setActiveTab('approved')}
+                            className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
+                                activeTab === 'approved'
+                                    ? 'text-[#0066CC] border-[#0066CC] bg-[#F0F7FF]'
+                                    : 'text-[#6C757D] border-transparent hover:text-[#0066CC] hover:bg-[#F8F9FA]'
+                            }`}
+                        >
+                            승인 완료 ({approvedSubmissions.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('rejected')}
+                            className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
+                                activeTab === 'rejected'
+                                    ? 'text-[#DC3545] border-[#DC3545] bg-[#FFF5F5]'
+                                    : 'text-[#6C757D] border-transparent hover:text-[#DC3545] hover:bg-[#F8F9FA]'
+                            }`}
+                        >
+                            거부된 허가서 ({rejectedSubmissions.length})
+                        </button>
+                    </div>
                 </div>
                 <div className="flex-shrink-0">
                     <Button 
@@ -618,16 +647,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                     </Button>
                 </div>
             </div>
-            {processedSubmissions.length === 0 ? (
+
+            {/* 승인 완료 탭 */}
+            {activeTab === 'approved' && (
                 <>
-                  {console.log('📝 [AdminPage] 처리된 신청서 없음 메시지 표시')}
-                  <p className="text-center text-gray-500 py-16">처리된 허가서가 없습니다.</p>
+            {approvedSubmissions.length === 0 ? (
+                <>
+                  {console.log('📝 [AdminPage] 승인 완료된 허가서 없음 메시지 표시')}
+                  <p className="text-center text-gray-500 py-16">승인 완료된 허가서가 없습니다.</p>
                 </>
             ) : (
                 <div className="space-y-10">
-                {Object.entries(groupedProcessedSubmissions).map(([date, subs]) => (
-                  <section key={date} aria-labelledby={`processed-date-header-${date}`}>
-                    <h3 id={`processed-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#0066CC] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
+                {Object.entries(groupedApprovedSubmissions).map(([date, subs]) => (
+                  <section key={date} aria-labelledby={`approved-date-header-${date}`}>
+                    <h3 id={`approved-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#28A745] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
                       {date}
                     </h3>
                     <div className="space-y-4">
@@ -761,6 +794,116 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                   </section>
                 ))}
                 </div>
+            )}
+                </>
+            )}
+
+            {/* 거부된 허가서 탭 */}
+            {activeTab === 'rejected' && (
+                <>
+            {rejectedSubmissions.length === 0 ? (
+                <>
+                  {console.log('📝 [AdminPage] 거부된 허가서 없음 메시지 표시')}
+                  <p className="text-center text-gray-500 py-16">거부된 허가서가 없습니다.</p>
+                </>
+            ) : (
+                <div className="space-y-10">
+                {Object.entries(groupedRejectedSubmissions).map(([date, subs]) => (
+                  <section key={date} aria-labelledby={`rejected-date-header-${date}`}>
+                    <h3 id={`rejected-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#DC3545] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
+                      {date}
+                    </h3>
+                    <div className="space-y-4">
+                {subs.map((sub) => {
+                  const isExpanded = expandedId === sub.id;
+                  return (
+                    <div key={sub.id} className="border-2 border-[#E9ECEF] rounded-2xl overflow-hidden bg-white hover:border-[#DC3545] hover:shadow-lg transition-all duration-300">
+                      {/* 요약본 */}
+                      <div
+                        className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 sm:p-6 cursor-pointer hover:bg-[#F8F9FA] gap-4 sm:gap-0 transition-colors"
+                        onClick={() => toggleExpand(sub.id)}
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={isExpanded}
+                        aria-controls={`rejected-details-${sub.id}`}
+                        onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-lg sm:text-xl text-[#212529] truncate">
+                            {sub.projectInfo?.constructionName || '프로젝트명 없음'}
+                          </p>
+                          <p className="text-sm text-[#6C757D] mt-1.5 truncate">
+                            {sub.projectInfo?.companyName || '회사명 없음'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <svg className="w-4 h-4 text-[#ADB5BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-xs text-[#6C757D] font-medium">
+                              {sub.submittedAt?.toLocaleString('ko-KR') || '날짜 미상'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0">
+                          <div className="flex flex-col items-end gap-2">
+                            <StatusBadge status={sub.status} />
+                            {/* 거부 사유 간단 표시 */}
+                            {sub.rejectionReason && (
+                              <div className="text-xs text-[#DC3545] max-w-xs truncate">
+                                거부 사유: {sub.rejectionReason}
+                              </div>
+                            )}
+                          </div>
+                          <svg 
+                            className={`w-6 h-6 text-[#DC3545] transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 20 20" 
+                            fill="currentColor"
+                          >
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      {/* 확장된 전체 내용 */}
+                      {isExpanded && (
+                        <div id={`rejected-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                          {/* 거부 사유 전체 표시 */}
+                          {sub.rejectionReason && (
+                            <div className="p-5 bg-[#F8D7DA] border-b-2 border-[#DC3545]">
+                              <h4 className="font-semibold text-[#721C24] mb-2">거부 사유</h4>
+                              <p className="text-sm text-[#721C24]">{sub.rejectionReason}</p>
+                            </div>
+                          )}
+                          
+                          <div className="p-1">
+                            <Step6Confirmation data={sub} ref={printRef} />
+                          </div>
+                          
+                          <div className="p-5 border-t-2 border-[#E9ECEF] bg-white">
+                            <div className="flex flex-wrap justify-end gap-3">
+                              <Button
+                                variant="danger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(sub.id);
+                                }}
+                              >
+                                삭제
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                    </div>
+                  </section>
+                ))}
+                </div>
+            )}
+                </>
             )}
         </Card>
 
