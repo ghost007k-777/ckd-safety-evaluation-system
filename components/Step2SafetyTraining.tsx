@@ -19,6 +19,33 @@ interface VideoConfig {
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
   const [currentVideoCompleted, setCurrentVideoCompleted] = useState(false);
+  const [watchTime, setWatchTime] = useState(0);
+  const [canComplete, setCanComplete] = useState(false);
+  const [showAdminPrompt, setShowAdminPrompt] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
+
+  // 영상 시청 타이머 (3분 = 180초)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setWatchTime((prev) => {
+        const newTime = prev + 1;
+        if (newTime >= 180) { // 3분
+          setCanComplete(true);
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [data.currentVideoIndex]); // 영상이 바뀔 때마다 타이머 리셋
+
+  // 영상이 바뀔 때 타이머 리셋
+  useEffect(() => {
+    setWatchTime(0);
+    setCanComplete(false);
+    setCurrentVideoCompleted(false);
+  }, [data.currentVideoIndex]);
 
   // Helper function to convert YouTube URL to embed URL
   const getYouTubeEmbedUrl = (url: string): string => {
@@ -30,6 +57,13 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
       return `https://www.youtube.com/embed/${videoId}`;
     }
     return url; // Return original URL if not a YouTube URL
+  };
+
+  // 시간 포맷 함수 (초 -> 분:초)
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Video configurations
@@ -92,7 +126,31 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
 
   const handleVideoComplete = () => {
-    setCurrentVideoCompleted(true);
+    if (canComplete) {
+      setCurrentVideoCompleted(true);
+    } else {
+      // 3분 미만이면 관리자 암호 입력 프롬프트 표시
+      setShowAdminPrompt(true);
+    }
+  };
+
+  const handleAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminPassword === 'admin') {
+      setCurrentVideoCompleted(true);
+      setShowAdminPrompt(false);
+      setAdminPassword('');
+      setAdminError('');
+    } else {
+      setAdminError('올바른 관리자 암호가 아닙니다.');
+      setAdminPassword('');
+    }
+  };
+
+  const handleAdminCancel = () => {
+    setShowAdminPrompt(false);
+    setAdminPassword('');
+    setAdminError('');
   };
 
   const handleNextVideo = () => {
@@ -230,15 +288,33 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
                   allowFullScreen
                 />
               </div>
-              {/* Video completion button */}
-              <div className="text-center">
+              {/* 시청 시간 표시 및 Video completion button */}
+              <div className="text-center space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className={`text-lg font-semibold ${canComplete ? 'text-green-600' : 'text-orange-600'}`}>
+                    시청 시간: {formatTime(watchTime)} / 3:00
+                  </span>
+                </div>
+                {!canComplete && (
+                  <p className="text-sm text-orange-600">
+                    ⚠️ 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다
+                  </p>
+                )}
                 <Button 
                   onClick={handleVideoComplete}
                   disabled={currentVideoCompleted}
-                  className="bg-green-600 hover:bg-green-700"
+                  className={`${canComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed hover:bg-gray-400'}`}
                 >
-                  {currentVideoCompleted ? '✓ 시청 완료' : '영상 시청 완료'}
+                  {currentVideoCompleted ? '✓ 시청 완료' : canComplete ? '영상 시청 완료' : '영상 시청 완료 (3분 후 활성화)'}
                 </Button>
+                {!canComplete && !currentVideoCompleted && (
+                  <p className="text-xs text-gray-500">
+                    테스트를 위해 관리자 암호로 건너뛸 수 있습니다
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -276,6 +352,56 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           </p>
         )}
       </div>
+
+      {/* 관리자 암호 입력 팝업 */}
+      {showAdminPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
+            <h3 className="text-2xl font-bold text-[#212529] mb-3">관리자 인증</h3>
+            <p className="text-[#6C757D] mb-2">
+              영상 시청 시간이 3분 미만입니다.
+            </p>
+            <p className="text-sm text-[#6C757D] mb-6">
+              테스트를 위해 관리자 암호를 입력하면 바로 진행할 수 있습니다.
+            </p>
+            
+            <form onSubmit={handleAdminSubmit}>
+              <div className="mb-6">
+                <label htmlFor="admin-password" className="block text-sm font-semibold text-[#343A40] mb-2">
+                  관리자 암호 <span className="text-[#DC3545]">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="admin-password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="관리자 암호를 입력하세요"
+                  className="block w-full px-4 py-3 border-2 border-[#DEE2E6] rounded-lg text-[#212529] text-base bg-white placeholder-[#ADB5BD] transition-all duration-200 focus:border-[#0066CC] focus:ring-2 focus:ring-[#CCE1FF] hover:border-[#ADB5BD]"
+                  autoFocus
+                  required
+                />
+                {adminError && (
+                  <p className="mt-2 text-sm text-[#DC3545] font-medium">{adminError}</p>
+                )}
+              </div>
+              
+              <div className="flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  onClick={handleAdminCancel}
+                >
+                  취소
+                </Button>
+                <Button type="submit" variant="primary" size="lg">
+                  확인
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
