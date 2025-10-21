@@ -530,71 +530,71 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                       {isExpanded && (
                         <div id={`pending-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
                           <div className="p-1">
-                            <Step6Confirmation data={sub} />
+                        <Step6Confirmation data={sub} />
                           </div>
                           
                           <div className="p-5 border-t-2 border-[#E9ECEF] bg-white">
-                            {/* 승인 상태 표시 */}
+                          {/* 승인 상태 표시 */}
                             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                               <h4 className="font-semibold text-blue-900 mb-3">승인 진행 상황</h4>
-                              <div className="space-y-2 text-sm">
-                                <div className={`flex items-center ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
-                                  <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                  안전보건관리자 승인 
-                                  {sub.approvalInfo?.safetyManagerApproval?.approved && (
-                                    <span className="ml-2 text-green-700 font-medium">
-                                      (승인자: {sub.approvalInfo.safetyManagerApproval.approverName})
-                                    </span>
-                                  )}
-                                </div>
-                                <div className={`flex items-center ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
-                                  <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                  안전보건부서팀장 승인
-                                  {sub.approvalInfo?.departmentManagerApproval?.approved && (
-                                    <span className="ml-2 text-green-700 font-medium">
-                                      (승인자: {sub.approvalInfo.departmentManagerApproval.approverName})
-                                    </span>
-                                  )}
-                                </div>
+                            <div className="space-y-2 text-sm">
+                              <div className={`flex items-center ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.safetyManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                안전보건관리자 승인 
+                                {sub.approvalInfo?.safetyManagerApproval?.approved && (
+                                  <span className="ml-2 text-green-700 font-medium">
+                                    (승인자: {sub.approvalInfo.safetyManagerApproval.approverName})
+                                  </span>
+                                )}
+                              </div>
+                              <div className={`flex items-center ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'text-green-600' : 'text-gray-500'}`}>
+                                <span className={`w-2 h-2 rounded-full mr-2 ${sub.approvalInfo?.departmentManagerApproval?.approved ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                                안전보건부서팀장 승인
+                                {sub.approvalInfo?.departmentManagerApproval?.approved && (
+                                  <span className="ml-2 text-green-700 font-medium">
+                                    (승인자: {sub.approvalInfo.departmentManagerApproval.approverName})
+                                  </span>
+                                )}
                               </div>
                             </div>
-                            
-                            {/* 승인 버튼들 */}
-                            <div className="flex flex-wrap justify-end gap-3">
-                              <Button
-                                  variant="danger"
-                                  onClick={() => handleDelete(sub.id)}
-                              >
-                                  삭제
-                              </Button>
-                              <Button 
-                                variant="secondary" 
-                                onClick={() => handleRejectionClick(sub.id)}
-                              >
-                                  승인 거부
-                              </Button>
-                              
-                              {approvalStep === 'safetyManager' && (
-                                <Button 
-                                  variant="primary" 
-                                  onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
-                                  className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                  안전보건관리자 승인
-                                </Button>
-                              )}
-                              
-                              {approvalStep === 'departmentManager' && (
-                                <Button 
-                                  variant="primary" 
-                                  onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  안전보건부서팀장 승인
-                                </Button>
-                              )}
-                            </div>
                           </div>
+                          
+                          {/* 승인 버튼들 */}
+                          <div className="flex flex-wrap justify-end gap-3">
+                            <Button
+                                variant="danger"
+                                onClick={() => handleDelete(sub.id)}
+                            >
+                                삭제
+                            </Button>
+                            <Button 
+                              variant="secondary" 
+                              onClick={() => handleRejectionClick(sub.id)}
+                            >
+                                승인 거부
+                            </Button>
+                            
+                            {approvalStep === 'safetyManager' && (
+                              <Button 
+                                variant="primary" 
+                                onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                안전보건관리자 승인
+                              </Button>
+                            )}
+                            
+                            {approvalStep === 'departmentManager' && (
+                              <Button 
+                                variant="primary" 
+                                onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                안전보건부서팀장 승인
+                            </Button>
+                            )}
+                          </div>
+                        </div>
                         </div>
                       )}
                     </div>
@@ -608,33 +608,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
         </Card>
 
         <Card>
-            {/* 탭 헤더 */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+            {/* 헤더와 탭 */}
+            <div className="mb-8">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                 <div className="flex-1">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">처리된 허가서</h3>
-                    {/* 탭 버튼 */}
-                    <div className="flex gap-2 border-b-2 border-[#E9ECEF]">
-                        <button
-                            onClick={() => setActiveTab('approved')}
-                            className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
-                                activeTab === 'approved'
-                                    ? 'text-[#0066CC] border-[#0066CC] bg-[#F0F7FF]'
-                                    : 'text-[#6C757D] border-transparent hover:text-[#0066CC] hover:bg-[#F8F9FA]'
-                            }`}
-                        >
-                            승인 완료 ({approvedSubmissions.length})
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('rejected')}
-                            className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
-                                activeTab === 'rejected'
-                                    ? 'text-[#DC3545] border-[#DC3545] bg-[#FFF5F5]'
-                                    : 'text-[#6C757D] border-transparent hover:text-[#DC3545] hover:bg-[#F8F9FA]'
-                            }`}
-                        >
-                            거부된 허가서 ({rejectedSubmissions.length})
-                        </button>
-                    </div>
+                        <h2 className="text-3xl font-bold text-[#212529] leading-tight">처리된 허가서</h2>
+                        <p className="text-base text-[#6C757D] mt-3 leading-relaxed">이미 처리된 허가서 목록입니다. 탭을 선택하여 원하는 목록을 확인하세요.</p>
                 </div>
                 <div className="flex-shrink-0">
                     <Button 
@@ -645,6 +624,31 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                         <span className="hidden sm:inline">📊 엑셀로 다운로드</span>
                         <span className="sm:hidden">📊 엑셀</span>
                     </Button>
+                </div>
+            </div>
+                
+                {/* 탭 버튼 */}
+                <div className="flex gap-2 border-b-2 border-[#E9ECEF]">
+                    <button
+                        onClick={() => setActiveTab('approved')}
+                        className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
+                            activeTab === 'approved'
+                                ? 'text-[#0066CC] border-[#0066CC] bg-[#F0F7FF]'
+                                : 'text-[#6C757D] border-transparent hover:text-[#0066CC] hover:bg-[#F8F9FA]'
+                        }`}
+                    >
+                        승인 완료 ({approvedSubmissions.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('rejected')}
+                        className={`px-6 py-3 font-semibold text-sm transition-all duration-200 border-b-2 -mb-[2px] ${
+                            activeTab === 'rejected'
+                                ? 'text-[#DC3545] border-[#DC3545] bg-[#FFF5F5]'
+                                : 'text-[#6C757D] border-transparent hover:text-[#DC3545] hover:bg-[#F8F9FA]'
+                        }`}
+                    >
+                        거부된 허가서 ({rejectedSubmissions.length})
+                    </button>
                 </div>
             </div>
 
@@ -663,7 +667,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                     <h3 id={`approved-date-header-${date}`} className="text-xl font-bold text-[#212529] mb-5 pb-3 border-b-2 border-[#28A745] sticky top-[72px] bg-white/95 backdrop-blur-sm py-2 z-[1]">
                       {date}
                     </h3>
-                    <div className="space-y-4">
+                <div className="space-y-4">
                 {subs.map((sub) => {
                   const isExpanded = expandedId === sub.id;
                   return (
@@ -671,13 +675,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                       {/* 요약본 */}
                       <div
                         className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-5 sm:p-6 cursor-pointer hover:bg-[#F8F9FA] gap-4 sm:gap-0 transition-colors"
-                        onClick={() => toggleExpand(sub.id)}
-                        role="button"
-                        tabIndex={0}
+                      onClick={() => toggleExpand(sub.id)}
+                      role="button"
+                      tabIndex={0}
                         aria-expanded={isExpanded}
                         aria-controls={`processed-details-${sub.id}`}
-                        onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
-                      >
+                      onKeyDown={(e) => e.key === 'Enter' && toggleExpand(sub.id)}
+                    >
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-lg sm:text-xl text-[#212529] truncate">
                             {sub.projectInfo?.constructionName || '프로젝트명 없음'}
@@ -753,15 +757,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                           
                           <div className="p-5 border-t-2 border-[#E9ECEF] bg-white">
                             <div className="flex flex-wrap justify-end gap-3">
-                              <Button
+                            <Button
                                 variant="danger"
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(sub.id);
+                                    e.stopPropagation();
+                                    handleDelete(sub.id);
                                 }}
-                              >
+                            >
                                 삭제
-                              </Button>
+                            </Button>
                               {sub.status === 'approved' && (
                                 <Button 
                                   variant="primary"
@@ -777,14 +781,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     <div className="flex items-center gap-2">
                                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                      </svg>
+                                </svg>
                                       <span>PDF 다운로드</span>
                                     </div>
                                   )}
                                 </Button>
                               )}
                             </div>
-                          </div>
+                            </div>
                         </div>
                       )}
                     </div>
@@ -894,7 +898,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                             </div>
                           </div>
                         </div>
-                      )}
+                    )}
                     </div>
                   );
                 })}
