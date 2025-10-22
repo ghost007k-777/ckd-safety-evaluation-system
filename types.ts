@@ -31,12 +31,19 @@ export interface WorkTypeSelection {
   heightWorkSubType?: HeightWorkSubType; // 고소작업 하위 유형
 }
 
+export interface TrainingAttendee {
+  id: string;
+  name: string;
+  signature: string;
+}
+
 export interface SafetyTraining {
   completed: boolean;
   completionDate: Date | null;
   workTypes: WorkTypeSelection;
   currentVideoIndex: number;
   allVideosCompleted: boolean;
+  attendees: TrainingAttendee[];
 }
 
 export interface RiskItem {

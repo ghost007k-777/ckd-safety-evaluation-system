@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { SafetyTraining, WorkTypeSelection, HeightWorkSubType } from '../types.ts';
+import { SafetyTraining, WorkTypeSelection, HeightWorkSubType, TrainingAttendee } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { Checkbox } from './ui/Checkbox.tsx';
 import { Button } from './ui/Button.tsx';
+import { Input } from './ui/Input.tsx';
+import { SignaturePad } from './SignaturePad.tsx';
 import { HEIGHT_WORK_VIDEOS } from '../constants.ts';
 
 interface Step2Props {
   data: SafetyTraining;
-  updateData: (field: keyof SafetyTraining, value: boolean | Date | null | number) => void;
+  updateData: (field: keyof SafetyTraining, value: boolean | Date | null | number | TrainingAttendee[]) => void;
   onComplete: () => void;
 }
 
@@ -24,6 +26,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminError, setAdminError] = useState('');
+  const [showAttendeeForm, setShowAttendeeForm] = useState(false);
+  const [tempAttendees, setTempAttendees] = useState<TrainingAttendee[]>([
+    { id: '1', name: '', signature: '' }
+  ]);
 
   // 영상 시청 타이머 (3분 = 180초)
   useEffect(() => {
@@ -45,16 +51,18 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     setWatchTime(0);
     setCanComplete(false);
     setCurrentVideoCompleted(false);
+    setShowAttendeeForm(false);
+    setTempAttendees([{ id: '1', name: '', signature: '' }]);
   }, [data.currentVideoIndex]);
 
-  // Helper function to convert YouTube URL to embed URL
+  // Helper function to convert YouTube URL to embed URL with autoplay
   const getYouTubeEmbedUrl = (url: string): string => {
     if (url.includes('youtube.com/watch?v=')) {
       const videoId = url.split('v=')[1]?.split('&')[0];
-      return `https://www.youtube.com/embed/${videoId}`;
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
     } else if (url.includes('youtu.be/')) {
       const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${videoId}`;
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
     }
     return url; // Return original URL if not a YouTube URL
   };
@@ -128,6 +136,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const handleVideoComplete = () => {
     if (canComplete) {
       setCurrentVideoCompleted(true);
+      setShowAttendeeForm(true);
     } else {
       // 3분 미만이면 관리자 암호 입력 프롬프트 표시
       setShowAdminPrompt(true);
@@ -138,6 +147,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     e.preventDefault();
     if (adminPassword === 'admin') {
       setCurrentVideoCompleted(true);
+      setShowAttendeeForm(true);
       setShowAdminPrompt(false);
       setAdminPassword('');
       setAdminError('');
@@ -151,6 +161,66 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     setShowAdminPrompt(false);
     setAdminPassword('');
     setAdminError('');
+  };
+
+  // 교육자 추가
+  const handleAddAttendee = () => {
+    const newAttendee: TrainingAttendee = {
+      id: Date.now().toString(),
+      name: '',
+      signature: ''
+    };
+    setTempAttendees([...tempAttendees, newAttendee]);
+  };
+
+  // 교육자 삭제
+  const handleRemoveAttendee = (id: string) => {
+    if (tempAttendees.length > 1) {
+      setTempAttendees(tempAttendees.filter(attendee => attendee.id !== id));
+    }
+  };
+
+  // 교육자 이름 변경
+  const handleAttendeeNameChange = (id: string, name: string) => {
+    setTempAttendees(tempAttendees.map(attendee =>
+      attendee.id === id ? { ...attendee, name } : attendee
+    ));
+  };
+
+  // 교육자 서명 변경
+  const handleAttendeeSignatureChange = (id: string, signature: string) => {
+    setTempAttendees(tempAttendees.map(attendee =>
+      attendee.id === id ? { ...attendee, signature } : attendee
+    ));
+  };
+
+  // 교육자 정보 저장 및 다음 단계
+  const handleSaveAttendeesAndNext = () => {
+    // 모든 교육자의 이름과 서명이 입력되었는지 확인
+    const allFilled = tempAttendees.every(attendee => attendee.name.trim() !== '' && attendee.signature !== '');
+    
+    if (!allFilled) {
+      alert('모든 교육자의 성명과 서명을 입력해주세요.');
+      return;
+    }
+
+    // 현재 영상의 교육자 정보를 data.attendees에 추가
+    const updatedAttendees = [...(data.attendees || []), ...tempAttendees];
+    updateData('attendees', updatedAttendees);
+
+    if (isLastVideo) {
+      // All videos completed
+      updateData('allVideosCompleted', true);
+      updateData('completed', true);
+      updateData('completionDate', new Date());
+      onComplete();
+    } else {
+      // Move to next video
+      updateData('currentVideoIndex', data.currentVideoIndex + 1);
+      setCurrentVideoCompleted(false);
+      setShowAttendeeForm(false);
+      setTempAttendees([{ id: Date.now().toString(), name: '', signature: '' }]);
+    }
   };
 
   const handleNextVideo = () => {
@@ -322,8 +392,73 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           <p className="text-xs text-gray-400 mt-2">URL: {currentVideo.url}</p>
         </div>
 
-        {/* Navigation buttons */}
-        {currentVideoCompleted && (
+        {/* 교육자 성명 및 서명 입력 폼 */}
+        {showAttendeeForm && currentVideoCompleted && (
+          <div className="p-6 border-2 border-[#0066CC] bg-[#F0F7FF] rounded-lg space-y-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-[#212529] mb-2">해당 교육 교육자 성명 및 서명</h3>
+              <p className="text-sm text-[#6C757D]">
+                교육을 수료한 모든 인원의 성명과 서명을 입력해주세요.
+              </p>
+            </div>
+
+            {tempAttendees.map((attendee, index) => (
+              <div key={attendee.id} className="p-4 bg-white border-2 border-[#DEE2E6] rounded-lg space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-[#212529]">교육자 {index + 1}</h4>
+                  {tempAttendees.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAttendee(attendee.id)}
+                      className="text-[#DC3545] hover:text-[#C82333] text-sm font-medium transition-colors"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+                
+                <Input
+                  id={`attendee-name-${attendee.id}`}
+                  label="성명"
+                  value={attendee.name}
+                  onChange={(e) => handleAttendeeNameChange(attendee.id, e.target.value)}
+                  placeholder="이름을 입력하세요"
+                  required
+                />
+
+                <div>
+                  <label className="block text-sm font-semibold text-[#343A40] mb-2">
+                    서명 <span className="text-[#DC3545]">*</span>
+                  </label>
+                  <SignaturePad
+                    onEnd={(signature) => handleAttendeeSignatureChange(attendee.id, signature)}
+                    signatureDataUrl={attendee.signature}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="secondary"
+                onClick={handleAddAttendee}
+                className="flex-1"
+              >
+                + 교육자 추가
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSaveAttendeesAndNext}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                {isLastVideo ? '교육 완료 및 다음 단계' : '저장 및 다음 영상'}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation buttons - 교육자 폼이 표시되지 않을 때만 보임 */}
+        {currentVideoCompleted && !showAttendeeForm && (
           <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
             <div>
               <p className="text-emerald-800 font-medium">

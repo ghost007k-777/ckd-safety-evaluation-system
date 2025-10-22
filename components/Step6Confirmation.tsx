@@ -503,6 +503,34 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 ? `완료, 이수일: ${data.safetyTraining.completionDate?.toLocaleString('ko-KR') || '날짜 미상'}`
                 : "미이수"
             } />
+            
+            {data.safetyTraining?.attendees && data.safetyTraining.attendees.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-base font-semibold text-[#212529] mb-3">해당 교육 교육자 성명, 서명</h4>
+                <div className="space-y-4">
+                  {data.safetyTraining.attendees.map((attendee, index) => (
+                    <div key={attendee.id} className="p-4 bg-[#F8F9FA] border border-[#DEE2E6] rounded-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="flex-1">
+                          <p className="text-sm text-[#6C757D] mb-1">교육자 {index + 1}</p>
+                          <p className="text-base font-semibold text-[#212529]">{attendee.name}</p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <p className="text-sm text-[#6C757D] mb-2">서명</p>
+                          {attendee.signature && (
+                            <img 
+                              src={attendee.signature} 
+                              alt={`${attendee.name} 서명`} 
+                              className="border-2 border-[#DEE2E6] rounded bg-white p-2 max-w-[200px] h-auto"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
         </Section>
         
         <Section title="위험성 평가">

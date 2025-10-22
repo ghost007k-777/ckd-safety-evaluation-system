@@ -52,7 +52,8 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
         completionDate: null,
         workTypes: { general: false, confined: false, heightWork: false, hotWork: false },
         currentVideoIndex: 0,
-        allVideosCompleted: false
+        allVideosCompleted: false,
+        attendees: []
       },
       riskAssessment: [],
       workPermit: { 
