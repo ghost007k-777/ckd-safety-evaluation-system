@@ -411,6 +411,14 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                     </div>
                     {expandedId === sub.id && (
                       <div className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                        {/* 거부 사유 표시 (확장 영역 상단) */}
+                        {sub.status === 'rejected' && sub.rejectionReason && (
+                          <div className="p-5 bg-[#F8D7DA] border-b-2 border-[#DC3545]">
+                            <h4 className="font-semibold text-[#721C24] mb-2">거부 사유</h4>
+                            <p className="text-sm text-[#721C24]">{sub.rejectionReason}</p>
+                          </div>
+                        )}
+                        
                         <div className="p-5 flex justify-end gap-3">
                           {sub.status === 'approved' && (
                             <Button 
@@ -449,11 +457,11 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                             </Button>
                           )}
                         </div>
-                        {sub.status === 'approved' && (
-                          <div className="p-1">
-                            <Step6Confirmation data={sub} ref={printRef} />
-                          </div>
-                        )}
+                        
+                        {/* 모든 상태에서 신청 내용 표시 */}
+                        <div className="p-1">
+                          <Step6Confirmation data={sub} ref={printRef} />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -530,13 +538,6 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                           )}
                                         </div>
                                       )}
-                                      {/* 거부 사유 표시 */}
-                                      {sub.status === 'rejected' && sub.rejectionReason && (
-                                        <div className="mt-2 p-2 bg-[#F8D7DA] border border-[#DC3545] rounded-md">
-                                          <p className="text-xs font-semibold text-[#721C24]">거부 사유:</p>
-                                          <p className="text-xs text-[#721C24] mt-1">{sub.rejectionReason}</p>
-                                        </div>
-                                      )}
                                     </div>
                                     <svg className={`w-6 h-6 text-[#0066CC] transform transition-transform duration-300 ${expandedId === sub.id ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -545,6 +546,14 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                             </div>
                             {expandedId === sub.id && (
                                 <div id={`submission-details-${sub.id}`} className="border-t-2 border-[#E9ECEF] bg-[#F8F9FA]">
+                                  {/* 거부 사유 표시 (확장 영역 상단) */}
+                                  {sub.status === 'rejected' && sub.rejectionReason && (
+                                    <div className="p-5 bg-[#F8D7DA] border-b-2 border-[#DC3545]">
+                                      <h4 className="font-semibold text-[#721C24] mb-2">거부 사유</h4>
+                                      <p className="text-sm text-[#721C24]">{sub.rejectionReason}</p>
+                                    </div>
+                                  )}
+                                  
                                   {/* 버튼 영역 */}
                                   <div className="p-5 flex justify-end gap-3">
                                     {/* 승인 완료된 경우: PDF 다운로드 버튼 */}
@@ -588,11 +597,10 @@ export const ApplicationList: React.FC<ApplicationListProps> = ({ submissions, o
                                     )}
                                   </div>
                                   
-                                  {sub.status === 'approved' && (
-                                    <div className="p-1">
-                                      <Step6Confirmation data={sub} ref={printRef} />
-                                    </div>
-                                  )}
+                                  {/* 모든 상태에서 신청 내용 표시 */}
+                                  <div className="p-1">
+                                    <Step6Confirmation data={sub} ref={printRef} />
+                                  </div>
                                 </div>
                             )}
                             </div>
