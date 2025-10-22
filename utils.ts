@@ -208,44 +208,41 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       return canvas;
     };
 
-    // 캔버스를 페이지 단위로 잘라 추가 (섹션이 여러 페이지에 걸칠 경우 대비)
-    const addCanvasPagedSliced = (canvas: HTMLCanvasElement, isFirstSection: boolean): number => {
+    // 각 섹션을 한 페이지에 맞춰서 추가 (페이지 분할 없이)
+    const addCanvasToSinglePage = (canvas: HTMLCanvasElement, isFirstSection: boolean): number => {
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
       
-      // html2canvas scale=2 고려하여 mm/px 비율 계산 (95% 크기 적용)
+      // html2canvas scale=2 고려하여 mm/px 비율 계산
       const mmPerPixel = (scaledWidth / (canvasWidthPx / 2));
       
-      // 페이지 높이 계산 (95% 크기 적용)
-      const pageHeightPx = Math.floor(scaledHeight / mmPerPixel);
-      let pages = 0;
-
-      for (let y = 0; y < canvasHeightPx; y += pageHeightPx) {
-        const sliceHeightPx = Math.min(pageHeightPx, canvasHeightPx - y);
-        const sliceCanvas = document.createElement('canvas');
-        sliceCanvas.width = canvasWidthPx;
-        sliceCanvas.height = sliceHeightPx;
-        const ctx = sliceCanvas.getContext('2d');
-        if (!ctx) break;
-        ctx.drawImage(
-          canvas,
-          0,
-          y,
-          canvasWidthPx,
-          sliceHeightPx,
-          0,
-          0,
-          canvasWidthPx,
-          sliceHeightPx
-        );
-
-        if (pages > 0 || !isFirstSection) pdf.addPage();
-        const sliceHeightMm = sliceHeightPx * mmPerPixel;
-        // 좌우 중앙 정렬, 위아래 상단 정렬하여 추가
-        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', centerMarginX, topMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
-        pages += 1;
+      // 캔버스의 실제 높이를 mm로 계산
+      const contentHeightMm = (canvasHeightPx / 2) * mmPerPixel;
+      
+      // 새 페이지 추가 (첫 번째 섹션이 아닌 경우)
+      if (!isFirstSection) pdf.addPage();
+      
+      // 페이지 가용 높이 확인
+      const availableHeight = pdfHeight - (margin * 2);
+      
+      // 내용이 페이지 높이보다 크면 페이지에 맞춰서 스케일 조정
+      let finalWidth = scaledWidth;
+      let finalHeight = contentHeightMm;
+      
+      if (contentHeightMm > availableHeight) {
+        // 높이를 페이지에 맞추고 비율 유지
+        const scale = availableHeight / contentHeightMm;
+        finalHeight = availableHeight;
+        finalWidth = scaledWidth * scale;
       }
-      return pages;
+      
+      // 좌우 중앙 정렬을 위한 X 좌표 재계산
+      const finalMarginX = margin + (usableWidth - finalWidth) / 2;
+      
+      // 좌우 중앙 정렬, 위아래 상단 정렬하여 추가
+      pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', finalMarginX, topMarginY, finalWidth, finalHeight, undefined, 'SLOW');
+      
+      return 1; // 항상 1페이지만 사용
     };
 
     // data-pdf-page 속성을 가진 섹션들을 찾아서 각각 별도 페이지로 렌더링
@@ -259,7 +256,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       console.log(`📄 [PDF] 섹션 ${i + 1}/${pdfSections.length} 렌더링 중...`);
       
       const sectionCanvas = await renderToCanvas(section);
-      const sectionPages = addCanvasPagedSliced(sectionCanvas, i === 0);
+      const sectionPages = addCanvasToSinglePage(sectionCanvas, i === 0);
       totalPages += sectionPages;
       
       console.log(`✅ [PDF] 섹션 ${i + 1} 완료 (${sectionPages} 페이지)`);
