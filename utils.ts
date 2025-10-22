@@ -146,12 +146,10 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const usableWidth = pdfWidth - (margin * 2);
     const usableHeight = pdfHeight - (margin * 2);
     
-    // 콘텐츠 크기를 75%로 조정
-    const contentScale = 0.75;
-    const scaledWidth = usableWidth * contentScale;
-    const scaledHeight = usableHeight * contentScale;
-    // 중앙 정렬을 위한 여백 계산
-    const centerMarginX = margin + (usableWidth - scaledWidth) / 2;
+    // 좌우는 100%, 위아래만 75%로 조정
+    const scaledWidth = usableWidth; // 좌우 100%
+    const scaledHeight = usableHeight * 0.75; // 위아래 75%
+    // 상하 중앙 정렬을 위한 여백 계산
     const centerMarginY = margin + (usableHeight - scaledHeight) / 2;
     
     // 공통 캔버스 렌더러 - 정상 크기로 렌더링
@@ -240,8 +238,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
 
         if (pages > 0 || !isFirstSection) pdf.addPage();
         const sliceHeightMm = sliceHeightPx * mmPerPixel;
-        // 75% 크기로 중앙 정렬하여 추가
-        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', centerMarginX, centerMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
+        // 좌우 100%, 위아래 75% 크기로 상하 중앙 정렬하여 추가
+        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', margin, centerMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
         pages += 1;
       }
       return pages;
