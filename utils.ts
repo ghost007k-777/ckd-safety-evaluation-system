@@ -146,8 +146,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const usableWidth = pdfWidth - (margin * 2);
     const usableHeight = pdfHeight - (margin * 2);
     
-    // 전체 크기를 90%로 조정
-    const contentScale = 0.9;
+    // 전체 크기를 85%로 조정
+    const contentScale = 0.85;
     const scaledWidth = usableWidth * contentScale;
     const scaledHeight = usableHeight * contentScale;
     // 중앙 정렬을 위한 여백 계산
@@ -212,10 +212,10 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
       
-      // html2canvas scale=2 고려하여 mm/px 비율 계산 (90% 크기 적용)
+      // html2canvas scale=2 고려하여 mm/px 비율 계산 (85% 크기 적용)
       const mmPerPixel = (scaledWidth / (canvasWidthPx / 2));
       
-      // 페이지 높이 계산 (90% 크기 적용)
+      // 페이지 높이 계산 (85% 크기 적용)
       const pageHeightPx = Math.floor(scaledHeight / mmPerPixel);
       let pages = 0;
 
@@ -240,7 +240,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
 
         if (pages > 0 || !isFirstSection) pdf.addPage();
         const sliceHeightMm = sliceHeightPx * mmPerPixel;
-        // 90% 크기로 중앙 정렬하여 추가
+        // 85% 크기로 중앙 정렬하여 추가
         pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', centerMarginX, centerMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
         pages += 1;
       }
