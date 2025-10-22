@@ -123,16 +123,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     return;
   }
   
-  // PDF 생성을 위해 임시로 스타일 조정 (50% 스케일 적용)
+  // PDF 생성을 위한 준비
   const originalStyle = element.style.cssText;
-  element.style.cssText += `
-    page-break-inside: avoid;
-    break-inside: avoid;
-    box-decoration-break: slice;
-    transform: scale(0.5);
-    transform-origin: top left;
-    width: 200%; /* 100% / 0.5 = 200% */
-  `;
   
   try {
     // 이미지 로딩 대기 (서명 이미지 등)
@@ -154,18 +146,23 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const usableWidth = pdfWidth - (margin * 2);
     const usableHeight = pdfHeight - (margin * 2);
     
-    // 공통 캔버스 렌더러
+    // 공통 캔버스 렌더러 - 정상 크기로 렌더링
     const renderToCanvas = async (target: HTMLElement): Promise<HTMLCanvasElement> => {
       const canvas = await html2canvas(target, {
-        scale: 1.5, // 3 * 0.5 = 1.5 (50% 스케일 적용)
+        scale: 2, // 고품질 렌더링을 위한 스케일
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        height: target.scrollHeight * 0.5, // 높이도 50%로 조정
-        windowWidth: target.scrollWidth * 2, // 200% 너비 반영
-        windowHeight: target.scrollHeight * 0.5,
         onclone: (doc) => {
+          // 복제된 문서에서 스타일 정리
+          const clonedElement = doc.body.querySelector('[data-pdf-page]') as HTMLElement;
+          if (clonedElement) {
+            // 불필요한 transform 제거
+            clonedElement.style.transform = 'none';
+            clonedElement.style.transformOrigin = 'initial';
+          }
+          
           const imgs = doc.querySelectorAll('img');
           imgs.forEach((img: any) => {
             img.style.imageRendering = 'high-quality';
@@ -173,13 +170,6 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
             if (img.alt && (img.alt.includes('signature') || img.alt.includes('서명'))) {
               img.style.maxWidth = '200px';
               img.style.maxHeight = '80px';
-              img.style.width = 'auto';
-              img.style.height = 'auto';
-              img.style.objectFit = 'contain';
-            } else {
-              // 일반 이미지의 경우 적당한 크기로 제한
-              img.style.maxWidth = '400px';
-              img.style.maxHeight = '300px';
               img.style.width = 'auto';
               img.style.height = 'auto';
               img.style.objectFit = 'contain';
@@ -194,10 +184,12 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const addCanvasPagedSliced = (canvas: HTMLCanvasElement, isFirstSection: boolean): number => {
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
-      // html2canvas scale=1.5 고려하여 mm/px 비율 계산
-      const mmPerPixel = usableWidth / (canvasWidthPx / 1.5);
-      // 페이지 높이를 95%로 줄여서 여유 공간 확보 (내용이 잘리는 것 방지)
-      const pageHeightPx = Math.floor((usableHeight * 0.95) / mmPerPixel);
+      
+      // html2canvas scale=2 고려하여 mm/px 비율 계산
+      const mmPerPixel = usableWidth / (canvasWidthPx / 2);
+      
+      // 페이지 높이 계산
+      const pageHeightPx = Math.floor(usableHeight / mmPerPixel);
       let pages = 0;
 
       for (let y = 0; y < canvasHeightPx; y += pageHeightPx) {
