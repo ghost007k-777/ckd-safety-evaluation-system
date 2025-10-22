@@ -148,24 +148,36 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     
     // 공통 캔버스 렌더러 - 정상 크기로 렌더링
     const renderToCanvas = async (target: HTMLElement): Promise<HTMLCanvasElement> => {
+      // 렌더링 전 대기 시간 추가
+      await new Promise((r) => setTimeout(r, 100));
+      
       const canvas = await html2canvas(target, {
         scale: 2, // 고품질 렌더링을 위한 스케일
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
-        onclone: (doc) => {
-          // 복제된 문서에서 스타일 정리
-          const clonedElement = doc.body.querySelector('[data-pdf-page]') as HTMLElement;
-          if (clonedElement) {
-            // 불필요한 transform 제거
-            clonedElement.style.transform = 'none';
-            clonedElement.style.transformOrigin = 'initial';
-          }
+        removeContainer: true,
+        imageTimeout: 0,
+        onclone: (clonedDoc, clonedElement) => {
+          // 복제된 요소의 모든 스타일 정리
+          clonedElement.style.transform = 'none';
+          clonedElement.style.transformOrigin = 'initial';
+          clonedElement.style.overflow = 'visible';
+          clonedElement.style.position = 'relative';
           
-          const imgs = doc.querySelectorAll('img');
+          // 모든 자식 요소의 transform 제거
+          const allElements = clonedElement.querySelectorAll('*');
+          allElements.forEach((el: any) => {
+            el.style.transform = 'none';
+            el.style.transformOrigin = 'initial';
+          });
+          
+          // 이미지 최적화
+          const imgs = clonedDoc.querySelectorAll('img');
           imgs.forEach((img: any) => {
             img.style.imageRendering = 'high-quality';
+            img.style.display = 'block';
             // 서명 이미지의 경우 적절한 크기로 제한
             if (img.alt && (img.alt.includes('signature') || img.alt.includes('서명'))) {
               img.style.maxWidth = '200px';
@@ -174,6 +186,13 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
               img.style.height = 'auto';
               img.style.objectFit = 'contain';
             }
+          });
+          
+          // 폰트 렌더링 최적화
+          const textElements = clonedDoc.querySelectorAll('p, span, div, h1, h2, h3, h4, h5, h6, td, th, label');
+          textElements.forEach((el: any) => {
+            el.style.webkitFontSmoothing = 'antialiased';
+            el.style.mozOsxFontSmoothing = 'grayscale';
           });
         }
       });
@@ -213,7 +232,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
 
         if (pages > 0 || !isFirstSection) pdf.addPage();
         const sliceHeightMm = sliceHeightPx * mmPerPixel;
-        pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margin, margin, usableWidth, sliceHeightMm, undefined, 'FAST');
+        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', margin, margin, usableWidth, sliceHeightMm, undefined, 'SLOW');
         pages += 1;
       }
       return pages;

@@ -18,19 +18,20 @@ const Section: React.FC<{
         style={{
             pageBreakInside: 'avoid',
             breakInside: 'avoid',
+            position: 'relative',
             ...(pageBreakBefore ? { pageBreakBefore: 'always', breakBefore: 'page' } : {})
         }}
         {...rest}
     >
-        <h3 className="text-xl font-bold text-gray-900 mb-4">{title}</h3>
-        <div className="space-y-3 text-sm text-gray-700">{children}</div>
+        <h3 className="text-xl font-bold text-gray-900 mb-4" style={{ position: 'relative' }}>{title}</h3>
+        <div className="space-y-3 text-sm text-gray-700" style={{ position: 'relative' }}>{children}</div>
     </div>
 )
 
 const Field: React.FC<{label: string; value: React.ReactNode}> = ({label, value}) => (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-1">
-        <span className="font-semibold text-gray-600">{label}</span>
-        <div className="md:col-span-3">{value || <span className="text-gray-400">제공되지 않음</span>}</div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-1" style={{ position: 'relative' }}>
+        <span className="font-semibold text-gray-600" style={{ position: 'relative' }}>{label}</span>
+        <div className="md:col-span-3" style={{ position: 'relative' }}>{value || <span className="text-gray-400">제공되지 않음</span>}</div>
     </div>
 )
 
