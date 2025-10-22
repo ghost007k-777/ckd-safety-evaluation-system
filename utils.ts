@@ -146,10 +146,11 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const usableWidth = pdfWidth - (margin * 2);
     const usableHeight = pdfHeight - (margin * 2);
     
-    // 전체 크기를 95%로 조정
-    const contentScale = 0.95;
-    const scaledWidth = usableWidth * contentScale;
-    const scaledHeight = usableHeight * contentScale;
+    // 좌우 크기는 그대로, 위아래 크기만 46%로 조정
+    const contentScaleX = 0.95; // 좌우는 95% 유지
+    const contentScaleY = 0.46; // 위아래는 46%로 압축
+    const scaledWidth = usableWidth * contentScaleX;
+    const scaledHeight = usableHeight * contentScaleY;
     // 중앙 정렬을 위한 여백 계산
     const centerMarginX = margin + (usableWidth - scaledWidth) / 2;
     const centerMarginY = margin + (usableHeight - scaledHeight) / 2;
