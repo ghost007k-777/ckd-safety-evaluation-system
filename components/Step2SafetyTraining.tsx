@@ -136,7 +136,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const handleVideoComplete = () => {
     if (canComplete) {
       setCurrentVideoCompleted(true);
-      setShowAttendeeForm(true);
+      // 마지막 영상일 때만 교육자 서명 폼 표시
+      if (isLastVideo) {
+        setShowAttendeeForm(true);
+      }
     } else {
       // 3분 미만이면 관리자 암호 입력 프롬프트 표시
       setShowAdminPrompt(true);
@@ -147,7 +150,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     e.preventDefault();
     if (adminPassword === 'admin') {
       setCurrentVideoCompleted(true);
-      setShowAttendeeForm(true);
+      // 마지막 영상일 때만 교육자 서명 폼 표시
+      if (isLastVideo) {
+        setShowAttendeeForm(true);
+      }
       setShowAdminPrompt(false);
       setAdminPassword('');
       setAdminError('');
