@@ -151,9 +151,9 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     const contentScaleY = 0.46; // 위아래는 46%로 압축
     const scaledWidth = usableWidth * contentScaleX;
     const scaledHeight = usableHeight * contentScaleY;
-    // 중앙 정렬을 위한 여백 계산
+    // 좌우는 중앙 정렬, 위아래는 상단 정렬
     const centerMarginX = margin + (usableWidth - scaledWidth) / 2;
-    const centerMarginY = margin + (usableHeight - scaledHeight) / 2;
+    const topMarginY = margin; // 상단 정렬
     
     // 공통 캔버스 렌더러 - 정상 크기로 렌더링
     const renderToCanvas = async (target: HTMLElement): Promise<HTMLCanvasElement> => {
@@ -241,8 +241,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
 
         if (pages > 0 || !isFirstSection) pdf.addPage();
         const sliceHeightMm = sliceHeightPx * mmPerPixel;
-        // 95% 크기로 중앙 정렬하여 추가
-        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', centerMarginX, centerMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
+        // 좌우 중앙 정렬, 위아래 상단 정렬하여 추가
+        pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', centerMarginX, topMarginY, scaledWidth, sliceHeightMm, undefined, 'SLOW');
         pages += 1;
       }
       return pages;
