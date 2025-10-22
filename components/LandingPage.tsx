@@ -18,8 +18,8 @@ const ActionCard: React.FC<{
     <div 
       className="
         group relative
-        flex flex-col sm:flex-row items-center sm:items-start
-        p-6 sm:p-8
+        flex flex-col items-center
+        p-8
         bg-white rounded-2xl 
         border-2 border-[#E9ECEF] 
         hover:border-[#0066CC] hover:shadow-xl 
@@ -42,12 +42,12 @@ const ActionCard: React.FC<{
       <div className="
         flex-shrink-0 
         flex items-center justify-center 
-        h-16 w-16 sm:h-20 sm:w-20
+        h-24 w-24
         rounded-2xl 
         bg-gradient-to-br from-[#E6F0FF] to-[#CCE1FF]
         group-hover:from-[#0066CC] group-hover:to-[#0052A3]
         transition-all duration-300
-        mb-4 sm:mb-0 sm:mr-6
+        mb-6
         shadow-md group-hover:shadow-lg
       ">
         <div className="text-[#0066CC] group-hover:text-white transition-colors duration-300">
@@ -56,9 +56,9 @@ const ActionCard: React.FC<{
       </div>
 
       {/* 콘텐츠 */}
-      <div className="flex-1 text-center sm:text-left">
-        <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-          <h3 className="text-xl sm:text-2xl font-bold text-[#212529] group-hover:text-[#0066CC] transition-colors">
+      <div className="flex-1 text-center w-full">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <h3 className="text-2xl font-bold text-[#212529] group-hover:text-[#0066CC] transition-colors">
             {title}
           </h3>
           {badge && (
@@ -67,22 +67,21 @@ const ActionCard: React.FC<{
             </span>
           )}
         </div>
-        <p className="text-base text-[#6C757D] leading-relaxed group-hover:text-[#495057] transition-colors">
+        <p className="text-sm text-[#6C757D] leading-relaxed group-hover:text-[#495057] transition-colors">
           {description}
         </p>
       </div>
 
       {/* 화살표 아이콘 */}
       <div className="
-        hidden sm:block
-        ml-4
+        mt-4
         text-[#ADB5BD] 
         group-hover:text-[#0066CC] 
-        group-hover:translate-x-2
+        group-hover:translate-y-1
         transition-all duration-300
       ">
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
     </div>
@@ -92,7 +91,7 @@ const ActionCard: React.FC<{
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onShowList, onShowAdmin }) => {
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* 헤더 섹션 (KRDS 스타일) */}
       <div className="text-center mb-12 sm:mb-16">
         <h2 className="text-3xl sm:text-5xl font-bold text-[#212529] mb-4 leading-tight">
@@ -104,14 +103,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onS
         </p>
       </div>
 
-      {/* 액션 카드 그리드 */}
-      <div className="space-y-6">
+      {/* 액션 카드 그리드 - 가로 배열 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <ActionCard
           title="작업신청하기"
           description="새로운 작업에 대한 안전 평가 및 신청 절차를 시작합니다. 단계별 가이드를 따라 쉽게 작성할 수 있습니다."
           badge="신규"
           icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           }
@@ -122,7 +121,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onS
           title="신청 목록"
           description="제출된 평가 신청서 목록을 확인하고 관리합니다. 상태별로 필터링하여 조회할 수 있습니다."
           icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
           }
@@ -133,7 +132,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onS
           title="관리자 페이지"
           description="시스템 설정을 관리하고 신청서를 승인합니다. 통계 및 리포트를 확인할 수 있습니다."
           icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
