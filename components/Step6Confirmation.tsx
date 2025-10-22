@@ -486,7 +486,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
         description="제출하기 전에 모든 정보를 주의 깊게 검토해주세요."
       />
       <div className="space-y-4">
-        <Section title="프로젝트 정보">
+        <Section title="프로젝트 정보" data-pdf-page="project-info">
           <Field label="공사 위치" value={
             data.projectInfo?.location === '기타' 
               ? data.projectInfo?.locationOther || '기타 위치 미입력'
@@ -497,7 +497,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
           <Field label="담당자" value={data.projectInfo?.contactPerson || '담당자 미입력'} />
         </Section>
         
-        <Section title="안전 교육">
+        <Section title="안전 교육" pageBreakBefore={true} data-pdf-page="safety-training">
             <Field label="이수 여부" value={
               data.safetyTraining?.completed 
                 ? `완료, 이수일: ${data.safetyTraining.completionDate?.toLocaleString('ko-KR') || '날짜 미상'}`
@@ -533,7 +533,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             )}
         </Section>
         
-        <Section title="위험성 평가">
+        <Section title="위험성 평가" pageBreakBefore={true} data-pdf-page="risk-assessment">
             {data.riskAssessment?.length > 0 ? (
                  <div className="overflow-x-auto border border-gray-200 rounded-xl" data-section="risk-table">
                     <table className="min-w-full divide-y divide-gray-200 text-sm" data-pdf-table="risk-assessment">
@@ -573,7 +573,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             ) : <p className="text-gray-500">추가된 위험 항목이 없습니다.</p>}
         </Section>
 
-        <Section title="안전 서약서" className="border-b-0 pb-0" data-section="safety-pledge">
+        <Section title="안전 서약서" className="border-b-0 pb-0" data-section="safety-pledge" pageBreakBefore={true} data-pdf-page="safety-pledge">
             <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-gray-800 mb-3">안전보건 준수 서약 내용</h4>
@@ -609,7 +609,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             </div>
         </Section>
 
-        <Section title="작업 허가서" className="" data-section="work-permit" pageBreakBefore={true}>
+        <Section title="작업 허가서" className="" data-section="work-permit" pageBreakBefore={true} data-pdf-page="work-permit">
             <div className="space-y-3 mb-6">
                 <Field label="유형" value={
                   data.workPermit?.type === 'hazardous' ? '위험' : 

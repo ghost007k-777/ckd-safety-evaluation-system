@@ -134,20 +134,6 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
     width: 200%; /* 100% / 0.5 = 200% */
   `;
   
-  // 테이블과 중요 섹션에 data-section 속성 추가
-  const tables = element.querySelectorAll('table');
-  tables.forEach((table, index) => {
-    table.setAttribute('data-section', `table-${index}`);
-  });
-  
-  const sections = element.querySelectorAll('.space-y-4 > div');
-  sections.forEach((section, index) => {
-    const el = section as HTMLElement;
-    if (!el.getAttribute('data-section')) {
-      el.setAttribute('data-section', `section-${index}`);
-    }
-  });
-  
   try {
     // 이미지 로딩 대기 (서명 이미지 등)
     await waitForImages(element);
@@ -204,8 +190,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       return canvas;
     };
 
-    // 캔버스를 페이지 단위로 잘라 추가 (무제한 페이지)
-    const addCanvasPagedSliced = (canvas: HTMLCanvasElement): number => {
+    // 캔버스를 페이지 단위로 잘라 추가 (섹션이 여러 페이지에 걸칠 경우 대비)
+    const addCanvasPagedSliced = (canvas: HTMLCanvasElement, isFirstSection: boolean): number => {
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
       // html2canvas scale=1.5 고려하여 mm/px 비율 계산
@@ -233,7 +219,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
           sliceHeightPx
         );
 
-        if (pages > 0) pdf.addPage();
+        if (pages > 0 || !isFirstSection) pdf.addPage();
         const sliceHeightMm = sliceHeightPx * mmPerPixel;
         pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margin, margin, usableWidth, sliceHeightMm, undefined, 'FAST');
         pages += 1;
@@ -241,23 +227,30 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       return pages;
     };
 
-    // 원본 요소 전체를 한 번에 렌더링하고 순서대로 페이지에 추가
-    const fullCanvas = await renderToCanvas(element);
-    const totalPages = addCanvasPagedSliced(fullCanvas);
+    // data-pdf-page 속성을 가진 섹션들을 찾아서 각각 별도 페이지로 렌더링
+    const pdfSections = Array.from(element.querySelectorAll('[data-pdf-page]')) as HTMLElement[];
+    
+    console.log(`📄 [PDF] ${pdfSections.length}개의 섹션을 개별 페이지로 생성합니다.`);
+    
+    let totalPages = 0;
+    for (let i = 0; i < pdfSections.length; i++) {
+      const section = pdfSections[i];
+      console.log(`📄 [PDF] 섹션 ${i + 1}/${pdfSections.length} 렌더링 중...`);
+      
+      const sectionCanvas = await renderToCanvas(section);
+      const sectionPages = addCanvasPagedSliced(sectionCanvas, i === 0);
+      totalPages += sectionPages;
+      
+      console.log(`✅ [PDF] 섹션 ${i + 1} 완료 (${sectionPages} 페이지)`);
+    }
 
     // 저장
     pdf.save(filename);
-    console.log(`PDF 파일 "${filename}" 생성 완료 (${totalPages} 페이지)`);
+    console.log(`✅ [PDF] 파일 "${filename}" 생성 완료 (총 ${totalPages} 페이지)`);
     
   } finally {
     // 원래 스타일 복원
     element.style.cssText = originalStyle;
-    
-    // 임시로 추가한 data-section 속성 제거
-    const tempSections = element.querySelectorAll('[data-section]');
-    tempSections.forEach(section => {
-      section.removeAttribute('data-section');
-    });
   }
 };
 
