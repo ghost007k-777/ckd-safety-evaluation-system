@@ -588,7 +588,7 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                                             <div className="font-bold text-lg">{riskScore}</div>
                                             <div className="text-xs text-gray-500">(가능성 {item?.likelihood || 1} × 중대성 {item?.severity || 1})</div>
                                         </td>
-                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item?.reductionMeasures || '감소대책 미상'}</td>
+                                        <td className="px-4 py-4 whitespace-normal min-w-[150px] text-gray-800">{item?.reductionMeasures || ''}</td>
                                     </tr>
                                 );
                             })}
