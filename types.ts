@@ -35,6 +35,7 @@ export interface TrainingAttendee {
   id: string;
   name: string;
   signature: string;
+  trainingType: string; // 교육 유형: '일반작업 안전교육', '밀폐공간작업 안전교육', etc.
 }
 
 export interface SafetyTraining {

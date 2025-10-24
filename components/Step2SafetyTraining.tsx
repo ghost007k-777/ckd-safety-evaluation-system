@@ -28,7 +28,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const [adminError, setAdminError] = useState('');
   const [showAttendeeForm, setShowAttendeeForm] = useState(false);
   const [tempAttendees, setTempAttendees] = useState<TrainingAttendee[]>([
-    { id: '1', name: '', signature: '' }
+    { id: '1', name: '', signature: '', trainingType: '' }
   ]);
 
   // 영상 시청 타이머 (3분 = 180초)
@@ -52,7 +52,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     setCanComplete(false);
     setCurrentVideoCompleted(false);
     setShowAttendeeForm(false);
-    setTempAttendees([{ id: '1', name: '', signature: '' }]);
+    setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
   }, [data.currentVideoIndex]);
 
   // Helper function to convert YouTube URL to embed URL with autoplay
@@ -174,7 +174,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     const newAttendee: TrainingAttendee = {
       id: Date.now().toString(),
       name: '',
-      signature: ''
+      signature: '',
+      trainingType: ''
     };
     setTempAttendees([...tempAttendees, newAttendee]);
   };
@@ -210,8 +211,14 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
       return;
     }
 
+    // 현재 영상의 교육자 정보에 교육 유형 추가
+    const attendeesWithType = tempAttendees.map(attendee => ({
+      ...attendee,
+      trainingType: currentVideo.title // 현재 교육 영상의 제목 저장
+    }));
+
     // 현재 영상의 교육자 정보를 data.attendees에 추가
-    const updatedAttendees = [...(data.attendees || []), ...tempAttendees];
+    const updatedAttendees = [...(data.attendees || []), ...attendeesWithType];
     updateData('attendees', updatedAttendees);
 
     if (isLastVideo) {
@@ -225,7 +232,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
       updateData('currentVideoIndex', data.currentVideoIndex + 1);
       setCurrentVideoCompleted(false);
       setShowAttendeeForm(false);
-      setTempAttendees([{ id: Date.now().toString(), name: '', signature: '' }]);
+      setTempAttendees([{ id: Date.now().toString(), name: '', signature: '', trainingType: '' }]);
     }
   };
 
