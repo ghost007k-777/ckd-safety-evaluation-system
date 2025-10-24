@@ -152,8 +152,18 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
             if (!formData.safetyTraining.completed) return { isValid: false, message: '안전 교육 이수를 확인해주세요.' };
             return { isValid: true, message: '' };
         case Step.RiskAssessment:
-            const invalidItem = formData.riskAssessment.find(item => !item.location || !item.task || !item.hazard || !item.disasterType || !item.reductionMeasures);
-            if (invalidItem) return { isValid: false, message: '모든 위험성 평가 항목의 필수 필드를 채워주세요.' };
+            const invalidItem = formData.riskAssessment.find(item => {
+                const riskScore = item.likelihood * item.severity;
+                const isReductionMeasuresRequired = riskScore >= 9 && !item.reductionMeasures;
+                return !item.location || !item.task || !item.hazard || !item.disasterType || isReductionMeasuresRequired;
+            });
+            if (invalidItem) {
+                const riskScore = invalidItem.likelihood * invalidItem.severity;
+                if (riskScore >= 9 && !invalidItem.reductionMeasures) {
+                    return { isValid: false, message: '위험성이 9 이상인 항목은 감소대책을 반드시 입력해야 합니다.' };
+                }
+                return { isValid: false, message: '모든 위험성 평가 항목의 필수 필드를 채워주세요.' };
+            }
             if (formData.riskAssessment.length === 0) return { isValid: false, message: '하나 이상의 위험성 평가 항목을 추가해야 합니다.'};
             return { isValid: true, message: '' };
         case Step.WorkPermit: {

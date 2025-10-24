@@ -48,7 +48,25 @@ const RiskRow: React.FC<{ item: RiskItem; onUpdate: (item: RiskItem) => void; on
         </div>
       </div>
       <div className="md:col-span-2">
-        <Input label="위험성 감소대책" value={item.reductionMeasures} onChange={e => onUpdate({ ...item, reductionMeasures: e.target.value })} />
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              위험성 감소대책
+            </label>
+            {riskScore >= 9 && (
+              <span className="text-xs text-red-600 font-medium">* 필수 입력</span>
+            )}
+            <span className="text-xs text-gray-500">(위험성 9 이상일 경우 작성)</span>
+          </div>
+          <input
+            type="text"
+            value={item.reductionMeasures}
+            onChange={e => onUpdate({ ...item, reductionMeasures: e.target.value })}
+            required={riskScore >= 9}
+            className="block w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-gray-900 text-base bg-white placeholder-gray-400 transition-all duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 hover:border-gray-400"
+            placeholder={riskScore >= 9 ? "위험성 감소를 위한 대책을 입력하세요" : "선택 사항"}
+          />
+        </div>
       </div>
       <div className="md:col-span-2 text-right">
         <Button variant="danger" onClick={() => onRemove(item.id)} className="px-4 py-2">삭제</Button>
