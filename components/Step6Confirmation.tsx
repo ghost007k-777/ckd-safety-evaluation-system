@@ -636,6 +636,18 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
 
         <Section title="작업 허가서" className="" data-section="work-permit" pageBreakBefore={true} data-pdf-page="work-permit">
             <div className="space-y-3 mb-6">
+                <Field label="신청일시" value={
+                  (data as any).submittedAt 
+                    ? new Date((data as any).submittedAt).toLocaleString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }).replace(/\. /g, '-').replace('.', '')
+                    : '신청일시 미상'
+                } />
                 <Field label="유형" value={
                   data.workPermit?.type === 'hazardous' ? '위험' : 
                   data.workPermit?.type === 'general' ? '일반' : 

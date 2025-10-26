@@ -27,6 +27,9 @@ const RadioGroup: React.FC<{ label: string, name: string, value: string, options
 
 
 const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
+    // 오늘 날짜를 YYYY-MM-DD 형식으로 가져오기
+    const today = new Date().toISOString().split('T')[0];
+    
     const handleSafetyCheckChange = (id: string, field: 'applicable' | 'implemented', value: 'O' | 'X') => {
         const newList = (data.safetyCheckList ?? []).map(item => item.id === id ? { ...item, [field]: value } : item);
         updateData({ safetyCheckList: newList as SafetyCheckItem[] });
@@ -111,7 +114,7 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                  <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })}/>
+                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={today} />
                         <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
                         <span className="hidden sm:inline">~</span>
                         <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
@@ -293,6 +296,9 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
 };
 
 const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
+    // 오늘 날짜를 YYYY-MM-DD 형식으로 가져오기
+    const today = new Date().toISOString().split('T')[0];
+    
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
     const handleConfinedSpaceSafetyCheckChange = (id: string, field: 'applicable' | 'confirmed', value: '유' | '무' | boolean) => {
@@ -382,7 +388,7 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
                  <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })}/>
+                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={today} />
                         <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
                         <span className="hidden sm:inline">~</span>
                         <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
@@ -534,6 +540,9 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
 };
 
 const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
+    // 오늘 날짜를 YYYY-MM-DD 형식으로 가져오기
+    const today = new Date().toISOString().split('T')[0];
+    
     const inputClasses = "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-gray-900";
 
     const handleSafetyCheckChange = (id: string, field: 'applicable' | 'implemented', value: 'O' | 'X') => {
@@ -657,7 +666,7 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                  <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })}/>
+                        <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={today} />
                         <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
                         <span className="hidden sm:inline">~</span>
                         <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
