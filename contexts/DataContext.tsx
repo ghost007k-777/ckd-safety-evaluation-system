@@ -116,8 +116,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
           dispatch({ type: 'SET_SUBMISSIONS', payload: cachedData });
           console.log(`✅ [DataProvider] ${cachedData.length}개 캐시 데이터 로드 완료`);
         } else {
-          console.log('📦 [DataProvider] 캐시 데이터 없음, 로딩 상태 해제');
-          dispatch({ type: 'SET_LOADING', payload: false });
+          console.log('📦 [DataProvider] 캐시 데이터 없음');
           dispatch({ type: 'SET_SUBMISSIONS', payload: [] });
         }
 
@@ -143,6 +142,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         });
 
         console.log('✅ [DataProvider] 초기화 완료');
+
+        // 3단계: 초기 로딩 후 즉시 Firebase에서 최신 데이터 가져오기
+        console.log('🔄 [DataProvider] 초기 데이터 동기화 시작...');
+        try {
+          await dataManager.manualSync();
+          console.log('✅ [DataProvider] 초기 데이터 동기화 완료');
+        } catch (syncError) {
+          console.warn('⚠️ [DataProvider] 초기 동기화 실패:', syncError);
+          // 동기화 실패해도 캐시된 데이터는 표시
+        }
+        
+        // 로딩 상태 해제
+        dispatch({ type: 'SET_LOADING', payload: false });
 
       } catch (error) {
         console.error('❌ [DataProvider] 초기화 실패:', error);
