@@ -20,9 +20,12 @@ interface VideoConfig {
 }
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
-  const [currentVideoCompleted, setCurrentVideoCompleted] = useState(false);
+  // 교육이 완료된 상태인지 확인
+  const isTrainingCompleted = data.completed && data.allVideosCompleted;
+  
+  const [currentVideoCompleted, setCurrentVideoCompleted] = useState(isTrainingCompleted);
   const [watchTime, setWatchTime] = useState(0);
-  const [canComplete, setCanComplete] = useState(false);
+  const [canComplete, setCanComplete] = useState(isTrainingCompleted);
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminError, setAdminError] = useState('');
@@ -31,8 +34,21 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     { id: '1', name: '', signature: '', trainingType: '' }
   ]);
 
-  // 영상 시청 타이머 (3분 = 180초)
+  // 컴포넌트 마운트 시 교육 완료 상태 복원
   useEffect(() => {
+    if (isTrainingCompleted) {
+      setCurrentVideoCompleted(true);
+      setCanComplete(true);
+      setWatchTime(180); // 완료된 상태로 표시
+    }
+  }, [isTrainingCompleted]);
+
+  // 영상 시청 타이머 (3분 = 180초) - 교육이 완료되지 않은 경우에만 동작
+  useEffect(() => {
+    if (isTrainingCompleted) {
+      return; // 교육 완료된 경우 타이머 작동 안 함
+    }
+
     const timer = setInterval(() => {
       setWatchTime((prev) => {
         const newTime = prev + 1;
@@ -44,16 +60,18 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [data.currentVideoIndex]); // 영상이 바뀔 때마다 타이머 리셋
+  }, [data.currentVideoIndex, isTrainingCompleted]); // 영상이 바뀔 때마다 타이머 리셋
 
-  // 영상이 바뀔 때 타이머 리셋
+  // 영상이 바뀔 때 타이머 리셋 - 교육이 완료되지 않은 경우에만
   useEffect(() => {
-    setWatchTime(0);
-    setCanComplete(false);
-    setCurrentVideoCompleted(false);
-    setShowAttendeeForm(false);
-    setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
-  }, [data.currentVideoIndex]);
+    if (!isTrainingCompleted) {
+      setWatchTime(0);
+      setCanComplete(false);
+      setCurrentVideoCompleted(false);
+      setShowAttendeeForm(false);
+      setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
+    }
+  }, [data.currentVideoIndex, isTrainingCompleted]);
 
   // Helper function to convert YouTube URL to embed URL with autoplay
   const getYouTubeEmbedUrl = (url: string): string => {
@@ -303,17 +321,68 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
             <span className="text-sm ml-2 text-gray-500">
               ({data.currentVideoIndex + 1}/{selectedVideos.length})
             </span>
+            {isTrainingCompleted && (
+              <span className="ml-3 px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+                ✓ 교육 완료
+              </span>
+            )}
           </span>
         }
-        description={`${currentVideo.title}을 시청해주세요.`}
+        description={isTrainingCompleted ? `모든 안전 교육이 완료되었습니다.` : `${currentVideo.title}을 시청해주세요.`}
       />
       
       <div className="space-y-8">
+        {/* 교육 완료 안내 메시지 */}
+        {isTrainingCompleted && (
+          <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-green-900 mb-2">모든 안전 교육이 완료되었습니다! 🎉</h3>
+                <p className="text-sm text-green-700 mb-3">
+                  교육 완료일: {data.completionDate?.toLocaleString('ko-KR')}
+                </p>
+                {data.attendees && data.attendees.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-semibold text-green-900 mb-2">교육 이수자 목록:</h4>
+                    <div className="space-y-2">
+                      {data.attendees.map((attendee, index) => (
+                        <div key={attendee.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-green-200">
+                          <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                            {index + 1}
+                          </span>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900">{attendee.name}</p>
+                            <p className="text-xs text-gray-600">{attendee.trainingType}</p>
+                          </div>
+                          {attendee.signature && (
+                            <div className="flex-shrink-0">
+                              <img 
+                                src={attendee.signature} 
+                                alt={`${attendee.name}의 서명`}
+                                className="h-10 w-20 object-contain border border-gray-300 rounded bg-white"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Progress bar */}
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((data.currentVideoIndex + (currentVideoCompleted ? 1 : 0)) / selectedVideos.length) * 100}%` }}
+            className={`h-2 rounded-full transition-all duration-300 ${isTrainingCompleted ? 'bg-green-600' : 'bg-indigo-600'}`}
+            style={{ width: `${isTrainingCompleted ? 100 : ((data.currentVideoIndex + (currentVideoCompleted ? 1 : 0)) / selectedVideos.length) * 100}%` }}
           ></div>
         </div>
 
@@ -325,20 +394,21 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
               <span
                 key={video.type}
                 className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  index < data.currentVideoIndex 
+                  isTrainingCompleted || index < data.currentVideoIndex 
                     ? 'bg-green-100 text-green-800' 
                     : index === data.currentVideoIndex
                     ? 'bg-indigo-100 text-indigo-800'
                     : 'bg-gray-100 text-gray-600'
                 }`}
               >
-                {index < data.currentVideoIndex && '✓ '}{video.title}
+                {(isTrainingCompleted || index < data.currentVideoIndex) && '✓ '}{video.title}
               </span>
             ))}
           </div>
         </div>
 
-        {/* Current video display */}
+        {/* Current video display - 교육 완료 시 숨김 */}
+        {!isTrainingCompleted && (
         <div className="border border-gray-200 rounded-xl p-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">{currentVideo.title}</h3>
           
@@ -404,9 +474,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           
           <p className="text-xs text-gray-400 mt-2">URL: {currentVideo.url}</p>
         </div>
+        )}
 
-        {/* 교육자 성명 및 서명 입력 폼 */}
-        {showAttendeeForm && currentVideoCompleted && (
+        {/* 교육자 성명 및 서명 입력 폼 - 교육 완료 시 숨김 */}
+        {!isTrainingCompleted && showAttendeeForm && currentVideoCompleted && (
           <div className="p-6 border-2 border-[#0066CC] bg-[#F0F7FF] rounded-lg space-y-6">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-[#212529] mb-2">해당 교육 교육자 성명 및 서명</h3>
@@ -470,8 +541,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           </div>
         )}
 
-        {/* Navigation buttons - 교육자 폼이 표시되지 않을 때만 보임 */}
-        {currentVideoCompleted && !showAttendeeForm && (
+        {/* Navigation buttons - 교육 완료 시 숨김, 교육자 폼이 표시되지 않을 때만 보임 */}
+        {!isTrainingCompleted && currentVideoCompleted && !showAttendeeForm && (
           <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
             <div>
               <p className="text-emerald-800 font-medium">
@@ -493,16 +564,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
             </div>
           </div>
         )}
-
-        {data.completionDate && (
-          <p className="text-sm text-emerald-700 font-medium">
-            교육 완료일: {data.completionDate.toLocaleString('ko-KR')}
-          </p>
-        )}
       </div>
 
-      {/* 관리자 암호 입력 팝업 */}
-      {showAdminPrompt && (
+      {/* 관리자 암호 입력 팝업 - 교육 완료 시 숨김 */}
+      {!isTrainingCompleted && showAdminPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
             <h3 className="text-2xl font-bold text-[#212529] mb-3">관리자 인증</h3>
