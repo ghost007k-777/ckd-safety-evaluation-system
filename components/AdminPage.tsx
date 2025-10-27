@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Submission, SubmissionStatus, ApprovalInfo } from '../types.ts';
+import { Submission, SubmissionStatus, ApprovalInfo, AdminRole } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import Step6Confirmation from './Step6Confirmation.tsx';
@@ -172,6 +172,8 @@ type ViewMode = 'home' | 'pending' | 'processed' | 'calendar';
 export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatus, onDelete, onBack }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<AdminRole>('safetyManager');
+  const [currentUserRole, setCurrentUserRole] = useState<AdminRole | null>(null);
   const [error, setError] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('home');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -198,6 +200,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   const printRef = useRef<HTMLDivElement>(null);
   const connectionStatus = useConnectionStatus();
 
+  // 역할별 암호 설정
+  const rolePasswords: Record<AdminRole, string> = {
+    safetyManager: 'admin',
+    departmentManager: 'admin1'
+  };
+
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
@@ -217,11 +225,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
   };
 
   const handleLogin = () => {
-    if (password === 'admin') {
+    const correctPassword = rolePasswords[selectedRole];
+    
+    if (password === correctPassword) {
       setIsAuthenticated(true);
+      setCurrentUserRole(selectedRole);
       setError('');
     } else {
-      setError('비밀번호가 올바르지 않습니다.');
+      setError('역할 또는 비밀번호가 올바르지 않습니다.');
       setPassword('');
     }
   };
@@ -318,6 +329,26 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
     }
   };
 
+  // 현재 사용자의 역할에 따라 승인 버튼 표시 여부 결정
+  const canApprove = (submission: Submission, approvalType: 'safetyManager' | 'departmentManager') => {
+    // 역할이 일치하지 않으면 승인 불가
+    if (approvalType === 'safetyManager' && currentUserRole !== 'safetyManager') {
+      return false;
+    }
+    if (approvalType === 'departmentManager' && currentUserRole !== 'departmentManager') {
+      return false;
+    }
+
+    // 승인 순서 확인: 안전보건관리자 승인 후에만 안전보건부서팀장 승인 가능
+    if (approvalType === 'departmentManager') {
+      if (!submission.approvalInfo?.safetyManagerApproval?.approved) {
+        return false; // 안전보건관리자 승인이 없으면 팀장 승인 불가
+      }
+    }
+
+    return true;
+  };
+
   // 달력 관련 함수
   const getDateStats = (date: Date) => {
     const dateStr = date.toDateString();
@@ -366,22 +397,67 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
       <Card className="max-w-md mx-auto">
         <CardHeader
           title="관리자 인증"
-          description="계속하려면 관리자 비밀번호를 입력해주세요."
+          description="역할을 선택하고 비밀번호를 입력해주세요."
         />
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-6">
+          {/* 역할 선택 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-[#343A40] mb-3">
+              관리자 역할 <span className="text-[#DC3545]">*</span>
+            </label>
+            <div className="space-y-3">
+              <label className="flex items-center p-4 border-2 border-[#DEE2E6] rounded-lg cursor-pointer hover:border-[#0066CC] hover:bg-[#F8F9FA] transition-all">
+                <input
+                  type="radio"
+                  name="role"
+                  value="safetyManager"
+                  checked={selectedRole === 'safetyManager'}
+                  onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
+                  className="w-4 h-4 text-[#0066CC] border-[#DEE2E6] focus:ring-[#0066CC] focus:ring-2"
+                />
+                <div className="ml-3">
+                  <span className="text-base font-semibold text-[#212529]">안전보건관리자</span>
+                  <p className="text-xs text-[#6C757D] mt-1">1차 승인 권한</p>
+                </div>
+              </label>
+              <label className="flex items-center p-4 border-2 border-[#DEE2E6] rounded-lg cursor-pointer hover:border-[#0066CC] hover:bg-[#F8F9FA] transition-all">
+                <input
+                  type="radio"
+                  name="role"
+                  value="departmentManager"
+                  checked={selectedRole === 'departmentManager'}
+                  onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
+                  className="w-4 h-4 text-[#0066CC] border-[#DEE2E6] focus:ring-[#0066CC] focus:ring-2"
+                />
+                <div className="ml-3">
+                  <span className="text-base font-semibold text-[#212529]">안전보건부서팀장</span>
+                  <p className="text-xs text-[#6C757D] mt-1">최종 승인 권한</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* 암호 입력 */}
           <Input
             id="admin-password"
             label="비밀번호"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="비밀번호를 입력해주세요"
             autoFocus
           />
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          
+          {error && (
+            <div className="p-3 bg-[#F8D7DA] border border-[#DC3545] rounded-lg">
+              <p className="text-sm text-[#721C24] font-medium">{error}</p>
+            </div>
+          )}
+          
           <div className="flex justify-between items-center pt-4">
-             <Button type="button" variant="secondary" onClick={onBack}>
-                홈으로
-             </Button>
+            <Button type="button" variant="secondary" onClick={onBack}>
+              홈으로
+            </Button>
             <Button type="submit">로그인</Button>
           </div>
         </form>
@@ -754,7 +830,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                   <Button variant="secondary" onClick={() => handleRejectionClick(sub.id)}>
                                     승인 거부
                                   </Button>
-                                  {approvalStep === 'safetyManager' && (
+                                  {approvalStep === 'safetyManager' && canApprove(sub, 'safetyManager') && (
                                     <Button 
                                       variant="primary" 
                                       onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
@@ -763,7 +839,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                       안전보건관리자 승인
                                     </Button>
                                   )}
-                                  {approvalStep === 'departmentManager' && (
+                                  {approvalStep === 'departmentManager' && canApprove(sub, 'departmentManager') && (
                                     <Button 
                                       variant="primary" 
                                       onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
@@ -771,6 +847,17 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     >
                                       안전보건부서팀장 승인
                                     </Button>
+                                  )}
+                                  {/* 권한이 없는 경우 안내 메시지 */}
+                                  {approvalStep === 'safetyManager' && !canApprove(sub, 'safetyManager') && (
+                                    <div className="text-sm text-[#6C757D] p-3 bg-[#F8F9FA] rounded-lg border border-[#DEE2E6]">
+                                      안전보건관리자로 로그인하여 승인할 수 있습니다.
+                                    </div>
+                                  )}
+                                  {approvalStep === 'departmentManager' && !canApprove(sub, 'departmentManager') && (
+                                    <div className="text-sm text-[#6C757D] p-3 bg-[#F8F9FA] rounded-lg border border-[#DEE2E6]">
+                                      안전보건부서팀장으로 로그인하여 최종 승인할 수 있습니다.
+                                    </div>
                                   )}
                                 </>
                               )}
@@ -978,7 +1065,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     승인 거부
                                   </Button>
                                   
-                                  {approvalStep === 'safetyManager' && (
+                                  {approvalStep === 'safetyManager' && canApprove(sub, 'safetyManager') && (
                                     <Button 
                                       variant="primary" 
                                       onClick={() => handleApprovalClick(sub.id, 'safetyManager')}
@@ -988,7 +1075,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     </Button>
                                   )}
                                   
-                                  {approvalStep === 'departmentManager' && (
+                                  {approvalStep === 'departmentManager' && canApprove(sub, 'departmentManager') && (
                                     <Button 
                                       variant="primary" 
                                       onClick={() => handleApprovalClick(sub.id, 'departmentManager')}
@@ -996,6 +1083,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
                                     >
                                       안전보건부서팀장 승인
                                     </Button>
+                                  )}
+                                  
+                                  {/* 권한이 없는 경우 안내 메시지 */}
+                                  {approvalStep === 'safetyManager' && !canApprove(sub, 'safetyManager') && (
+                                    <div className="text-sm text-[#6C757D] p-3 bg-[#F8F9FA] rounded-lg border border-[#DEE2E6]">
+                                      안전보건관리자로 로그인하여 승인할 수 있습니다.
+                                    </div>
+                                  )}
+                                  {approvalStep === 'departmentManager' && !canApprove(sub, 'departmentManager') && (
+                                    <div className="text-sm text-[#6C757D] p-3 bg-[#F8F9FA] rounded-lg border border-[#DEE2E6]">
+                                      안전보건부서팀장으로 로그인하여 최종 승인할 수 있습니다.
+                                    </div>
                                   )}
                                 </div>
                               </div>

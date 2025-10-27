@@ -152,6 +152,14 @@ export interface FormData {
 
 export type SubmissionStatus = 'pending' | 'approved' | 'rejected';
 
+// 관리자 역할 타입
+export type AdminRole = 'safetyManager' | 'departmentManager';
+
+export interface AdminCredentials {
+  role: AdminRole;
+  password: string;
+}
+
 export interface ApprovalInfo {
   safetyManagerApproval?: {
     approved: boolean;
