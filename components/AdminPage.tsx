@@ -394,45 +394,136 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
 
   if (!isAuthenticated) {
     return (
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-4xl mx-auto">
         <CardHeader
           title="관리자 인증"
           description="역할을 선택하고 비밀번호를 입력해주세요."
         />
         <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-6">
-          {/* 역할 선택 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-[#343A40] mb-3">
+          {/* 역할 선택 - 가로 배치 */}
+          <div className="space-y-3">
+            <label className="block text-sm font-semibold text-[#343A40] mb-4">
               관리자 역할 <span className="text-[#DC3545]">*</span>
             </label>
-            <div className="space-y-3">
-              <label className="flex items-center p-4 border-2 border-[#DEE2E6] rounded-lg cursor-pointer hover:border-[#0066CC] hover:bg-[#F8F9FA] transition-all">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 안전보건관리자 카드 */}
+              <label 
+                className={`relative flex flex-col items-center p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                  selectedRole === 'safetyManager'
+                    ? 'border-[#0066CC] bg-gradient-to-br from-[#CCE1FF] to-[#E6F0FF] shadow-lg'
+                    : 'border-[#DEE2E6] bg-white hover:border-[#0066CC] hover:shadow-md'
+                }`}
+              >
                 <input
                   type="radio"
                   name="role"
                   value="safetyManager"
                   checked={selectedRole === 'safetyManager'}
                   onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
-                  className="w-4 h-4 text-[#0066CC] border-[#DEE2E6] focus:ring-[#0066CC] focus:ring-2"
+                  className="sr-only"
                 />
-                <div className="ml-3">
-                  <span className="text-base font-semibold text-[#212529]">안전보건관리자</span>
-                  <p className="text-xs text-[#6C757D] mt-1">1차 승인 권한</p>
+                
+                {/* 아이콘 */}
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-all ${
+                  selectedRole === 'safetyManager'
+                    ? 'bg-[#0066CC] shadow-lg'
+                    : 'bg-[#E9ECEF]'
+                }`}>
+                  <svg className={`w-12 h-12 ${selectedRole === 'safetyManager' ? 'text-white' : 'text-[#6C757D]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
                 </div>
+                
+                {/* 제목 */}
+                <h3 className={`text-lg font-bold mb-2 ${
+                  selectedRole === 'safetyManager' ? 'text-[#003E7A]' : 'text-[#212529]'
+                }`}>
+                  안전보건관리자
+                </h3>
+                
+                {/* 설명 */}
+                <p className={`text-sm text-center mb-2 ${
+                  selectedRole === 'safetyManager' ? 'text-[#0066CC]' : 'text-[#6C757D]'
+                }`}>
+                  1차 승인 권한
+                </p>
+                
+                <p className={`text-xs text-center ${
+                  selectedRole === 'safetyManager' ? 'text-[#003E7A]' : 'text-[#ADB5BD]'
+                }`}>
+                  작업 허가서를 검토하고<br />1차 승인을 진행합니다
+                </p>
+                
+                {/* 선택 표시 */}
+                {selectedRole === 'safetyManager' && (
+                  <div className="absolute top-4 right-4">
+                    <div className="w-6 h-6 bg-[#0066CC] rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </label>
-              <label className="flex items-center p-4 border-2 border-[#DEE2E6] rounded-lg cursor-pointer hover:border-[#0066CC] hover:bg-[#F8F9FA] transition-all">
+
+              {/* 안전보건부서팀장 카드 */}
+              <label 
+                className={`relative flex flex-col items-center p-6 border-2 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                  selectedRole === 'departmentManager'
+                    ? 'border-[#28A745] bg-gradient-to-br from-[#D4EDDA] to-[#E8F5E9] shadow-lg'
+                    : 'border-[#DEE2E6] bg-white hover:border-[#28A745] hover:shadow-md'
+                }`}
+              >
                 <input
                   type="radio"
                   name="role"
                   value="departmentManager"
                   checked={selectedRole === 'departmentManager'}
                   onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
-                  className="w-4 h-4 text-[#0066CC] border-[#DEE2E6] focus:ring-[#0066CC] focus:ring-2"
+                  className="sr-only"
                 />
-                <div className="ml-3">
-                  <span className="text-base font-semibold text-[#212529]">안전보건부서팀장</span>
-                  <p className="text-xs text-[#6C757D] mt-1">최종 승인 권한</p>
+                
+                {/* 아이콘 */}
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 transition-all ${
+                  selectedRole === 'departmentManager'
+                    ? 'bg-[#28A745] shadow-lg'
+                    : 'bg-[#E9ECEF]'
+                }`}>
+                  <svg className={`w-12 h-12 ${selectedRole === 'departmentManager' ? 'text-white' : 'text-[#6C757D]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
+                
+                {/* 제목 */}
+                <h3 className={`text-lg font-bold mb-2 ${
+                  selectedRole === 'departmentManager' ? 'text-[#155724]' : 'text-[#212529]'
+                }`}>
+                  안전보건부서팀장
+                </h3>
+                
+                {/* 설명 */}
+                <p className={`text-sm text-center mb-2 ${
+                  selectedRole === 'departmentManager' ? 'text-[#28A745]' : 'text-[#6C757D]'
+                }`}>
+                  최종 승인 권한
+                </p>
+                
+                <p className={`text-xs text-center ${
+                  selectedRole === 'departmentManager' ? 'text-[#155724]' : 'text-[#ADB5BD]'
+                }`}>
+                  1차 승인된 허가서를<br />최종 검토하고 승인합니다
+                </p>
+                
+                {/* 선택 표시 */}
+                {selectedRole === 'departmentManager' && (
+                  <div className="absolute top-4 right-4">
+                    <div className="w-6 h-6 bg-[#28A745] rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </label>
             </div>
           </div>
@@ -449,8 +540,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
           />
           
           {error && (
-            <div className="p-3 bg-[#F8D7DA] border border-[#DC3545] rounded-lg">
-              <p className="text-sm text-[#721C24] font-medium">{error}</p>
+            <div className="p-4 bg-[#F8D7DA] border-2 border-[#DC3545] rounded-xl">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-[#DC3545]" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm text-[#721C24] font-medium">{error}</p>
+              </div>
             </div>
           )}
           
@@ -458,7 +554,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ submissions, onUpdateStatu
             <Button type="button" variant="secondary" onClick={onBack}>
               홈으로
             </Button>
-            <Button type="submit">로그인</Button>
+            <Button type="submit" size="lg">로그인</Button>
           </div>
         </form>
       </Card>
