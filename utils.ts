@@ -253,7 +253,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       // 좌우 중앙 정렬, 위아래 상단 정렬하여 추가
       pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', finalMarginX, topMarginY, finalWidth, finalHeight, undefined, 'SLOW');
       
-      // CI 이미지를 오른쪽 하단에 추가
+      // CI 이미지를 오른쪽 하단에 추가 (내용 영역의 오른쪽 끝과 정렬)
       if (ciImage) {
         try {
           const ciCanvas = document.createElement('canvas');
@@ -267,8 +267,8 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
             const ciWidth = 30; // 30mm
             const ciHeight = (ciImage.height / ciImage.width) * ciWidth; // 비율 유지
             
-            // 오른쪽 하단 위치 계산 (여백 고려)
-            const ciX = pdfWidth - ciWidth - margin;
+            // 내용 영역의 오른쪽 끝과 맞춰서 위치 계산
+            const ciX = finalMarginX + finalWidth - ciWidth;
             const ciY = pdfHeight - ciHeight - margin;
             
             // CI 이미지 추가
