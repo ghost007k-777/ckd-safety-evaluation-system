@@ -208,8 +208,19 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       return canvas;
     };
 
+    // CI 이미지 로드 함수
+    const loadCIImage = (): Promise<HTMLImageElement> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('CI 이미지 로드 실패'));
+        img.src = 'https://i.ibb.co/NnVMgyB4/CI.png';
+      });
+    };
+
     // 각 섹션을 한 페이지에 맞춰서 추가 (페이지 분할 없이)
-    const addCanvasToSinglePage = (canvas: HTMLCanvasElement, isFirstSection: boolean): number => {
+    const addCanvasToSinglePage = (canvas: HTMLCanvasElement, isFirstSection: boolean, ciImage: HTMLImageElement | null): number => {
       const canvasWidthPx = canvas.width;
       const canvasHeightPx = canvas.height;
       
@@ -242,8 +253,44 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       // 좌우 중앙 정렬, 위아래 상단 정렬하여 추가
       pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', finalMarginX, topMarginY, finalWidth, finalHeight, undefined, 'SLOW');
       
+      // CI 이미지를 오른쪽 하단에 추가
+      if (ciImage) {
+        try {
+          const ciCanvas = document.createElement('canvas');
+          const ciCtx = ciCanvas.getContext('2d');
+          if (ciCtx) {
+            ciCanvas.width = ciImage.width;
+            ciCanvas.height = ciImage.height;
+            ciCtx.drawImage(ciImage, 0, 0);
+            
+            // CI 이미지 크기 (mm 단위)
+            const ciWidth = 30; // 30mm
+            const ciHeight = (ciImage.height / ciImage.width) * ciWidth; // 비율 유지
+            
+            // 오른쪽 하단 위치 계산 (여백 고려)
+            const ciX = pdfWidth - ciWidth - margin;
+            const ciY = pdfHeight - ciHeight - margin;
+            
+            // CI 이미지 추가
+            pdf.addImage(ciCanvas.toDataURL('image/png'), 'PNG', ciX, ciY, ciWidth, ciHeight, undefined, 'FAST');
+          }
+        } catch (error) {
+          console.warn('CI 이미지 추가 실패:', error);
+        }
+      }
+      
       return 1; // 항상 1페이지만 사용
     };
+
+    // CI 이미지 로드 (에러가 발생해도 계속 진행)
+    let ciImage: HTMLImageElement | null = null;
+    try {
+      console.log('📄 [PDF] CI 이미지 로드 중...');
+      ciImage = await loadCIImage();
+      console.log('✅ [PDF] CI 이미지 로드 완료');
+    } catch (error) {
+      console.warn('⚠️ [PDF] CI 이미지 로드 실패, CI 없이 PDF 생성:', error);
+    }
 
     // data-pdf-page 속성을 가진 섹션들을 찾아서 각각 별도 페이지로 렌더링
     const pdfSections = Array.from(element.querySelectorAll('[data-pdf-page]')) as HTMLElement[];
@@ -256,7 +303,7 @@ export const downloadSubmissionAsPdf = async (element: HTMLElement, filename: st
       console.log(`📄 [PDF] 섹션 ${i + 1}/${pdfSections.length} 렌더링 중...`);
       
       const sectionCanvas = await renderToCanvas(section);
-      const sectionPages = addCanvasToSinglePage(sectionCanvas, i === 0);
+      const sectionPages = addCanvasToSinglePage(sectionCanvas, i === 0, ciImage);
       totalPages += sectionPages;
       
       console.log(`✅ [PDF] 섹션 ${i + 1} 완료 (${sectionPages} 페이지)`);
