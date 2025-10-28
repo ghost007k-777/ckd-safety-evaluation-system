@@ -43,10 +43,20 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     }
   }, [isTrainingCompleted]);
 
+  // 현재 영상이 이미 완료된 교육인지 확인하고 자동으로 완료 상태로 설정
+  useEffect(() => {
+    if (isCurrentVideoAlreadyCompleted && !isTrainingCompleted) {
+      console.log('✅ 이미 완료한 교육:', currentVideo?.title);
+      setCurrentVideoCompleted(true);
+      setCanComplete(true);
+      setWatchTime(180);
+    }
+  }, [isCurrentVideoAlreadyCompleted, isTrainingCompleted, currentVideo]);
+
   // 영상 시청 타이머 (3분 = 180초) - 교육이 완료되지 않은 경우에만 동작
   useEffect(() => {
-    if (isTrainingCompleted) {
-      return; // 교육 완료된 경우 타이머 작동 안 함
+    if (isTrainingCompleted || isCurrentVideoAlreadyCompleted) {
+      return; // 교육 완료된 경우 또는 이미 완료한 교육인 경우 타이머 작동 안 함
     }
 
     const timer = setInterval(() => {
@@ -60,18 +70,21 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [data.currentVideoIndex, isTrainingCompleted]); // 영상이 바뀔 때마다 타이머 리셋
+  }, [data.currentVideoIndex, isTrainingCompleted, isCurrentVideoAlreadyCompleted]); // 영상이 바뀔 때마다 타이머 리셋
 
   // 영상이 바뀔 때 타이머 리셋 - 교육이 완료되지 않은 경우에만
   useEffect(() => {
     if (!isTrainingCompleted) {
-      setWatchTime(0);
-      setCanComplete(false);
-      setCurrentVideoCompleted(false);
-      setShowAttendeeForm(false);
-      setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
+      // 이미 완료한 교육이 아닌 경우에만 리셋
+      if (!isCurrentVideoAlreadyCompleted) {
+        setWatchTime(0);
+        setCanComplete(false);
+        setCurrentVideoCompleted(false);
+        setShowAttendeeForm(false);
+        setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
+      }
     }
-  }, [data.currentVideoIndex, isTrainingCompleted]);
+  }, [data.currentVideoIndex, isTrainingCompleted, isCurrentVideoAlreadyCompleted]);
 
   // Helper function to convert YouTube URL to embed URL with autoplay
   const getYouTubeEmbedUrl = (url: string): string => {
@@ -150,6 +163,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const selectedVideos = buildVideoList();
   const currentVideo = selectedVideos[data.currentVideoIndex];
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
+  
+  // 현재 영상이 이미 완료되었는지 확인 (attendees에 해당 교육 유형이 있는지 확인)
+  const isCurrentVideoAlreadyCompleted = currentVideo && data.attendees && 
+    data.attendees.some(attendee => attendee.trainingType === currentVideo.title);
 
   const handleVideoComplete = () => {
     if (canComplete) {
@@ -410,7 +427,41 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
         {/* Current video display - 교육 완료 시 숨김 */}
         {!isTrainingCompleted && (
         <div className="border border-gray-200 rounded-xl p-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">{currentVideo.title}</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-800">{currentVideo.title}</h3>
+            {isCurrentVideoAlreadyCompleted && (
+              <span className="px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+                ✓ 완료한 교육
+              </span>
+            )}
+          </div>
+          
+          {/* 이미 완료한 교육 안내 메시지 */}
+          {isCurrentVideoAlreadyCompleted && (
+            <div className="mb-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-green-900 mb-1">
+                    이미 완료한 교육입니다
+                  </p>
+                  <p className="text-xs text-green-700">
+                    이전에 이 교육을 완료하셨습니다. 다시 시청하시거나 다음 영상으로 넘어가실 수 있습니다.
+                  </p>
+                  {data.attendees && data.attendees
+                    .filter(a => a.trainingType === currentVideo.title)
+                    .map((attendee, idx) => (
+                      <div key={idx} className="mt-2 text-xs text-green-800">
+                        교육 이수자: <span className="font-semibold">{attendee.name}</span>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+          )}
           
           {currentVideo.url.startsWith('placeholder-') ? (
             // Placeholder for videos without URLs
@@ -476,8 +527,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
         </div>
         )}
 
-        {/* 교육자 성명 및 서명 입력 폼 - 교육 완료 시 숨김 */}
-        {!isTrainingCompleted && showAttendeeForm && currentVideoCompleted && (
+        {/* 교육자 성명 및 서명 입력 폼 - 교육 완료 시 숨김, 이미 완료한 교육은 건너뛰기 */}
+        {!isTrainingCompleted && showAttendeeForm && currentVideoCompleted && !isCurrentVideoAlreadyCompleted && (
           <div className="p-6 border-2 border-[#0066CC] bg-[#F0F7FF] rounded-lg space-y-6">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-[#212529] mb-2">해당 교육 교육자 성명 및 서명</h3>
@@ -541,8 +592,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
           </div>
         )}
 
-        {/* Navigation buttons - 교육 완료 시 숨김, 교육자 폼이 표시되지 않을 때만 보임 */}
-        {!isTrainingCompleted && currentVideoCompleted && !showAttendeeForm && (
+        {/* Navigation buttons - 교육 완료 시 숨김, 교육자 폼이 표시되지 않을 때만 보임 (이미 완료한 교육 포함) */}
+        {!isTrainingCompleted && currentVideoCompleted && (!showAttendeeForm || isCurrentVideoAlreadyCompleted) && (
           <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
             <div>
               <p className="text-emerald-800 font-medium">

@@ -94,14 +94,39 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
 
   const updateWorkTypeSelection = useCallback((field: keyof WorkTypeSelection, value: boolean | HeightWorkSubType) => {
     setValidationError(null);
-    setFormData(prev => ({ 
-      ...prev, 
-      workTypeSelection: { ...prev.workTypeSelection, [field]: value },
-      safetyTraining: { 
-        ...prev.safetyTraining, 
-        workTypes: { ...prev.safetyTraining.workTypes, [field]: value }
+    setFormData(prev => {
+      const newWorkTypeSelection = { ...prev.workTypeSelection, [field]: value };
+      const newSafetyTrainingWorkTypes = { ...prev.safetyTraining.workTypes, [field]: value };
+      
+      // 작업유형이 추가되었는지 확인 (새로운 작업유형이 true가 되었을 때)
+      const isAddingNewWorkType = typeof value === 'boolean' && value === true && !prev.safetyTraining.workTypes[field as keyof WorkTypeSelection];
+      
+      // 작업유형이 변경되었고 교육이 이미 완료된 상태라면 교육 상태 재설정
+      if (isAddingNewWorkType && prev.safetyTraining.completed) {
+        console.log('🔄 새로운 작업유형 추가됨, 교육 상태 재설정:', field);
+        return {
+          ...prev,
+          workTypeSelection: newWorkTypeSelection,
+          safetyTraining: {
+            ...prev.safetyTraining,
+            workTypes: newSafetyTrainingWorkTypes,
+            completed: false,
+            allVideosCompleted: false,
+            // currentVideoIndex는 유지 (이미 완료한 교육들은 건너뛰기)
+            // attendees는 보존 (이미 완료한 교육의 교육자 정보)
+          }
+        };
       }
-    }));
+      
+      return { 
+        ...prev, 
+        workTypeSelection: newWorkTypeSelection,
+        safetyTraining: { 
+          ...prev.safetyTraining, 
+          workTypes: newSafetyTrainingWorkTypes
+        }
+      };
+    });
   }, []);
 
   const updateSafetyTraining = useCallback((field: keyof SafetyTraining, value: boolean | Date | null | number) => {
