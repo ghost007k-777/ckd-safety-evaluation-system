@@ -25,10 +25,13 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({ onEnd, signatureData
     }
   }, []);
 
-  // 서명 데이터가 있을 때 캔버스에 복원
+  // 서명 데이터가 있을 때 캔버스에 복원 (중복 방지)
   useEffect(() => {
     if (sigCanvas.current && signatureDataUrl) {
-      sigCanvas.current.fromDataURL(signatureDataUrl);
+      // 캔버스가 비어있을 때만 복원 (중복 그리기 방지)
+      if (sigCanvas.current.isEmpty()) {
+        sigCanvas.current.fromDataURL(signatureDataUrl);
+      }
     }
   }, [signatureDataUrl]);
 
