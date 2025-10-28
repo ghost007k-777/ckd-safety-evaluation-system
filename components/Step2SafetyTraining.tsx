@@ -7,6 +7,9 @@ import { Input } from './ui/Input.tsx';
 import { SignaturePad } from './SignaturePad.tsx';
 import { HEIGHT_WORK_VIDEOS } from '../constants.ts';
 
+// ⚠️ 테스트 모드 설정 - 배포 전에 false로 변경하세요!
+const TEST_MODE = true;
+
 interface Step2Props {
   data: SafetyTraining;
   updateData: (field: keyof SafetyTraining, value: boolean | Date | null | number | TrainingAttendee[]) => void;
@@ -97,8 +100,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
 
   // 영상 시청 타이머 (3분 = 180초)
   useEffect(() => {
-    // 이미 완료한 교육이면 타이머 작동 안 함
-    if (isCurrentVideoAlreadyCompleted) {
+    // 테스트 모드이거나 이미 완료한 교육이면 타이머 작동 안 함
+    if (TEST_MODE || isCurrentVideoAlreadyCompleted) {
       return;
     }
 
@@ -161,6 +164,15 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
       // 3분 미만이면 관리자 암호 입력 프롬프트 표시
       setShowAdminPrompt(true);
     }
+  };
+
+  // 테스트 모드 건너뛰기 버튼
+  const handleSkipVideo = () => {
+    setCurrentVideoCompleted(true);
+    setCanComplete(true);
+    setWatchTime(180);
+    // 매 영상마다 교육자 서명 폼 표시
+    setShowAttendeeForm(true);
   };
 
   const handleAdminSubmit = (e: React.FormEvent) => {
@@ -323,6 +335,11 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
                 ✓ 완료한 교육
               </span>
             )}
+            {TEST_MODE && (
+              <span className="ml-3 px-3 py-1 text-sm font-semibold bg-orange-100 text-orange-800 rounded-full">
+                🧪 테스트 기간
+              </span>
+            )}
           </span>
         }
         description={isCurrentVideoAlreadyCompleted ? `${currentVideo.title} - 이미 완료한 교육입니다.` : `${currentVideo.title}을 시청해주세요.`}
@@ -392,33 +409,55 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
                 />
               </div>
               {/* 시청 시간 표시 및 Video completion button */}
-              <div className="text-center space-y-3">
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className={`text-lg font-semibold ${canComplete ? 'text-green-600' : 'text-orange-600'}`}>
-                    시청 시간: {formatTime(watchTime)} / 3:00
-                  </span>
+              {TEST_MODE ? (
+                // 테스트 모드: 건너뛰기 버튼 표시
+                <div className="text-center space-y-3">
+                  <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                    <p className="text-sm text-orange-800 font-semibold mb-2">
+                      🧪 테스트 기간
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      테스트 기간이 종료되면, 영상을 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다.
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={handleSkipVideo}
+                    disabled={currentVideoCompleted}
+                    className={`${currentVideoCompleted ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'}`}
+                  >
+                    {currentVideoCompleted ? '✓ 시청 완료' : '⏩ 건너뛰기 (테스트)'}
+                  </Button>
                 </div>
-                {!canComplete && (
-                  <p className="text-sm text-orange-600">
-                    영상을 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다
-                  </p>
-                )}
-                <Button 
-                  onClick={handleVideoComplete}
-                  disabled={currentVideoCompleted}
-                  className={`${canComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed hover:bg-gray-400'}`}
-                >
-                  {currentVideoCompleted ? '✓ 시청 완료' : canComplete ? '영상 시청 완료' : '영상 시청 완료 (3분 후 활성화)'}
-                </Button>
-                {!canComplete && !currentVideoCompleted && (
-                  <p className="text-xs text-gray-500">
-                    테스트용: 관리자 암호로 건너뛸 수 있습니다
-                  </p>
-                )}
-              </div>
+              ) : (
+                // 정식 모드: 3분 타이머 표시
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className={`text-lg font-semibold ${canComplete ? 'text-green-600' : 'text-orange-600'}`}>
+                      시청 시간: {formatTime(watchTime)} / 3:00
+                    </span>
+                  </div>
+                  {!canComplete && (
+                    <p className="text-sm text-orange-600">
+                      영상을 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다
+                    </p>
+                  )}
+                  <Button 
+                    onClick={handleVideoComplete}
+                    disabled={currentVideoCompleted}
+                    className={`${canComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed hover:bg-gray-400'}`}
+                  >
+                    {currentVideoCompleted ? '✓ 시청 완료' : canComplete ? '영상 시청 완료' : '영상 시청 완료 (3분 후 활성화)'}
+                  </Button>
+                  {!canComplete && !currentVideoCompleted && (
+                    <p className="text-xs text-gray-500">
+                      테스트용: 관리자 암호로 건너뛸 수 있습니다
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           
