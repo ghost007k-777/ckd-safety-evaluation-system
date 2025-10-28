@@ -116,37 +116,45 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     { type: 'hotWork', title: '화기작업 안전교육', url: 'https://youtu.be/thn3M_DmoWA?si=GC3LziifK6c7OMZR' }
   ];
 
-  // Build video list including height work sub-types
+  // Build video list including height work sub-types (안전 가드 포함)
   const buildVideoList = (): VideoConfig[] => {
     const videos: VideoConfig[] = [];
-    
+
+    const safeWorkTypes: WorkTypeSelection = {
+      general: !!data?.workTypes?.general,
+      confined: !!data?.workTypes?.confined,
+      heightWork: !!data?.workTypes?.heightWork,
+      hotWork: !!data?.workTypes?.hotWork,
+      heightWorkSubType: data?.workTypes?.heightWorkSubType || { ladder: false, scaffold: false, hangingScaffold: false }
+    };
+
     // Add general work type
-    if (data.workTypes.general) {
+    if (safeWorkTypes.general) {
       videos.push(baseVideoConfigs.find(v => v.type === 'general')!);
     }
     
     // Add confined space
-    if (data.workTypes.confined) {
+    if (safeWorkTypes.confined) {
       videos.push(baseVideoConfigs.find(v => v.type === 'confined')!);
     }
     
     // Add height work sub-types
-    if (data.workTypes.heightWork && data.workTypes.heightWorkSubType) {
-      if (data.workTypes.heightWorkSubType.ladder) {
+    if (safeWorkTypes.heightWork && safeWorkTypes.heightWorkSubType) {
+      if (safeWorkTypes.heightWorkSubType.ladder) {
         videos.push({
           type: 'heightWorkLadder',
           title: HEIGHT_WORK_VIDEOS.ladder.title,
           url: HEIGHT_WORK_VIDEOS.ladder.url
         });
       }
-      if (data.workTypes.heightWorkSubType.scaffold) {
+      if (safeWorkTypes.heightWorkSubType.scaffold) {
         videos.push({
           type: 'heightWorkScaffold',
           title: HEIGHT_WORK_VIDEOS.scaffold.title,
           url: HEIGHT_WORK_VIDEOS.scaffold.url
         });
       }
-      if (data.workTypes.heightWorkSubType.hangingScaffold) {
+      if (safeWorkTypes.heightWorkSubType.hangingScaffold) {
         videos.push({
           type: 'heightWorkHangingScaffold',
           title: HEIGHT_WORK_VIDEOS.hangingScaffold.title,
@@ -156,7 +164,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     }
     
     // Add hot work
-    if (data.workTypes.hotWork) {
+    if (safeWorkTypes.hotWork) {
       videos.push(baseVideoConfigs.find(v => v.type === 'hotWork')!);
     }
     
@@ -179,8 +187,10 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     data.workTypes.hotWork
   ]);
   
-  const currentVideo = selectedVideos[data.currentVideoIndex];
-  const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
+  // currentVideoIndex 안전 보정
+  const safeCurrentIdx = Math.max(0, Math.min(Number.isFinite(data.currentVideoIndex as any) ? data.currentVideoIndex : 0, Math.max(0, selectedVideos.length - 1)));
+  const currentVideo = selectedVideos[safeCurrentIdx];
+  const isLastVideo = safeCurrentIdx >= selectedVideos.length - 1;
   
   console.log('🎬 [SafetyTraining] currentVideoIndex:', data.currentVideoIndex);
   console.log('🎬 [SafetyTraining] currentVideo:', currentVideo);
