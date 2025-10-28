@@ -115,8 +115,15 @@ const AppContent: React.FC = () => {
               setCurrentView('landing');
               setEditingSubmission(null);
             }} 
-            onSubmit={(formData) => {
-              // 수정 모드일 때도 새로운 신청서로 등록
+            onSubmit={async (formData) => {
+              // 수정 모드일 때 기존 신청서 자동 삭제
+              if (editingSubmission) {
+                console.log('🗑️ [App] 수정 모드: 기존 신청서 삭제', editingSubmission.id);
+                await actions.deleteSubmission(editingSubmission.id);
+              }
+              
+              // 새로운 신청서 등록
+              console.log('✅ [App] 새로운 신청서 등록');
               actions.addSubmission(formData);
               setEditingSubmission(null);
               setCurrentView('list');
