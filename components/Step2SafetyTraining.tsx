@@ -31,49 +31,6 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     { id: '1', name: '', signature: '', trainingType: '' }
   ]);
 
-  // 영상 시청 타이머 (3분 = 180초)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setWatchTime((prev) => {
-        const newTime = prev + 1;
-        if (newTime >= 180) { // 3분
-          setCanComplete(true);
-        }
-        return newTime;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [data.currentVideoIndex]); // 영상이 바뀔 때마다 타이머 리셋
-
-  // 영상이 바뀔 때 타이머 리셋
-  useEffect(() => {
-    setWatchTime(0);
-    setCanComplete(false);
-    setCurrentVideoCompleted(false);
-    setShowAttendeeForm(false);
-    setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
-  }, [data.currentVideoIndex]);
-
-  // Helper function to convert YouTube URL to embed URL with autoplay
-  const getYouTubeEmbedUrl = (url: string): string => {
-    if (url.includes('youtube.com/watch?v=')) {
-      const videoId = url.split('v=')[1]?.split('&')[0];
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    } else if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    }
-    return url;
-  };
-
-  // 시간 포맷 함수 (초 -> 분:초)
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   // Video configurations
   const baseVideoConfigs: VideoConfig[] = [
     { type: 'general', title: '일반작업 안전교육', url: 'https://youtu.be/AEmvaCOJ9bg?si=vsRnpcKAO7QCMbFu' },
@@ -133,13 +90,73 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const currentVideo = selectedVideos[data.currentVideoIndex];
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
 
+  // 현재 영상이 이미 완료되었는지 확인 (attendees에 해당 교육 유형이 있는지)
+  const isCurrentVideoAlreadyCompleted = currentVideo && data.attendees && data.attendees.length > 0
+    ? data.attendees.some(attendee => attendee.trainingType === currentVideo.title)
+    : false;
+
+  // 영상 시청 타이머 (3분 = 180초)
+  useEffect(() => {
+    // 이미 완료한 교육이면 타이머 작동 안 함
+    if (isCurrentVideoAlreadyCompleted) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setWatchTime((prev) => {
+        const newTime = prev + 1;
+        if (newTime >= 180) { // 3분
+          setCanComplete(true);
+        }
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [data.currentVideoIndex, isCurrentVideoAlreadyCompleted]); // 영상이 바뀔 때마다 타이머 리셋
+
+  // 영상이 바뀔 때 또는 완료 상태 체크
+  useEffect(() => {
+    if (isCurrentVideoAlreadyCompleted) {
+      // 이미 완료한 교육이면 자동으로 완료 상태로 설정
+      setCurrentVideoCompleted(true);
+      setCanComplete(true);
+      setWatchTime(180);
+      setShowAttendeeForm(false);
+    } else {
+      // 새 교육이면 초기화
+      setWatchTime(0);
+      setCanComplete(false);
+      setCurrentVideoCompleted(false);
+      setShowAttendeeForm(false);
+      setTempAttendees([{ id: '1', name: '', signature: '', trainingType: '' }]);
+    }
+  }, [data.currentVideoIndex, isCurrentVideoAlreadyCompleted]);
+
+  // Helper function to convert YouTube URL to embed URL with autoplay
+  const getYouTubeEmbedUrl = (url: string): string => {
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0];
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } else if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+    return url;
+  };
+
+  // 시간 포맷 함수 (초 -> 분:초)
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleVideoComplete = () => {
     if (canComplete) {
       setCurrentVideoCompleted(true);
-      // 마지막 영상일 때만 교육자 서명 폼 표시
-      if (isLastVideo) {
-        setShowAttendeeForm(true);
-      }
+      // 매 영상마다 교육자 서명 폼 표시
+      setShowAttendeeForm(true);
     } else {
       // 3분 미만이면 관리자 암호 입력 프롬프트 표시
       setShowAdminPrompt(true);
@@ -150,10 +167,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     e.preventDefault();
     if (adminPassword === 'admin') {
       setCurrentVideoCompleted(true);
-      // 마지막 영상일 때만 교육자 서명 폼 표시
-      if (isLastVideo) {
-        setShowAttendeeForm(true);
-      }
+      // 매 영상마다 교육자 서명 폼 표시
+      setShowAttendeeForm(true);
       setShowAdminPrompt(false);
       setAdminPassword('');
       setAdminError('');
@@ -303,9 +318,14 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
             <span className="text-sm ml-2 text-gray-500">
               ({data.currentVideoIndex + 1}/{selectedVideos.length})
             </span>
+            {isCurrentVideoAlreadyCompleted && (
+              <span className="ml-3 px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+                ✓ 완료한 교육
+              </span>
+            )}
           </span>
         }
-        description={`${currentVideo.title}을 시청해주세요.`}
+        description={isCurrentVideoAlreadyCompleted ? `${currentVideo.title} - 이미 완료한 교육입니다.` : `${currentVideo.title}을 시청해주세요.`}
       />
       
       <div className="space-y-8">
@@ -472,24 +492,46 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
 
         {/* Navigation buttons - 교육자 폼이 표시되지 않을 때만 보임 */}
         {currentVideoCompleted && !showAttendeeForm && (
-          <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
-            <div>
-              <p className="text-emerald-800 font-medium">
-                {isLastVideo ? '모든 교육을 완료하였습니다' : '영상 시청을 완료하였습니다'}
-              </p>
-              <p className="text-sm text-emerald-700 mt-1">
-                {isLastVideo ? '확인 후 다음 단계로 이동합니다' : '다음 교육 영상을 시청해주세요.'}
-              </p>
-            </div>
-            <div className="flex space-x-3">
-              {data.currentVideoIndex > 0 && (
-                <Button variant="secondary" onClick={handlePreviousVideo}>
-                  이전 영상
+          <div className="space-y-4">
+            {/* 이미 완료한 교육인 경우 교육자 정보 표시 */}
+            {isCurrentVideoAlreadyCompleted && data.attendees && (
+              <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                <h4 className="font-semibold text-green-800 mb-3">이 교육을 완료한 교육자:</h4>
+                <div className="space-y-2">
+                  {data.attendees
+                    .filter(attendee => attendee.trainingType === currentVideo.title)
+                    .map((attendee, index) => (
+                      <div key={attendee.id} className="flex items-center gap-2">
+                        <span className="text-green-700">✓</span>
+                        <span className="text-green-800 font-medium">{attendee.name}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
+              <div>
+                <p className="text-emerald-800 font-medium">
+                  {isCurrentVideoAlreadyCompleted 
+                    ? (isLastVideo ? '모든 교육을 완료하였습니다' : '이 교육은 이미 완료하였습니다')
+                    : (isLastVideo ? '모든 교육을 완료하였습니다' : '영상 시청을 완료하였습니다')
+                  }
+                </p>
+                <p className="text-sm text-emerald-700 mt-1">
+                  {isLastVideo ? '확인 후 다음 단계로 이동합니다' : '다음 교육 영상을 시청해주세요.'}
+                </p>
+              </div>
+              <div className="flex space-x-3">
+                {data.currentVideoIndex > 0 && (
+                  <Button variant="secondary" onClick={handlePreviousVideo}>
+                    이전 영상
+                  </Button>
+                )}
+                <Button onClick={handleNextVideo}>
+                  {isLastVideo ? '다음 단계' : '다음 영상'}
                 </Button>
-              )}
-              <Button onClick={handleNextVideo}>
-                {isLastVideo ? '다음 단계' : '다음 영상'}
-              </Button>
+              </div>
             </div>
           </div>
         )}
