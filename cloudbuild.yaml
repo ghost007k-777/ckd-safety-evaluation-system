@@ -27,6 +27,7 @@ steps:
       - '--memory=1Gi'
       - '--cpu=1'
       - '--max-instances=10'
+      - '--revision-suffix=$SHORT_SHA'
 
 images:
   - 'gcr.io/$PROJECT_ID/ckd-safety-app:latest'
