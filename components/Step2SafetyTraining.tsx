@@ -20,6 +20,10 @@ interface VideoConfig {
 }
 
 export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, onComplete }) => {
+  console.log('🎬🎬🎬 [SafetyTraining] 컴포넌트 렌더링 시작');
+  console.log('🎬 [SafetyTraining] 받은 data:', data);
+  console.log('🎬 [SafetyTraining] data.workTypes:', data.workTypes);
+  
   // 교육이 완료된 상태인지 확인
   const isTrainingCompleted = data.completed && data.allVideosCompleted;
   
@@ -324,6 +328,8 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   };
 
   if (selectedVideos.length === 0) {
+    console.error('❌ [SafetyTraining] selectedVideos가 비어있음!');
+    console.error('❌ [SafetyTraining] data.workTypes:', data.workTypes);
     return (
       <Card>
         <CardHeader
@@ -332,12 +338,21 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
         />
         <div className="text-center py-12">
           <p className="text-gray-500">이전 단계로 돌아가서 작업 유형을 선택해주세요.</p>
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
+            <p className="text-sm text-red-700 font-mono">
+              디버그 정보:<br/>
+              workTypes: {JSON.stringify(data.workTypes, null, 2)}
+            </p>
+          </div>
         </div>
       </Card>
     );
   }
 
   if (!currentVideo) {
+    console.error('❌ [SafetyTraining] currentVideo가 없음!');
+    console.error('❌ [SafetyTraining] currentVideoIndex:', data.currentVideoIndex);
+    console.error('❌ [SafetyTraining] selectedVideos:', selectedVideos);
     return (
       <Card>
         <CardHeader
@@ -346,10 +361,20 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
         />
         <div className="text-center py-12">
           <p className="text-gray-500">이전 단계로 돌아가서 다시 시도해주세요.</p>
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
+            <p className="text-sm text-red-700 font-mono">
+              디버그 정보:<br/>
+              currentVideoIndex: {data.currentVideoIndex}<br/>
+              selectedVideos.length: {selectedVideos.length}<br/>
+              selectedVideos: {JSON.stringify(selectedVideos.map(v => v.title), null, 2)}
+            </p>
+          </div>
         </div>
       </Card>
     );
   }
+  
+  console.log('✅ [SafetyTraining] 정상 렌더링 진행, currentVideo:', currentVideo?.title);
 
   return (
     <Card>

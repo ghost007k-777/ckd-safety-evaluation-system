@@ -269,6 +269,9 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
   }
 
   const handleWorkTypeNext = () => {
+    console.log('🔄 [EvaluationForm] 작업유형 선택 완료, 안전교육으로 이동');
+    console.log('🔄 [EvaluationForm] workTypeSelection:', formData.workTypeSelection);
+    console.log('🔄 [EvaluationForm] safetyTraining.workTypes:', formData.safetyTraining.workTypes);
     setCurrentStep(Step.SafetyTraining);
   };
 
@@ -287,6 +290,8 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
           onNext={handleWorkTypeNext}
         />;
       case Step.SafetyTraining:
+        console.log('🎯 [EvaluationForm] SafetyTraining 렌더링 중');
+        console.log('🎯 [EvaluationForm] safetyTraining data:', formData.safetyTraining);
         return <Step2SafetyTraining 
           data={formData.safetyTraining} 
           updateData={updateSafetyTraining} 
