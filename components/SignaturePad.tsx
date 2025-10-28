@@ -25,6 +25,13 @@ export const SignaturePad: React.FC<SignaturePadProps> = ({ onEnd, signatureData
     }
   }, []);
 
+  // 서명 데이터가 있을 때 캔버스에 복원
+  useEffect(() => {
+    if (sigCanvas.current && signatureDataUrl) {
+      sigCanvas.current.fromDataURL(signatureDataUrl);
+    }
+  }, [signatureDataUrl]);
+
   const clear = () => {
     sigCanvas.current?.clear();
     onEnd('');
