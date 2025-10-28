@@ -35,7 +35,7 @@ const Field: React.FC<{label: string; value: React.ReactNode}> = ({label, value}
     </div>
 )
 
-const GeneralPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => {
+const GeneralPermitConfirmation: React.FC<{ data: WorkPermit; approvalInfo?: any }> = ({ data, approvalInfo }) => {
     const generalChecks = data.safetyCheckList?.filter(item => item.category === '일반항목') || [];
     const highAltitudeLadderChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-사다리') || [];
     const highAltitudeScaffoldChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-틀비계') || [];
@@ -173,11 +173,56 @@ const GeneralPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => 
              <div className="p-4">
                 <Field label="기타 특이사항" value={<span className="whitespace-pre-wrap">{data.specialNotes || '없음'}</span>} />
             </div>
+            
+            {/* 승인자 정보 섹션 */}
+            {approvalInfo && (
+                <div className="p-4 bg-blue-50 border-t-2 border-blue-200">
+                    <h4 className="font-bold text-gray-800 mb-4 text-center">승인 정보</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {approvalInfo.safetyManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
+                                <h5 className="font-semibold text-blue-800 mb-2">안전보건관리자</h5>
+                                <Field label="승인자" value={approvalInfo.safetyManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.safetyManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.safetyManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                        {approvalInfo.departmentManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-green-300">
+                                <h5 className="font-semibold text-green-800 mb-2">안전보건부서팀장</h5>
+                                <Field label="승인자" value={approvalInfo.departmentManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.departmentManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.departmentManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => {
+const HazardousPermitConfirmation: React.FC<{ data: WorkPermit; approvalInfo?: any }> = ({ data, approvalInfo }) => {
      const renderChecklist = (category: '일반항목' | '화기작업' | '고소작업', title: string, condition?: boolean) => {
         const items = data.hazardousSafetyCheckList?.filter(item => item.category === category) || [];
         if (condition === false || items.length === 0) return null;
@@ -344,11 +389,56 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) =
                     }/>
                 </div>
             )}
+            
+            {/* 승인자 정보 섹션 */}
+            {approvalInfo && (
+                <div className="p-4 bg-blue-50 border-t-2 border-blue-200">
+                    <h4 className="font-bold text-gray-800 mb-4 text-center">승인 정보</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {approvalInfo.safetyManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
+                                <h5 className="font-semibold text-blue-800 mb-2">안전보건관리자</h5>
+                                <Field label="승인자" value={approvalInfo.safetyManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.safetyManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.safetyManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                        {approvalInfo.departmentManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-green-300">
+                                <h5 className="font-semibold text-green-800 mb-2">안전보건부서팀장</h5>
+                                <Field label="승인자" value={approvalInfo.departmentManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.departmentManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.departmentManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-const ConfinedSpacePermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data }) => {
+const ConfinedSpacePermitConfirmation: React.FC<{ data: WorkPermit; approvalInfo?: any }> = ({ data, approvalInfo }) => {
     const renderChecklist = (items: typeof data.confinedSpaceSafetyCheckList) => {
         if (!items || items.length === 0) return null;
         return (
@@ -437,6 +527,51 @@ const ConfinedSpacePermitConfirmation: React.FC<{ data: WorkPermit }> = ({ data 
             <div className="p-4">
                 <Field label="기타 특이사항" value={data.specialNotes || '없음'} />
             </div>
+            
+            {/* 승인자 정보 섹션 */}
+            {approvalInfo && (
+                <div className="p-4 bg-blue-50 border-t-2 border-blue-200">
+                    <h4 className="font-bold text-gray-800 mb-4 text-center">승인 정보</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {approvalInfo.safetyManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
+                                <h5 className="font-semibold text-blue-800 mb-2">안전보건관리자</h5>
+                                <Field label="승인자" value={approvalInfo.safetyManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.safetyManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.safetyManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                        {approvalInfo.departmentManagerApproval?.approved && (
+                            <div className="bg-white p-4 rounded-lg border-2 border-green-300">
+                                <h5 className="font-semibold text-green-800 mb-2">안전보건부서팀장</h5>
+                                <Field label="승인자" value={approvalInfo.departmentManagerApproval.approverName} />
+                                <Field label="승인시간" value={
+                                    approvalInfo.departmentManagerApproval.approvedAt 
+                                        ? new Date(approvalInfo.departmentManagerApproval.approvedAt).toLocaleString('ko-KR', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            hour12: false
+                                          })
+                                        : '시간 미상'
+                                } />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -656,11 +791,11 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
             </div>
 
             {data.workPermit?.type === 'general' ? (
-                <GeneralPermitConfirmation data={data.workPermit} />
+                <GeneralPermitConfirmation data={data.workPermit} approvalInfo={(data as any).approvalInfo} />
             ) : data.workPermit?.type === 'hazardous' ? (
-                <HazardousPermitConfirmation data={data.workPermit} />
+                <HazardousPermitConfirmation data={data.workPermit} approvalInfo={(data as any).approvalInfo} />
             ) : data.workPermit?.type === 'confined' ? (
-                <ConfinedSpacePermitConfirmation data={data.workPermit} />
+                <ConfinedSpacePermitConfirmation data={data.workPermit} approvalInfo={(data as any).approvalInfo} />
             ) : (
                 <p className="text-gray-500">작업 허가서 유형이 설정되지 않았습니다.</p>
             )}
