@@ -96,10 +96,18 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
     setValidationError(null);
     setFormData(prev => {
       const newWorkTypeSelection = { ...prev.workTypeSelection, [field]: value };
-      const newSafetyTrainingWorkTypes = { ...prev.safetyTraining.workTypes, [field]: value };
+      
+      // heightWorkSubType은 workTypes에 직접 할당하지 않음 (객체이므로)
+      let newSafetyTrainingWorkTypes = { ...prev.safetyTraining.workTypes };
+      if (field !== 'heightWorkSubType') {
+        newSafetyTrainingWorkTypes = { ...prev.safetyTraining.workTypes, [field]: value };
+      } else {
+        // heightWorkSubType의 경우 workTypes는 그대로 유지
+        newSafetyTrainingWorkTypes = { ...prev.safetyTraining.workTypes, heightWorkSubType: value as HeightWorkSubType };
+      }
       
       // 작업유형이 추가되었는지 확인 (새로운 작업유형이 true가 되었을 때)
-      const isAddingNewWorkType = typeof value === 'boolean' && value === true && !prev.safetyTraining.workTypes[field as keyof WorkTypeSelection];
+      const isAddingNewWorkType = typeof value === 'boolean' && value === true && field !== 'heightWorkSubType' && !prev.safetyTraining.workTypes[field as keyof WorkTypeSelection];
       
       // 작업유형이 변경되었고 교육이 이미 완료된 상태라면 교육 상태 재설정
       if (isAddingNewWorkType && prev.safetyTraining.completed) {
