@@ -51,7 +51,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
       setCanComplete(true);
       setWatchTime(180);
     }
-  }, [isCurrentVideoAlreadyCompleted, isTrainingCompleted, currentVideo]);
+  }, [isCurrentVideoAlreadyCompleted, isTrainingCompleted]);
 
   // 영상 시청 타이머 (3분 = 180초) - 교육이 완료되지 않은 경우에만 동작
   useEffect(() => {
@@ -159,14 +159,25 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     return videos;
   };
 
-  // Get selected video types
-  const selectedVideos = buildVideoList();
+  // Get selected video types (메모이제이션하여 불필요한 재계산 방지)
+  const selectedVideos = React.useMemo(() => buildVideoList(), [
+    data.workTypes.general,
+    data.workTypes.confined,
+    data.workTypes.heightWork,
+    data.workTypes.heightWorkSubType,
+    data.workTypes.hotWork
+  ]);
+  
   const currentVideo = selectedVideos[data.currentVideoIndex];
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
   
   // 현재 영상이 이미 완료되었는지 확인 (attendees에 해당 교육 유형이 있는지 확인)
-  const isCurrentVideoAlreadyCompleted = currentVideo && data.attendees && 
-    data.attendees.some(attendee => attendee.trainingType === currentVideo.title);
+  const isCurrentVideoAlreadyCompleted = React.useMemo(() => {
+    if (!currentVideo || !data.attendees || data.attendees.length === 0) {
+      return false;
+    }
+    return data.attendees.some(attendee => attendee.trainingType === currentVideo.title);
+  }, [currentVideo?.title, data.attendees]);
 
   const handleVideoComplete = () => {
     if (canComplete) {
