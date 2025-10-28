@@ -117,9 +117,15 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={minDate} />
-                        <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
-                        <span className="hidden sm:inline">~</span>
-                        <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">부터</span>
+                        </div>
+                        <span className="hidden sm:inline text-gray-400">~</span>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">까지</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -393,9 +399,15 @@ const ConfinedSpaceWorkPermitForm: React.FC<Step4Props> = ({ data, updateData })
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={minDate} />
-                        <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
-                        <span className="hidden sm:inline">~</span>
-                        <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">부터</span>
+                        </div>
+                        <span className="hidden sm:inline text-gray-400">~</span>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">까지</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -673,9 +685,15 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                     <label className="font-semibold text-sm text-gray-600">작업일시</label>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                         <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={minDate} />
-                        <input type="time" className={inputClasses} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
-                        <span className="hidden sm:inline">~</span>
-                        <input type="time" className={inputClasses} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">부터</span>
+                        </div>
+                        <span className="hidden sm:inline text-gray-400">~</span>
+                        <div className="relative">
+                            <input type="time" className={`${inputClasses} pr-14`} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })}/>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">까지</span>
+                        </div>
                     </div>
                 </div>
             </div>
