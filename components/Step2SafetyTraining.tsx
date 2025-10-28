@@ -160,16 +160,27 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   };
 
   // Get selected video types (메모이제이션하여 불필요한 재계산 방지)
-  const selectedVideos = React.useMemo(() => buildVideoList(), [
+  const selectedVideos = React.useMemo(() => {
+    console.log('🎬 [SafetyTraining] buildVideoList 호출, workTypes:', data.workTypes);
+    const videos = buildVideoList();
+    console.log('🎬 [SafetyTraining] 생성된 영상 목록:', videos.length, '개');
+    return videos;
+  }, [
     data.workTypes.general,
     data.workTypes.confined,
     data.workTypes.heightWork,
-    data.workTypes.heightWorkSubType,
+    data.workTypes.heightWorkSubType?.ladder,
+    data.workTypes.heightWorkSubType?.scaffold,
+    data.workTypes.heightWorkSubType?.hangingScaffold,
     data.workTypes.hotWork
   ]);
   
   const currentVideo = selectedVideos[data.currentVideoIndex];
   const isLastVideo = data.currentVideoIndex >= selectedVideos.length - 1;
+  
+  console.log('🎬 [SafetyTraining] currentVideoIndex:', data.currentVideoIndex);
+  console.log('🎬 [SafetyTraining] currentVideo:', currentVideo);
+  console.log('🎬 [SafetyTraining] selectedVideos.length:', selectedVideos.length);
   
   // 현재 영상이 이미 완료되었는지 확인 (attendees에 해당 교육 유형이 있는지 확인)
   const isCurrentVideoAlreadyCompleted = React.useMemo(() => {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Step, FormData, ProjectInfo, WorkTypeSelection, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge, HeightWorkSubType, Submission } from './types.ts';
+import { Step, FormData, ProjectInfo, WorkTypeSelection, SafetyTraining, RiskAssessment, WorkPermit, SafetyPledge, HeightWorkSubType, Submission, TrainingAttendee } from './types.ts';
 import { Stepper } from './components/Stepper.tsx';
 import { Button } from './components/ui/Button.tsx';
 import { Step1ProjectInfo } from './components/Step1ProjectInfo.tsx';
@@ -129,7 +129,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({onBackToHome, onS
     });
   }, []);
 
-  const updateSafetyTraining = useCallback((field: keyof SafetyTraining, value: boolean | Date | null | number) => {
+  const updateSafetyTraining = useCallback((field: keyof SafetyTraining, value: boolean | Date | null | number | TrainingAttendee[]) => {
     setValidationError(null);
     setFormData(prev => ({ ...prev, safetyTraining: { ...prev.safetyTraining, [field]: value } }));
   }, []);
