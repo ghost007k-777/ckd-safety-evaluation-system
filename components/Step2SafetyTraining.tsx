@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { SafetyTraining, WorkTypeSelection, HeightWorkSubType, TrainingAttendee } from '../types.ts';
 import { Card, CardHeader } from './ui/Card.tsx';
 import { Checkbox } from './ui/Checkbox.tsx';
@@ -8,7 +8,7 @@ import { SignaturePad } from './SignaturePad.tsx';
 import { HEIGHT_WORK_VIDEOS } from '../constants.ts';
 
 // ⚠️ 테스트 모드 설정 - 배포 전에 false로 변경하세요!
-const TEST_MODE = true;
+const TEST_MODE = false;
 
 interface Step2Props {
   data: SafetyTraining;
