@@ -1,7 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { SafetyTraining, WorkTypeSelection, HeightWorkSubType, TrainingAttendee } from '../types.ts';
-import { Card, CardHeader } from './ui/Card.tsx';
-import { Checkbox } from './ui/Checkbox.tsx';
+import { Card } from './ui/Card.tsx';
 import { Button } from './ui/Button.tsx';
 import { Input } from './ui/Input.tsx';
 import { SignaturePad } from './SignaturePad.tsx';
@@ -44,17 +43,17 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   // Build video list including height work sub-types
   const buildVideoList = (): VideoConfig[] => {
     const videos: VideoConfig[] = [];
-    
+
     // Add general work type
     if (data.workTypes.general) {
       videos.push(baseVideoConfigs.find(v => v.type === 'general')!);
     }
-    
+
     // Add confined space
     if (data.workTypes.confined) {
       videos.push(baseVideoConfigs.find(v => v.type === 'confined')!);
     }
-    
+
     // Add height work sub-types
     if (data.workTypes.heightWork && data.workTypes.heightWorkSubType) {
       if (data.workTypes.heightWorkSubType.ladder) {
@@ -79,12 +78,12 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
         });
       }
     }
-    
+
     // Add hot work
     if (data.workTypes.hotWork) {
       videos.push(baseVideoConfigs.find(v => v.type === 'hotWork')!);
     }
-    
+
     return videos;
   };
 
@@ -232,7 +231,7 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
   const handleSaveAttendeesAndNext = () => {
     // 모든 교육자의 이름과 서명이 입력되었는지 확인
     const allFilled = tempAttendees.every(attendee => attendee.name.trim() !== '' && attendee.signature !== '');
-    
+
     if (!allFilled) {
       alert('모든 교육자의 성명과 서명을 입력해주세요.');
       return;
@@ -284,353 +283,355 @@ export const Step2SafetyTraining: React.FC<Step2Props> = ({ data, updateData, on
     }
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = e.target.checked;
-    updateData('completed', isChecked);
-    updateData('completionDate', isChecked ? new Date() : null);
-    if (isChecked) {
-      updateData('allVideosCompleted', true);
-    }
-  };
-
   if (selectedVideos.length === 0) {
     return (
-      <Card>
-        <CardHeader
-          title="안전 교육"
-          description="선택된 작업 유형이 없습니다."
-        />
-        <div className="text-center py-12">
-          <p className="text-gray-500">이전 단계로 돌아가서 작업 유형을 선택해주세요.</p>
+      <div className="max-w-4xl mx-auto text-center py-12">
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-100">
+          <h2 className="text-2xl font-bold text-slate-800 mb-4">선택된 작업 유형이 없습니다</h2>
+          <p className="text-slate-500 mb-6">이전 단계로 돌아가서 작업 유형을 선택해주세요.</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   if (!currentVideo) {
     return (
-      <Card>
-        <CardHeader
-          title="안전 교육"
-          description="영상 정보를 불러올 수 없습니다."
-        />
-        <div className="text-center py-12">
-          <p className="text-gray-500">이전 단계로 돌아가서 다시 시도해주세요.</p>
+      <div className="max-w-4xl mx-auto text-center py-12">
+        <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-100">
+          <h2 className="text-2xl font-bold text-slate-800 mb-4">영상 정보를 불러올 수 없습니다</h2>
+          <p className="text-slate-500 mb-6">이전 단계로 돌아가서 다시 시도해주세요.</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader
-        title={
-          <span>
-            안전 교육
-            <span className="text-sm ml-2 text-gray-500">
-              ({data.currentVideoIndex + 1}/{selectedVideos.length})
-            </span>
-            {isCurrentVideoAlreadyCompleted && (
-              <span className="ml-3 px-3 py-1 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-                ✓ 완료한 교육
-              </span>
-            )}
-            {TEST_MODE && (
-              <span className="ml-3 px-3 py-1 text-sm font-semibold bg-orange-100 text-orange-800 rounded-full">
-                🧪 테스트 기간
-              </span>
-            )}
-          </span>
-        }
-        description={isCurrentVideoAlreadyCompleted ? `${currentVideo.title} - 이미 완료한 교육입니다.` : `${currentVideo.title}을 시청해주세요.`}
-      />
-      
-      <div className="space-y-8">
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${((data.currentVideoIndex + (currentVideoCompleted ? 1 : 0)) / selectedVideos.length) * 100}%` }}
-          ></div>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center gap-6 mb-8">
+        <div className="hidden sm:block w-24 h-24 flex-shrink-0">
+          <img
+            src="/assets/vest.png"
+            alt="Safety Training"
+            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+          />
         </div>
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">안전 교육</h2>
+          <p className="text-slate-500 text-lg">
+            선택하신 작업 유형에 대한 안전 교육을 이수해주세요.
+          </p>
+        </div>
+      </div>
 
-        {/* Selected work types progress */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">교육 진행 상황:</h4>
+      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+        <div className="p-8 space-y-8">
+
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-slate-100">
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                {currentVideo.title}
+                {isCurrentVideoAlreadyCompleted && (
+                  <span className="px-3 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full shadow-sm">
+                    ✓ 이수 완료
+                  </span>
+                )}
+                {TEST_MODE && (
+                  <span className="px-3 py-1 text-xs font-bold bg-amber-100 text-amber-700 rounded-full shadow-sm">
+                    🧪 테스트 모드
+                  </span>
+                )}
+              </h3>
+              <p className="text-sm text-slate-500 mt-1 font-medium">
+                {isCurrentVideoAlreadyCompleted ? '이미 완료한 교육입니다.' : '영상을 끝까지 시청해주세요.'}
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Progress</span>
+              <p className="text-2xl font-black text-blue-600">
+                {data.currentVideoIndex + 1} <span className="text-lg text-slate-300 font-medium">/ {selectedVideos.length}</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500 ease-out shadow-lg"
+              style={{ width: `${((data.currentVideoIndex + (currentVideoCompleted ? 1 : 0)) / selectedVideos.length) * 100}%` }}
+            ></div>
+          </div>
+
+          {/* Video List Pills */}
           <div className="flex flex-wrap gap-2">
             {selectedVideos.map((video, index) => (
               <span
                 key={video.type}
-                className={`px-3 py-1 text-sm font-medium rounded-full ${
-                  index < data.currentVideoIndex 
-                    ? 'bg-green-100 text-green-800' 
+                className={`
+                  px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-300 border
+                  ${index < data.currentVideoIndex
+                    ? 'bg-green-50 text-green-700 border-green-200'
                     : index === data.currentVideoIndex
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
+                      ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm scale-105'
+                      : 'bg-slate-50 text-slate-400 border-slate-100'
+                  }
+                `}
               >
                 {index < data.currentVideoIndex && '✓ '}{video.title}
               </span>
             ))}
           </div>
-        </div>
 
-        {/* Current video display */}
-        <div className="border border-gray-200 rounded-xl p-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">{currentVideo.title}</h3>
-          
-          {currentVideo.url.startsWith('placeholder-') ? (
-            // Placeholder for videos without URLs
-            <div className="w-full aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-gray-500 mb-2">교육 영상 준비중입니다</p>
-                <p className="text-sm text-gray-400">{currentVideo.url}</p>
-                {/* Temporary button for placeholder videos */}
-                <Button 
+          {/* Video Player Container */}
+          <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-slate-100">
+            {currentVideo.url.startsWith('placeholder-') ? (
+              <div className="w-full aspect-video bg-slate-800 flex flex-col items-center justify-center p-8 text-center">
+                <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-slate-400 font-medium mb-2">교육 영상 준비중입니다</p>
+                <p className="text-xs text-slate-600 font-mono mb-6">{currentVideo.url}</p>
+                <Button
                   onClick={handleVideoComplete}
-                  className="mt-4"
                   disabled={currentVideoCompleted}
+                  className="bg-slate-700 hover:bg-slate-600 text-white border-0"
                 >
                   {currentVideoCompleted ? '시청 완료' : '시청 완료 (임시)'}
                 </Button>
               </div>
-            </div>
-          ) : (
-            // Actual video iframe for YouTube URLs
-            <div className="space-y-4">
-              <div className="w-full aspect-video rounded-lg overflow-hidden">
+            ) : (
+              <div className="relative w-full aspect-video">
                 <iframe
                   src={getYouTubeEmbedUrl(currentVideo.url)}
                   title={currentVideo.title}
-                  className="w-full h-full"
+                  className="absolute top-0 left-0 w-full h-full"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 />
               </div>
-              {/* 시청 시간 표시 및 Video completion button */}
-              {TEST_MODE ? (
-                // 테스트 모드: 건너뛰기 버튼 표시
-                <div className="text-center space-y-3">
-                  <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
-                    <p className="text-sm text-orange-800 font-semibold mb-2">
-                      🧪 테스트 기간
-                    </p>
-                    <p className="text-xs text-orange-700">
-                      테스트 기간이 종료되면, 영상을 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다.
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={handleSkipVideo}
-                    disabled={currentVideoCompleted}
-                    className={`${currentVideoCompleted ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-600 hover:bg-orange-700'}`}
-                  >
-                    {currentVideoCompleted ? '✓ 시청 완료' : '⏩ 건너뛰기 (테스트)'}
-                  </Button>
-                </div>
-              ) : (
-                // 정식 모드: 3분 타이머 표시
-                <div className="text-center space-y-3">
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className={`text-lg font-semibold ${canComplete ? 'text-green-600' : 'text-orange-600'}`}>
-                      시청 시간: {formatTime(watchTime)} / 3:00
-                    </span>
-                  </div>
-                  {!canComplete && (
-                    <p className="text-sm text-orange-600">
-                      영상을 최소 3분 이상 시청 후 완료 버튼이 활성화됩니다
-                    </p>
-                  )}
-                  <Button 
-                    onClick={handleVideoComplete}
-                    disabled={currentVideoCompleted}
-                    className={`${canComplete ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed hover:bg-gray-400'}`}
-                  >
-                    {currentVideoCompleted ? '✓ 시청 완료' : canComplete ? '영상 시청 완료' : '영상 시청 완료 (3분 후 활성화)'}
-                  </Button>
-                  {!canComplete && !currentVideoCompleted && (
-                    <p className="text-xs text-gray-500">
-                      테스트용: 관리자 암호로 건너뛸 수 있습니다
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-          
-          <p className="text-xs text-gray-400 mt-2">URL: {currentVideo.url}</p>
-        </div>
-
-        {/* 교육자 성명 및 서명 입력 폼 */}
-        {showAttendeeForm && currentVideoCompleted && (
-          <div className="p-6 border-2 border-[#0066CC] bg-[#F0F7FF] rounded-lg space-y-6">
-            <div className="mb-4">
-              <h3 className="text-lg font-bold text-[#212529] mb-2">해당 교육 교육자 성명 및 서명</h3>
-              <p className="text-sm text-[#6C757D]">
-                교육을 완료한 모든 인원의 성명과 서명을 입력해주세요.
-              </p>
-            </div>
-
-            {tempAttendees.map((attendee, index) => (
-              <div key={attendee.id} className="p-4 bg-white border-2 border-[#DEE2E6] rounded-lg space-y-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-[#212529]">교육자 {index + 1}</h4>
-                  {tempAttendees.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAttendee(attendee.id)}
-                      className="text-[#DC3545] hover:text-[#C82333] text-sm font-medium transition-colors"
-                    >
-                      삭제
-                    </button>
-                  )}
-                </div>
-                
-                <Input
-                  id={`attendee-name-${attendee.id}`}
-                  label="성명"
-                  value={attendee.name}
-                  onChange={(e) => handleAttendeeNameChange(attendee.id, e.target.value)}
-                  placeholder="이름을 입력하세요"
-                  required
-                />
-
-                <div>
-                  <label className="block text-sm font-semibold text-[#343A40] mb-2">
-                    서명 <span className="text-[#DC3545]">*</span>
-                  </label>
-                  <SignaturePad
-                    onEnd={(signature) => handleAttendeeSignatureChange(attendee.id, signature)}
-                    signatureDataUrl={attendee.signature}
-                  />
-                </div>
-              </div>
-            ))}
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                variant="secondary"
-                onClick={handleAddAttendee}
-                className="flex-1"
-              >
-                + 교육자 추가
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleSaveAttendeesAndNext}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-              >
-                {isLastVideo ? '교육 완료 및 다음 단계' : '저장 및 다음 영상'}
-              </Button>
-            </div>
+            )}
           </div>
-        )}
 
-        {/* Navigation buttons - 교육자 폼이 표시되지 않을 때만 보임 */}
-        {currentVideoCompleted && !showAttendeeForm && (
-          <div className="space-y-4">
-            {/* 이미 완료한 교육인 경우 교육자 정보 표시 */}
-            {isCurrentVideoAlreadyCompleted && data.attendees && (
-              <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-3">이 교육을 완료한 교육자:</h4>
-                <div className="space-y-2">
-                  {data.attendees
-                    .filter(attendee => attendee.trainingType === currentVideo.title)
-                    .map((attendee, index) => (
-                      <div key={attendee.id} className="flex items-center gap-2">
-                        <span className="text-green-700">✓</span>
-                        <span className="text-green-800 font-medium">{attendee.name}</span>
-                      </div>
-                    ))}
+          {/* Controls Section */}
+          <div className="bg-slate-50 rounded-xl p-6 border border-slate-100">
+            {TEST_MODE ? (
+              <div className="flex flex-col items-center gap-4">
+                <div className="px-4 py-2 bg-amber-100 rounded-lg text-amber-800 text-sm font-bold">
+                  🧪 테스트 모드 활성화됨
                 </div>
+                <Button
+                  onClick={handleSkipVideo}
+                  disabled={currentVideoCompleted}
+                  className={`w-full sm:w-auto px-8 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-1 ${currentVideoCompleted
+                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                      : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-amber-500/30'
+                    }`}
+                >
+                  {currentVideoCompleted ? '✓ 시청 완료됨' : '⏩ 테스트 건너뛰기'}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3 text-lg font-bold">
+                  <div className={`w-3 h-3 rounded-full ${canComplete ? 'bg-green-500 animate-pulse' : 'bg-orange-500'}`}></div>
+                  <span className={canComplete ? 'text-green-600' : 'text-slate-700'}>
+                    {formatTime(watchTime)} <span className="text-slate-400">/ 3:00</span>
+                  </span>
+                </div>
+
+                <Button
+                  onClick={handleVideoComplete}
+                  disabled={currentVideoCompleted}
+                  className={`w-full sm:w-auto px-8 py-3 font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-1 ${canComplete
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-green-500/30'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                    }`}
+                >
+                  {currentVideoCompleted ? '✓ 시청 완료됨' : canComplete ? '영상 시청 완료' : '3분 시청 후 활성화됩니다'}
+                </Button>
+
+                {!canComplete && !currentVideoCompleted && (
+                  <button
+                    onClick={() => setShowAdminPrompt(true)}
+                    className="text-xs text-slate-400 hover:text-blue-500 underline transition-colors"
+                  >
+                    관리자 권한으로 건너뛰기
+                  </button>
+                )}
               </div>
             )}
-            
-            <div className="flex justify-between items-center p-6 border-l-4 border-emerald-500 bg-emerald-50 rounded-lg">
-              <div>
-                <p className="text-emerald-800 font-medium">
-                  {isCurrentVideoAlreadyCompleted 
-                    ? (isLastVideo ? '모든 교육을 완료하였습니다' : '이 교육은 이미 완료하였습니다')
-                    : (isLastVideo ? '모든 교육을 완료하였습니다' : '영상 시청을 완료하였습니다')
-                  }
-                </p>
-                <p className="text-sm text-emerald-700 mt-1">
-                  {isLastVideo ? '확인 후 다음 단계로 이동합니다' : '다음 교육 영상을 시청해주세요.'}
+          </div>
+
+          {/* Attendee Form */}
+          {showAttendeeForm && currentVideoCompleted && (
+            <div className="animate-fadeIn bg-blue-50/50 border border-blue-100 rounded-2xl p-8 shadow-inner">
+              <div className="mb-8 text-center">
+                <h3 className="text-xl font-bold text-slate-800 mb-2">교육 이수 확인</h3>
+                <p className="text-slate-500">
+                  교육을 완료한 모든 인원의 성명과 서명을 입력해주세요.
                 </p>
               </div>
-              <div className="flex space-x-3">
+
+              <div className="space-y-6">
+                {tempAttendees.map((attendee, index) => (
+                  <div key={attendee.id} className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 relative group hover:border-blue-200 transition-colors">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-bold text-slate-700 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">
+                          {index + 1}
+                        </span>
+                        교육자 정보
+                      </h4>
+                      {tempAttendees.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAttendee(attendee.id)}
+                          className="text-rose-500 hover:text-rose-700 text-sm font-bold px-3 py-1 rounded-lg hover:bg-rose-50 transition-colors"
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <Input
+                        id={`attendee-name-${attendee.id}`}
+                        label="성명"
+                        value={attendee.name}
+                        onChange={(e) => handleAttendeeNameChange(attendee.id, e.target.value)}
+                        placeholder="이름을 입력하세요"
+                        required
+                        className="bg-slate-50 border-slate-200 focus:border-blue-500 focus:ring-blue-200"
+                      />
+
+                      <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">
+                          서명 <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="border-2 border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 transition-colors">
+                          <SignaturePad
+                            onEnd={(signature) => handleAttendeeSignatureChange(attendee.id, signature)}
+                            signatureDataUrl={attendee.signature}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button
+                  variant="secondary"
+                  onClick={handleAddAttendee}
+                  className="flex-1 py-4 bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-600 font-bold shadow-sm"
+                >
+                  + 인원 추가
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSaveAttendeesAndNext}
+                  className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-1 transition-all"
+                >
+                  {isLastVideo ? '모든 교육 완료하기' : '저장하고 다음 영상 보기'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Completion Status */}
+          {currentVideoCompleted && !showAttendeeForm && (
+            <div className="animate-fadeIn bg-emerald-50 border border-emerald-100 rounded-2xl p-8 text-center">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-emerald-800 mb-2">
+                {isLastVideo ? '모든 안전 교육을 이수했습니다!' : '현재 교육 이수 완료!'}
+              </h3>
+              <p className="text-emerald-600 mb-8 font-medium">
+                {isLastVideo ? '다음 단계로 이동하여 위험성 평가를 진행해주세요.' : '다음 교육 영상을 시청해주세요.'}
+              </p>
+
+              <div className="flex justify-center gap-4">
                 {data.currentVideoIndex > 0 && (
-                  <Button variant="secondary" onClick={handlePreviousVideo}>
+                  <Button
+                    variant="secondary"
+                    onClick={handlePreviousVideo}
+                    className="bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                  >
                     이전 영상
                   </Button>
                 )}
-                <Button onClick={handleNextVideo}>
-                  {isLastVideo ? '다음 단계' : '다음 영상'}
+                <Button
+                  onClick={handleNextVideo}
+                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg hover:shadow-emerald-500/30"
+                >
+                  {isLastVideo ? '다음 단계로 이동' : '다음 영상 보기'}
                 </Button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      </Card>
 
-        {data.completionDate && (
-          <p className="text-sm text-emerald-700 font-medium">
-            교육 완료일: {data.completionDate.toLocaleString('ko-KR')}
-          </p>
-        )}
-      </div>
-
-      {/* 관리자 암호 입력 팝업 */}
+      {/* Admin Password Modal */}
       {showAdminPrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl">
-            <h3 className="text-2xl font-bold text-[#212529] mb-3">관리자 인증</h3>
-            <p className="text-[#6C757D] mb-2">
-              영상 시청 시간이 3분 미만입니다.
-            </p>
-            <p className="text-sm text-[#6C757D] mb-6">
-              테스트용: 관리자 암호를 입력하면 바로 진행할 수 있습니다.
-            </p>
-            
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl transform transition-all scale-100">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">관리자 인증</h3>
+              <p className="text-slate-500 text-sm mt-2">
+                영상 시청 시간이 부족합니다.<br />관리자 권한으로 건너뛰시겠습니까?
+              </p>
+            </div>
+
             <form onSubmit={handleAdminSubmit}>
               <div className="mb-6">
-                <label htmlFor="admin-password" className="block text-sm font-semibold text-[#343A40] mb-2">
-                  관리자 암호 <span className="text-[#DC3545]">*</span>
-                </label>
-                <input
+                <Input
                   type="password"
                   id="admin-password"
+                  label="관리자 암호"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="관리자 암호를 입력하세요"
-                  className="block w-full px-4 py-3 border-2 border-[#DEE2E6] rounded-lg text-[#212529] text-base bg-white placeholder-[#ADB5BD] transition-all duration-200 focus:border-[#0066CC] focus:ring-2 focus:ring-[#CCE1FF] hover:border-[#ADB5BD]"
+                  placeholder="암호를 입력하세요"
                   autoFocus
                   required
+                  className="text-center tracking-widest"
                 />
                 {adminError && (
-                  <p className="mt-2 text-sm text-[#DC3545] font-medium">{adminError}</p>
+                  <p className="mt-2 text-sm text-rose-500 font-bold text-center animate-shake">{adminError}</p>
                 )}
               </div>
-              
-              <div className="flex justify-end gap-3">
+
+              <div className="flex gap-3">
                 <Button
                   type="button"
                   variant="ghost"
-                  size="lg"
                   onClick={handleAdminCancel}
+                  className="flex-1"
                 >
                   취소
                 </Button>
-                <Button type="submit" variant="primary" size="lg">
-                  확인
+                <Button type="submit" variant="primary" className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold">
+                  인증하기
                 </Button>
               </div>
             </form>
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 };

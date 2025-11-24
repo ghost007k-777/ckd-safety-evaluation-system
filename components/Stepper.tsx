@@ -15,76 +15,78 @@ const steps = [
   { id: Step.Confirmation, name: '확인' },
 ];
 
-const CheckIcon: React.FC<{className?: string}> = ({className}) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
+const CheckIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+  </svg>
 );
 
 
 export const Stepper: React.FC<StepperProps> = ({ currentStep }) => {
   return (
-    <nav aria-label="Progress" className="mb-8">
-      <ol role="list" className="flex justify-between items-start w-full">
-        {steps.map((step, stepIdx) => {
-          const isCompleted = currentStep > step.id;
-          const isCurrent = currentStep === step.id;
+    <nav aria-label="Progress" className="mb-10 px-4">
+      <div className="relative">
+        {/* Progress Bar Background */}
+        <div className="absolute top-5 left-0 w-full h-1 bg-slate-200 rounded-full -z-10"></div>
 
-          return (
-            <li key={step.name} className="relative flex-1 flex flex-col items-center">
-              <div className="flex items-center justify-center w-full relative">
-                {/* Line (KRDS 스타일) */}
-                {stepIdx > 0 && (
-                  <div 
-                    className={`absolute left-0 top-1/2 -translate-y-1/2 right-1/2 h-1 transition-colors duration-300 ${
-                      isCompleted || isCurrent ? 'bg-[#0066CC]' : 'bg-[#DEE2E6]'
-                    }`} 
-                    aria-hidden="true" 
-                  />
-                )}
+        {/* Active Progress Bar */}
+        <div
+          className="absolute top-5 left-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full -z-10 transition-all duration-500 ease-out"
+          style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+        ></div>
 
-                {/* Circle (KRDS 스타일) */}
-                <div 
+        <ol role="list" className="flex justify-between items-start w-full">
+          {steps.map((step, stepIdx) => {
+            const isCompleted = currentStep > step.id;
+            const isCurrent = currentStep === step.id;
+
+            return (
+              <li key={step.name} className="relative flex flex-col items-center group cursor-default">
+                <div className="flex items-center justify-center relative">
+                  {/* Circle */}
+                  <div
+                    className={`
+                      relative z-10 w-10 h-10 rounded-full 
+                      flex items-center justify-center 
+                      transition-all duration-500
+                      ${isCompleted
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30'
+                        : isCurrent
+                          ? 'bg-white border-[3px] border-blue-600 shadow-xl shadow-blue-500/20 scale-110'
+                          : 'bg-white border-2 border-slate-300'
+                      }
+                    `}
+                  >
+                    {isCompleted ? (
+                      <CheckIcon className="w-5 h-5 text-white" />
+                    ) : isCurrent ? (
+                      <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
+                    ) : (
+                      <span className="text-xs font-semibold text-slate-400">{step.id}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Text */}
+                <span
                   className={`
-                    relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full 
-                    flex items-center justify-center 
+                    absolute top-12 w-24 text-center text-[10px] sm:text-xs font-bold tracking-tight
                     transition-all duration-300
-                    ${isCompleted 
-                      ? 'bg-[#0066CC] shadow-md' 
-                      : isCurrent 
-                        ? 'border-[3px] border-[#0066CC] bg-white shadow-lg scale-110' 
-                        : 'border-2 border-[#ADB5BD] bg-white'
+                    ${isCurrent
+                      ? 'text-blue-700 -translate-y-1 opacity-100'
+                      : isCompleted
+                        ? 'text-slate-600 opacity-80'
+                        : 'text-slate-400 opacity-60'
                     }
                   `}
                 >
-                    {isCompleted ? (
-                      <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                    ) : isCurrent ? (
-                      <div className="w-2.5 h-2.5 bg-[#0066CC] rounded-full animate-pulse" />
-                    ) : null}
-                </div>
-              </div>
-              
-              {/* Text (KRDS 스타일) - 동그라미 바로 아래 */}
-              <span 
-                className={`
-                  mt-3 text-center text-[10px] sm:text-xs 
-                  whitespace-nowrap
-                  transition-all duration-200
-                  ${isCurrent 
-                    ? 'text-[#0066CC] font-bold scale-105' 
-                    : isCompleted
-                      ? 'text-[#495057] font-medium'
-                      : 'text-[#6C757D]'
-                  }
-                `}
-              >
                   {step.name}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </nav>
   );
 };

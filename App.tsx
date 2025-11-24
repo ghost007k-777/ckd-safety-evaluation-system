@@ -3,12 +3,12 @@ import { LandingPage } from './components/LandingPage.tsx';
 import { EvaluationForm } from './EvaluationForm.tsx';
 import { ApplicationList } from './components/ApplicationList.tsx';
 import { AdminPage } from './components/AdminPage.tsx';
-import { 
-  DataProvider, 
-  useData, 
-  useConnectionStatus, 
-  useDataLoading, 
-  useDataError 
+import {
+  DataProvider,
+  useData,
+  useConnectionStatus,
+  useDataLoading,
+  useDataError
 } from './contexts/DataContext.tsx';
 import { DebugInfo } from './components/DebugInfo.tsx';
 
@@ -18,7 +18,7 @@ type View = 'landing' | 'form' | 'list' | 'admin';
 const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('landing');
   const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null);
-  
+
   // 새로운 전역 상태 훅들 사용
   const { state, actions } = useData();
   const connectionStatus = useConnectionStatus();
@@ -42,63 +42,63 @@ const AppContent: React.FC = () => {
 
   // 로딩 화면 (KRDS 스타일)
   const renderLoadingScreen = () => (
-        <div className="flex flex-col justify-center items-center h-96 space-y-6">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#0066CC] border-t-transparent"></div>
-          <div className="text-center">
-            <p className="text-lg font-semibold text-[#343A40] mb-2">데이터를 불러오는 중입니다</p>
-            <p className="text-sm text-[#6C757D]">
-              {connectionStatus === 'connecting' && '서버에 연결하고 있습니다...'}
-              {connectionStatus === 'online' && '온라인 데이터를 동기화하고 있습니다...'}
-              {connectionStatus === 'offline' && '캐시된 데이터를 불러오고 있습니다...'}
-            </p>
-          </div>
-        </div>
-      );
+    <div className="flex flex-col justify-center items-center h-96 space-y-6">
+      <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#0066CC] border-t-transparent"></div>
+      <div className="text-center">
+        <p className="text-lg font-semibold text-[#343A40] mb-2">데이터를 불러오는 중입니다</p>
+        <p className="text-sm text-[#6C757D]">
+          {connectionStatus === 'connecting' && '서버에 연결하고 있습니다...'}
+          {connectionStatus === 'online' && '온라인 데이터를 동기화하고 있습니다...'}
+          {connectionStatus === 'offline' && '캐시된 데이터를 불러오고 있습니다...'}
+        </p>
+      </div>
+    </div>
+  );
 
   // 에러 화면 (KRDS 스타일)
   const renderErrorScreen = () => (
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-[#F8D7DA] border-2 border-[#DC3545] rounded-xl p-6 sm:p-8 mb-8">
-            <div className="flex items-start mb-4">
-              <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-[#DC3545]" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-bold text-[#DC3545] mb-2">시스템 오류가 발생했습니다</h3>
-                <div className="text-sm text-[#721C24] space-y-2">
-                  <p className="font-medium">{error}</p>
-                  <p className="bg-white bg-opacity-50 p-3 rounded-lg">
-                    현재 <strong>{state.submissions.length}개</strong>의 캐시된 데이터를 표시하고 있습니다.
-                  </p>
-                </div>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="bg-[#DC3545] hover:bg-[#C82333] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
-                  >
-                    새로고침
-                  </button>
-                  <button
-                    onClick={() => actions.manualSync()}
-                    className="bg-[#0066CC] hover:bg-[#0052A3] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
-                  >
-                    수동 동기화
-                  </button>
-                  <button
-                    onClick={() => actions.refreshData()}
-                    className="bg-white hover:bg-[#F1F3F5] text-[#343A40] border-2 border-[#DEE2E6] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                  >
-                    다시 시도
-                  </button>
-                </div>
-              </div>
+    <div className="max-w-3xl mx-auto">
+      <div className="bg-[#F8D7DA] border-2 border-[#DC3545] rounded-xl p-6 sm:p-8 mb-8">
+        <div className="flex items-start mb-4">
+          <div className="flex-shrink-0">
+            <svg className="h-6 w-6 text-[#DC3545]" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-4 flex-1">
+            <h3 className="text-lg font-bold text-[#DC3545] mb-2">시스템 오류가 발생했습니다</h3>
+            <div className="text-sm text-[#721C24] space-y-2">
+              <p className="font-medium">{error}</p>
+              <p className="bg-white bg-opacity-50 p-3 rounded-lg">
+                현재 <strong>{state.submissions.length}개</strong>의 캐시된 데이터를 표시하고 있습니다.
+              </p>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-[#DC3545] hover:bg-[#C82333] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
+              >
+                새로고침
+              </button>
+              <button
+                onClick={() => actions.manualSync()}
+                className="bg-[#0066CC] hover:bg-[#0052A3] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
+              >
+                수동 동기화
+              </button>
+              <button
+                onClick={() => actions.refreshData()}
+                className="bg-white hover:bg-[#F1F3F5] text-[#343A40] border-2 border-[#DEE2E6] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+              >
+                다시 시도
+              </button>
             </div>
           </div>
-          {renderMainContent()}
         </div>
-      );
+      </div>
+      {renderMainContent()}
+    </div>
+  );
 
   // 메인 콘텐츠 렌더링
   const renderMainContent = () => {
@@ -106,38 +106,38 @@ const AppContent: React.FC = () => {
       currentView,
       submissionsCount: state.submissions?.length || 0
     });
-    
+
     switch (currentView) {
       case 'form':
         return (
-          <EvaluationForm 
+          <EvaluationForm
             onBackToHome={() => {
               setCurrentView('landing');
               setEditingSubmission(null);
-            }} 
+            }}
             onSubmit={async (formData) => {
               // 수정 모드일 때 기존 신청서 자동 삭제
               if (editingSubmission) {
                 console.log('🗑️ [App] 수정 모드: 기존 신청서 삭제', editingSubmission.id);
                 await actions.deleteSubmission(editingSubmission.id);
               }
-              
+
               // 새로운 신청서 등록
               console.log('✅ [App] 새로운 신청서 등록');
               actions.addSubmission(formData);
               setEditingSubmission(null);
               setCurrentView('list');
             }}
-            onViewList={() => setCurrentView('list')} 
+            onViewList={() => setCurrentView('list')}
             initialData={editingSubmission || undefined}
             isEditMode={!!editingSubmission}
           />
         );
       case 'list':
         return (
-          <ApplicationList 
-            submissions={state.submissions} 
-            onBack={() => setCurrentView('landing')} 
+          <ApplicationList
+            submissions={state.submissions}
+            onBack={() => setCurrentView('landing')}
             onEdit={(submission) => {
               setEditingSubmission(submission);
               setCurrentView('form');
@@ -146,20 +146,20 @@ const AppContent: React.FC = () => {
         );
       case 'admin':
         return (
-          <AdminPage 
-            submissions={state.submissions} 
-            onUpdateStatus={actions.updateSubmissionStatus} 
-            onDelete={actions.deleteSubmission} 
-            onBack={() => setCurrentView('landing')} 
+          <AdminPage
+            submissions={state.submissions}
+            onUpdateStatus={actions.updateSubmissionStatus}
+            onDelete={actions.deleteSubmission}
+            onBack={() => setCurrentView('landing')}
           />
         );
       case 'landing':
       default:
         return (
-          <LandingPage 
-          onStartEvaluation={() => setCurrentView('form')} 
-          onShowList={() => setCurrentView('list')}
-          onShowAdmin={() => setCurrentView('admin')}
+          <LandingPage
+            onStartEvaluation={() => setCurrentView('form')}
+            onShowList={() => setCurrentView('list')}
+            onShowAdmin={() => setCurrentView('admin')}
           />
         );
     }
@@ -221,61 +221,60 @@ const AppContent: React.FC = () => {
   const connectionDisplay = getConnectionStatusDisplay();
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] font-sans text-[#212529]">
-      {/* KRDS 스타일 헤더 */}
-      <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-[#E9ECEF]">
-        <div className="max-w-7xl mx-auto py-4 sm:py-5 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+      {/* Premium Glassmorphism Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-300">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* 로고 및 타이틀 */}
-            <div className="flex items-center min-w-0 flex-1">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-                <img 
-                  src="https://i.ibb.co/rGGGfDqc/2025-09-02-165735.png" 
-                  alt="시스템 로고" 
-                  className="h-10 sm:h-12 object-contain"
-                />
+            <div className="flex items-center min-w-0 flex-1 gap-4">
+              <div className="
+                relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 
+                bg-gradient-to-br from-blue-600 to-indigo-600 
+                rounded-xl shadow-lg 
+                flex items-center justify-center
+                text-white font-bold text-xl
+                overflow-hidden
+              ">
+                <span className="relative z-10">C</span>
+                <div className="absolute inset-0 bg-white/20 rotate-45 transform translate-y-1/2"></div>
               </div>
-              <div className="ml-3 sm:ml-4 min-w-0 flex items-center">
-                <h1 className="text-lg sm:text-2xl font-bold text-[#212529] truncate leading-tight">
-                  <span className="hidden sm:inline">CKD 안전작업허가서 시스템</span>
-                  <span className="sm:hidden">CKD 안전작업허가서</span>
+              <div className="min-w-0 flex flex-col">
+                <h1 className="text-lg sm:text-xl font-bold text-slate-900 truncate leading-tight tracking-tight">
+                  CKD 안전작업허가서
                 </h1>
+                <span className="text-xs text-slate-500 font-medium hidden sm:block">Safety Work Permit System</span>
               </div>
             </div>
-            
+
             {/* 연결 상태 및 데이터 정보 */}
             <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
               {/* 신청서 수 (데스크톱) */}
-              <div className="hidden md:flex items-center px-3 py-1.5 bg-[#F1F3F5] rounded-lg">
-                <svg className="w-4 h-4 text-[#0066CC] mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="hidden md:flex items-center px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
+                <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span className="text-sm font-semibold text-[#343A40]">
+                <span className="text-sm font-bold text-slate-700">
                   {state.submissions.length}
-                  <span className="text-xs text-[#6C757D] ml-1">건</span>
+                  <span className="text-xs text-slate-400 ml-1 font-normal">건</span>
                 </span>
               </div>
 
-              {/* 동기화 시간 (데스크톱) */}
-              {state.lastSyncTime && (
-                <div className="hidden lg:block text-xs text-[#6C757D]">
-                  <span className="font-medium">마지막 동기화</span>
-                  <span className="ml-1">{state.lastSyncTime.toLocaleTimeString()}</span>
-                </div>
-              )}
-
               {/* 연결 상태 */}
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${
-                connectionStatus === 'online' ? 'bg-[#D4EDDA]' :
-                connectionStatus === 'offline' ? 'bg-[#F8D7DA]' :
-                'bg-[#FFF3CD]'
-              }`}>
+              <div className={`
+                flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-sm
+                ${connectionStatus === 'online'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                  : connectionStatus === 'offline'
+                    ? 'bg-rose-50 border-rose-200 text-rose-700'
+                    : 'bg-amber-50 border-amber-200 text-amber-700'}
+              `}>
                 <div className={`w-2 h-2 rounded-full ${connectionDisplay.bgColor}`}></div>
-                <span className={`text-sm font-semibold hidden sm:inline ${connectionDisplay.color}`}>
+                <span className="text-sm font-bold hidden sm:inline">
                   {connectionDisplay.text}
                 </span>
                 {/* 모바일에서는 신청서 수 표시 */}
-                <span className="sm:hidden text-sm font-semibold text-[#343A40]">
+                <span className="sm:hidden text-xs font-bold ml-1 opacity-80 border-l pl-2 border-current">
                   {state.submissions.length}
                 </span>
               </div>
@@ -283,23 +282,29 @@ const AppContent: React.FC = () => {
           </div>
         </div>
       </header>
-      
-      {/* KRDS 스타일 메인 콘텐츠 */}
-      <main className="max-w-7xl mx-auto py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
+
+      {/* 메인 콘텐츠 */}
+      <main className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-200px)]">
         {renderContent()}
       </main>
 
-      {/* 푸터 (KRDS 스타일) */}
-      <footer className="bg-white border-t border-[#E9ECEF] mt-12">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-sm text-[#6C757D]">
-              © 2025 CKD 안전작업허가서 시스템. All rights reserved.
-            </p>
+      {/* 푸터 */}
+      <footer className="bg-white border-t border-slate-200 mt-auto">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <p className="text-sm font-bold text-slate-900">CKD 안전작업허가서 시스템</p>
+              <p className="text-xs text-slate-500 mt-1">© 2025 All rights reserved.</p>
+            </div>
+            <div className="flex gap-4 text-slate-400">
+              <a href="#" className="hover:text-blue-600 transition-colors">이용약관</a>
+              <a href="#" className="hover:text-blue-600 transition-colors">개인정보처리방침</a>
+              <a href="#" className="hover:text-blue-600 transition-colors">도움말</a>
+            </div>
           </div>
         </div>
       </footer>
-      
+
       <DebugInfo />
     </div>
   );

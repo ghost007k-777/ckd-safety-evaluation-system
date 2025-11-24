@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface LandingPageProps {
@@ -10,78 +9,93 @@ interface LandingPageProps {
 const ActionCard: React.FC<{
   title: string;
   description: string;
-  icon: React.ReactNode;
+  imageSrc: string;
   onClick?: () => void;
   badge?: string;
-}> = ({ title, description, icon, onClick, badge }) => {
+  delay?: number;
+}> = ({ title, description, imageSrc, onClick, badge, delay = 0 }) => {
   return (
-    <div 
+    <div
       className="
         group relative
         flex flex-col items-center
         p-8
-        bg-white rounded-2xl 
-        border-2 border-[#E9ECEF] 
-        hover:border-[#0066CC] hover:shadow-xl 
+        bg-white/80 backdrop-blur-xl
+        rounded-3xl
+        border border-white/50
+        shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+        hover:shadow-[0_20px_40px_rgb(0,102,204,0.15)]
         cursor-pointer 
-        transform transition-all duration-300 ease-out
+        transform transition-all duration-500 ease-out
         hover:-translate-y-2
-        active:scale-98
+        overflow-hidden
       "
-      onClick={onClick} 
+      style={{ animationDelay: `${delay}ms` }}
+      onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-         if ((e.key === 'Enter' || e.key === ' ') && onClick) {
-           onClick();
-         }
+        if ((e.key === 'Enter' || e.key === ' ') && onClick) {
+          onClick();
+        }
       }}
       aria-label={title}
     >
-      {/* 아이콘 */}
+      {/* 배경 장식 (Hover 효과) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      {/* 3D 아이콘 이미지 */}
       <div className="
-        flex-shrink-0 
-        flex items-center justify-center 
-        h-24 w-24
-        rounded-2xl 
-        bg-gradient-to-br from-[#E6F0FF] to-[#CCE1FF]
-        group-hover:from-[#0066CC] group-hover:to-[#0052A3]
-        transition-all duration-300
-        mb-6
-        shadow-md group-hover:shadow-lg
+        relative z-10
+        w-32 h-32 mb-6
+        transform transition-transform duration-500
+        group-hover:scale-110 group-hover:rotate-3
+        filter drop-shadow-xl
       ">
-        <div className="text-[#0066CC] group-hover:text-white transition-colors duration-300">
-          {icon}
-        </div>
+        <img
+          src={imageSrc}
+          alt={title}
+          className="w-full h-full object-contain"
+        />
       </div>
 
       {/* 콘텐츠 */}
-      <div className="flex-1 text-center w-full">
+      <div className="relative z-10 flex-1 text-center w-full">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <h3 className="text-2xl font-bold text-[#212529] group-hover:text-[#0066CC] transition-colors">
+          <h3 className="text-2xl font-bold text-slate-800 group-hover:text-[#0066CC] transition-colors">
             {title}
           </h3>
           {badge && (
-            <span className="px-2 py-1 text-xs font-semibold bg-[#0066CC] text-white rounded-md">
+            <span className="
+              px-2.5 py-1 
+              text-xs font-bold 
+              bg-gradient-to-r from-[#0066CC] to-[#0052A3]
+              text-white 
+              rounded-full
+              shadow-md
+              transform group-hover:scale-105 transition-transform
+            ">
               {badge}
             </span>
           )}
         </div>
-        <p className="text-sm text-[#6C757D] leading-relaxed group-hover:text-[#495057] transition-colors">
+        <p className="text-sm text-slate-500 leading-relaxed font-medium">
           {description}
         </p>
       </div>
 
-      {/* 화살표 아이콘 */}
+      {/* 하단 액션 버튼 스타일 */}
       <div className="
-        mt-4
-        text-[#ADB5BD] 
-        group-hover:text-[#0066CC] 
-        group-hover:translate-y-1
+        relative z-10 mt-6
+        flex items-center gap-2
+        text-sm font-bold text-[#0066CC]
+        opacity-0 transform translate-y-4
+        group-hover:opacity-100 group-hover:translate-y-0
         transition-all duration-300
       ">
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        <span>시작하기</span>
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
         </svg>
       </div>
     </div>
@@ -91,71 +105,66 @@ const ActionCard: React.FC<{
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStartEvaluation, onShowList, onShowAdmin }) => {
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* 헤더 섹션 (KRDS 스타일) */}
-      <div className="text-center mb-12 sm:mb-16">
-        <h2 className="text-3xl sm:text-5xl font-bold text-[#212529] mb-4 leading-tight">
-          무엇을 하시겠습니까?
+    <div className="max-w-7xl mx-auto relative">
+      {/* 배경 장식 요소 */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl -z-10 opacity-30 pointer-events-none">
+        <div className="absolute top-0 left-0 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+      </div>
+
+      {/* 헤더 섹션 */}
+      <div className="text-center mb-16 sm:mb-20 pt-8">
+        <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-[#0066CC] text-sm font-bold mb-4 border border-blue-100 shadow-sm">
+          Smart Safety System
+        </span>
+        <h2 className="text-4xl sm:text-6xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
+          안전한 작업 환경,<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066CC] to-[#00C6FF]">
+            스마트하게 시작하세요
+          </span>
         </h2>
-        <p className="text-lg sm:text-xl text-[#6C757D] leading-relaxed max-w-2xl mx-auto">
-          수행할 작업을 선택하여 시작하세요.<br className="hidden sm:block" />
-          안전하고 효율적인 작업 관리를 지원합니다.
+        <p className="text-lg sm:text-xl text-slate-500 leading-relaxed max-w-2xl mx-auto font-medium">
+          복잡한 서류 작업은 이제 그만. <br className="hidden sm:block" />
+          디지털 안전작업허가서로 빠르고 정확하게 관리하세요.
         </p>
       </div>
 
-      {/* 액션 카드 그리드 - 가로 배열 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 액션 카드 그리드 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
         <ActionCard
           title="작업신청하기"
-          description="새로운 작업에 대한 안전 평가 및 신청 절차를 시작합니다. 단계별 가이드를 따라 쉽게 작성할 수 있습니다."
-          badge="신규"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          }
+          description="새로운 작업에 대한 안전 평가 및 신청 절차를 시작합니다."
+          badge="START"
+          imageSrc="/assets/helmet.png"
           onClick={onStartEvaluation}
+          delay={0}
         />
-        
+
         <ActionCard
           title="신청 목록"
-          description="제출된 평가 신청서 목록을 확인하고 관리합니다. 상태별로 필터링하여 조회할 수 있습니다."
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
-          }
+          description="제출된 평가 신청서 목록을 확인하고 진행상황을 관리합니다."
+          imageSrc="/assets/clipboard.png"
           onClick={onShowList}
+          delay={100}
         />
-        
+
         <ActionCard
           title="관리자 페이지"
-          description="시스템 설정을 관리하고 신청서를 승인합니다. 통계 및 리포트를 확인할 수 있습니다."
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          }
+          description="시스템 설정을 관리하고 신청서를 최종 승인합니다."
+          imageSrc="/assets/shield.png"
           onClick={onShowAdmin}
+          delay={200}
         />
       </div>
 
-      {/* 도움말 섹션 */}
-      <div className="mt-12 p-6 bg-gradient-to-r from-[#E6F0FF] to-[#CCE1FF] rounded-2xl border border-[#99C3FF]">
-        <div className="flex items-start gap-4">
-          <div className="flex-shrink-0">
-            <svg className="w-6 h-6 text-[#0066CC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <h4 className="text-lg font-bold text-[#003E7A] mb-2">도움이 필요하신가요?</h4>
-            <p className="text-sm text-[#0052A3] leading-relaxed">
-              시스템 사용 중 문의사항이 있으시면 관리자에게 연락해주세요. 
-              자세한 사용 가이드는 각 메뉴의 도움말을 참고하세요.
-            </p>
-          </div>
+      {/* 하단 정보 섹션 */}
+      <div className="mt-20 text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 border border-slate-200 text-slate-500 text-sm backdrop-blur-sm">
+          <svg className="w-4 h-4 text-[#0066CC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>도움이 필요하신가요? 관리자에게 문의하세요.</span>
         </div>
       </div>
     </div>
