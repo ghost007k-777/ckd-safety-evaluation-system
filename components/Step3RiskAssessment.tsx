@@ -54,7 +54,7 @@ const CriteriaPopup: React.FC<CriteriaPopupProps> = ({ isOpen, onClose, type }) 
             </svg>
           </button>
         </div>
-        
+
         <div className="p-6">
           <div className="overflow-x-auto">
             <table className="min-w-full border-2 border-[#DEE2E6]">
@@ -71,11 +71,11 @@ const CriteriaPopup: React.FC<CriteriaPopupProps> = ({ isOpen, onClose, type }) 
                 {criteria.map((item) => (
                   <tr key={item.level} className="hover:bg-[#F8F9FA] transition-colors">
                     <td className="px-6 py-4 text-center font-semibold text-[#212529] border-2 border-[#DEE2E6]">
-                      {item.level === criteria[0].level ? '최상' : 
-                       item.level === criteria[criteria.length - 1].level ? '최하' : 
-                       item.level === criteria[1]?.level ? (type === 'likelihood' ? '상' : '최대') :
-                       item.level === criteria[2]?.level ? (type === 'likelihood' ? '중' : '대') :
-                       item.level === criteria[3]?.level ? '하' : ''}
+                      {item.level === criteria[0].level ? '최상' :
+                        item.level === criteria[criteria.length - 1].level ? '최하' :
+                          item.level === criteria[1]?.level ? (type === 'likelihood' ? '상' : '최대') :
+                            item.level === criteria[2]?.level ? (type === 'likelihood' ? '중' : '대') :
+                              item.level === criteria[3]?.level ? '하' : ''}
                     </td>
                     <td className="px-6 py-4 text-center border-2 border-[#DEE2E6]">
                       <div className="font-bold text-lg text-[#0066CC] mb-1">{item.name}</div>
@@ -98,7 +98,7 @@ const CriteriaPopup: React.FC<CriteriaPopupProps> = ({ isOpen, onClose, type }) 
 const RiskRow: React.FC<{ item: RiskItem; onUpdate: (item: RiskItem) => void; onRemove: (id: string) => void }> = ({ item, onUpdate, onRemove }) => {
   const [showLikelihoodPopup, setShowLikelihoodPopup] = useState(false);
   const [showSeverityPopup, setShowSeverityPopup] = useState(false);
-  
+
   const riskScore = item.likelihood * item.severity;
   const riskColor = riskScore >= 9 ? 'bg-rose-50' : riskScore >= 4 ? 'bg-amber-50' : 'bg-emerald-50';
 
@@ -109,12 +109,12 @@ const RiskRow: React.FC<{ item: RiskItem; onUpdate: (item: RiskItem) => void; on
       <div className="md:col-span-2">
         <Input label="유해·위험요인" value={item.hazard} onChange={e => onUpdate({ ...item, hazard: e.target.value })} />
       </div>
-       <Select label="재해유형분류" value={item.disasterType} onChange={e => onUpdate({ ...item, disasterType: e.target.value })}>
-          <option value="">유형 선택</option>
-          {DISASTER_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+      <Select label="재해유형분류" value={item.disasterType} onChange={e => onUpdate({ ...item, disasterType: e.target.value })}>
+        <option value="">유형 선택</option>
+        {DISASTER_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
       </Select>
       <div className="md:col-span-2">
-         <Input label="현재 안전보건조치" value={item.safetyMeasures} onChange={e => onUpdate({ ...item, safetyMeasures: e.target.value })} />
+        <Input label="현재 안전보건조치" value={item.safetyMeasures} onChange={e => onUpdate({ ...item, safetyMeasures: e.target.value })} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
         <div>
@@ -173,7 +173,7 @@ const RiskRow: React.FC<{ item: RiskItem; onUpdate: (item: RiskItem) => void; on
           <div className="font-bold text-2xl text-[#212529]">{riskScore}</div>
         </div>
       </div>
-      
+
       {/* 팝업들 */}
       <CriteriaPopup
         isOpen={showLikelihoodPopup}
@@ -229,28 +229,48 @@ const Step3RiskAssessment: React.FC<Step3Props> = ({ data, setData }) => {
   const updateRow = (updatedItem: RiskItem) => {
     setData(data.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
-  
+
   const removeRow = (id: string) => {
     setData(data.filter(item => item.id !== id));
   };
 
   return (
-    <Card>
-      <CardHeader
-        title={
-          <span>
-            위험성평가
-            <span className="text-sm ml-1">(최소 1건 이상 작성)</span>
-          </span>
-        }
-        description="잠재적 위험 요소를 식별하고 완화 조치를 작성합니다."
-      />
-      
-      <div className="space-y-8">
-        {data.map(item => <RiskRow key={item.id} item={item} onUpdate={updateRow} onRemove={removeRow} />)}
-        <Button onClick={addRow}>위험 항목 추가</Button>
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center gap-6 mb-8">
+        <div className="hidden sm:block w-24 h-24 flex-shrink-0">
+          <img
+            src="/assets/risk.png"
+            alt="Risk Assessment"
+            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+          />
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">위험성 평가</h2>
+          <p className="text-slate-500 text-lg">
+            잠재적 위험 요소를 식별하고 완화 조치를 작성합니다.
+          </p>
+        </div>
       </div>
-    </Card>
+
+      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+        <div className="p-8 space-y-8">
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100">
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">위험성평가 작성</h3>
+              <p className="text-sm text-slate-500 mt-1 font-medium">최소 1건 이상 작성해주세요.</p>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {data.map(item => <RiskRow key={item.id} item={item} onUpdate={updateRow} onRemove={removeRow} />)}
+            <Button onClick={addRow} className="w-full py-4 border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-all font-bold rounded-xl">
+              + 위험 항목 추가하기
+            </Button>
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 };
 
