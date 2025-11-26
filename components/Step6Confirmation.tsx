@@ -366,89 +366,6 @@ const HazardousPermitConfirmation: React.FC<{ data: WorkPermit; approvalInfo?: a
                 </div>
             </div>
             <div className="p-4">
-                <Field label="첨부서류" value={
-                    <div className="flex flex-col sm:flex-row sm:gap-6">
-                        <span>작업절차서: <span className="font-semibold">{data.procedureDocStatus === 'yes' ? '유' : '무'}</span></span>
-                        <span>위험성평가: <span className="font-semibold">{data.riskAssessmentStatus === 'yes' ? '유' : '무'}</span></span>
-                    </div>
-                } />
-            </div>
-            <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[작업현장 안전조치 확인사항]</div>
-            <div className="divide-y divide-gray-200">
-                <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
-                    <div className="col-span-2">구분</div>
-                    <div className="col-span-6">안전조치 요구사항</div>
-                    <div className="col-span-2 text-center">해당여부</div>
-                    <div className="col-span-2 text-center">실시여부</div>
-                </div>
-                {renderChecklist('일반항목', '일반항목', true)}
-
-                <div className="md:grid md:grid-cols-12">
-                    <div className="p-3 font-bold text-gray-800 md:col-span-2 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">화기작업</div>
-                    <div className="px-4 pb-4 md:p-0 md:col-span-10 md:divide-y md:divide-gray-200">
-                        <div className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0">
-                            <div className="md:col-span-6">해당 작업 유/무</div>
-                            <div className="md:col-span-4 text-left md:text-center font-semibold">{data.isHotWork === 'yes' ? '유' : '무'}</div>
-                        </div>
-                        {renderChecklist('화기작업', '', data.isHotWork === 'yes')}
-                    </div>
-                </div>
-                <div className="md:grid md:grid-cols-12">
-                    <div className="p-3 font-bold text-gray-800 md:col-span-2 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">고소작업</div>
-                    <div className="px-4 pb-4 md:p-0 md:col-span-10 md:divide-y md:divide-gray-200">
-                        <div className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0">
-                            <div className="md:col-span-6">해당 작업 유/무</div>
-                            <div className="md:col-span-4 text-left md:text-center font-semibold">{data.isHighAltitudeWork === 'yes' ? '유' : '무'}</div>
-                        </div>
-                        {data.isHighAltitudeWork === 'yes' && (
-                            <>
-                                {/* 사다리, 작업발판 */}
-                                <div className="py-2 md:p-3 bg-gray-50 border-b">
-                                    <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
-                                </div>
-                                {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-사다리') || []).map((item, index) => (
-                                    <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
-                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
-                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* 틀비계 */}
-                                <div className="py-2 md:p-3 bg-gray-50 border-b">
-                                    <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
-                                </div>
-                                {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-틀비계') || []).map((item, index) => (
-                                    <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
-                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
-                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* 달비계 */}
-                                <div className="py-2 md:p-3 bg-gray-50 border-b">
-                                    <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
-                                </div>
-                                {(data.hazardousSafetyCheckList?.filter(item => item.category === '고소작업-달비계') || []).map((item, index) => (
-                                    <div key={item.id} data-break-anchor className="py-2 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-2 md:mt-0 text-center">
-                                            <div><span className="font-semibold md:hidden">해당: </span>{item.applicable}</div>
-                                            <div><span className="font-semibold md:hidden">실시: </span>{item.implemented}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-            <div className="p-4">
                 <Field label="기타 특이사항" value={<span className="whitespace-pre-wrap">{data.specialNotes || '없음'}</span>} />
             </div>
 
@@ -684,9 +601,6 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 description="제출하기 전에 모든 정보를 주의 깊게 검토해주세요."
             />
             <div className="space-y-8">
-                    </div>
-                </div>
-
                 <Section title="프로젝트 정보" data-pdf-page="project-info">
                     <Field label="공사 위치" value={
                         data.projectInfo?.location === '기타'

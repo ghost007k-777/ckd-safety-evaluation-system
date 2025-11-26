@@ -1,14 +1,15 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
   deleteDoc,
   query,
   orderBy,
   onSnapshot,
-  Timestamp 
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../firebase.ts';
 import { FormData, Submission, SubmissionStatus, ApprovalInfo } from '../types.ts';
@@ -19,22 +20,22 @@ const SUBMISSIONS_COLLECTION = 'submissions';
 // Firestore 데이터를 애플리케이션 타입으로 변환
 const convertFirestoreToSubmission = (doc: any): Submission => {
   const data = doc.data();
-  
+
   // 안전한 데이터 변환 - safetyTraining이 없을 수도 있음
   const safetyTraining = data.safetyTraining || {};
-  
+
   // ApprovalInfo 변환
   let approvalInfo: ApprovalInfo | undefined;
   if (data.approvalInfo) {
     approvalInfo = {};
-    
+
     if (data.approvalInfo.safetyManagerApproval) {
       approvalInfo.safetyManagerApproval = {
         ...data.approvalInfo.safetyManagerApproval,
         approvedAt: data.approvalInfo.safetyManagerApproval.approvedAt?.toDate() || new Date()
       };
     }
-    
+
     if (data.approvalInfo.departmentManagerApproval) {
       approvalInfo.departmentManagerApproval = {
         ...data.approvalInfo.departmentManagerApproval,
@@ -42,15 +43,15 @@ const convertFirestoreToSubmission = (doc: any): Submission => {
       };
     }
   }
-  
+
   return {
     id: doc.id,
     ...data,
     submittedAt: data.submittedAt?.toDate() || new Date(),
     safetyTraining: {
       ...safetyTraining,
-      completionDate: safetyTraining.completionDate 
-        ? safetyTraining.completionDate.toDate() 
+      completionDate: safetyTraining.completionDate
+        ? safetyTraining.completionDate.toDate()
         : null
     },
     ...(approvalInfo && { approvalInfo })
@@ -61,13 +62,13 @@ const convertFirestoreToSubmission = (doc: any): Submission => {
 const convertSubmissionToFirestore = (submission: Omit<Submission, 'id'>) => {
   // 안전한 데이터 변환
   const safetyTraining = submission.safetyTraining || {};
-  
+
   return {
     ...submission,
     submittedAt: Timestamp.fromDate(submission.submittedAt || new Date()),
     safetyTraining: {
       ...safetyTraining,
-      completionDate: safetyTraining.completionDate 
+      completionDate: safetyTraining.completionDate
         ? Timestamp.fromDate(safetyTraining.completionDate)
         : null
     }
@@ -82,12 +83,12 @@ export const addSubmission = async (formData: FormData): Promise<string> => {
       submittedAt: new Date(),
       ...formData,
     };
-    
+
     const docRef = await addDoc(
-      collection(db, SUBMISSIONS_COLLECTION), 
+      collection(db, SUBMISSIONS_COLLECTION),
       convertSubmissionToFirestore(newSubmission)
     );
-    
+
     console.log('신청서가 성공적으로 저장되었습니다:', docRef.id);
     return docRef.id;
   } catch (error) {
@@ -100,16 +101,16 @@ export const addSubmission = async (formData: FormData): Promise<string> => {
 export const getSubmissions = async (): Promise<Submission[]> => {
   try {
     console.log('📖 [firestoreService] 신청서 조회 시작...');
-    
+
     // 1차 시도: orderBy 쿼리
     let q = query(
-      collection(db, SUBMISSIONS_COLLECTION), 
+      collection(db, SUBMISSIONS_COLLECTION),
       orderBy('submittedAt', 'desc')
     );
-    
+
     let querySnapshot = await getDocs(q);
     const submissions: Submission[] = [];
-    
+
     querySnapshot.forEach((doc) => {
       try {
         submissions.push(convertFirestoreToSubmission(doc));
@@ -118,19 +119,19 @@ export const getSubmissions = async (): Promise<Submission[]> => {
         // 변환 실패한 문서는 건너뛰고 계속 진행
       }
     });
-    
+
     console.log(`✅ [firestoreService] ${submissions.length}개 신청서 조회 완료`);
     return submissions;
-    
+
   } catch (error: any) {
     console.warn('⚠️ [firestoreService] orderBy 쿼리 실패, 단순 쿼리로 폴백:', error);
-    
+
     // 2차 시도: 단순 쿼리 (orderBy 없이)
     try {
       const simpleQuery = collection(db, SUBMISSIONS_COLLECTION);
       const querySnapshot = await getDocs(simpleQuery);
       const submissions: Submission[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         try {
           submissions.push(convertFirestoreToSubmission(doc));
@@ -139,13 +140,13 @@ export const getSubmissions = async (): Promise<Submission[]> => {
           // 변환 실패한 문서는 건너뛰고 계속 진행
         }
       });
-      
+
       // 클라이언트에서 정렬
       submissions.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
-      
+
       console.log(`✅ [firestoreService] 폴백으로 ${submissions.length}개 신청서 조회 완료`);
       return submissions;
-      
+
     } catch (fallbackError) {
       console.error('❌ [firestoreService] 모든 쿼리 방법 실패:', fallbackError);
       throw fallbackError;
@@ -155,7 +156,7 @@ export const getSubmissions = async (): Promise<Submission[]> => {
 
 // 신청서 상태 업데이트
 export const updateSubmissionStatus = async (
-  id: string, 
+  id: string,
   status: SubmissionStatus,
   approvalInfo?: ApprovalInfo,
   rejectionReason?: string
@@ -163,26 +164,26 @@ export const updateSubmissionStatus = async (
   try {
     const submissionRef = doc(db, SUBMISSIONS_COLLECTION, id);
     const updateData: any = { status };
-    
+
     // 승인 정보가 있으면 함께 업데이트
     if (approvalInfo) {
       // ApprovalInfo의 Date 객체들을 Timestamp로 변환
       const convertedApprovalInfo: any = {};
-      
+
       if (approvalInfo.safetyManagerApproval) {
         convertedApprovalInfo.safetyManagerApproval = {
           ...approvalInfo.safetyManagerApproval,
           approvedAt: Timestamp.fromDate(approvalInfo.safetyManagerApproval.approvedAt)
         };
       }
-      
+
       if (approvalInfo.departmentManagerApproval) {
         convertedApprovalInfo.departmentManagerApproval = {
           ...approvalInfo.departmentManagerApproval,
           approvedAt: Timestamp.fromDate(approvalInfo.departmentManagerApproval.approvedAt)
         };
       }
-      
+
       updateData.approvalInfo = convertedApprovalInfo;
     }
 
@@ -190,7 +191,7 @@ export const updateSubmissionStatus = async (
     if (rejectionReason !== undefined) {
       updateData.rejectionReason = rejectionReason;
     }
-    
+
     await updateDoc(submissionRef, updateData);
     console.log('신청서 상태가 업데이트되었습니다:', id, status, approvalInfo, rejectionReason);
   } catch (error) {
@@ -204,7 +205,7 @@ export const updateSubmission = async (id: string, formData: FormData): Promise<
   try {
     const submissionRef = doc(db, SUBMISSIONS_COLLECTION, id);
     const submissionDoc = await getDoc(submissionRef);
-    
+
     if (!submissionDoc.exists()) {
       throw new Error('신청서를 찾을 수 없습니다.');
     }
@@ -220,7 +221,7 @@ export const updateSubmission = async (id: string, formData: FormData): Promise<
       approvalInfo: existingData.approvalInfo,
       rejectionReason: existingData.rejectionReason
     };
-    
+
     await updateDoc(submissionRef, updateData);
     console.log('신청서가 수정되었습니다:', id);
   } catch (error) {
@@ -246,16 +247,16 @@ export const subscribeToSubmissions = (
   onError?: (error: Error) => void
 ): (() => void) => {
   console.log('📡 [firestoreService] 실시간 구독 시작...');
-  
+
   // 1차 시도: orderBy 쿼리로 실시간 구독
   const tryOrderBySubscription = () => {
     const q = query(
-      collection(db, SUBMISSIONS_COLLECTION), 
+      collection(db, SUBMISSIONS_COLLECTION),
       orderBy('submittedAt', 'desc')
     );
-    
+
     return onSnapshot(
-      q, 
+      q,
       (querySnapshot) => {
         try {
           const submissions: Submission[] = [];
@@ -276,7 +277,7 @@ export const subscribeToSubmissions = (
       },
       (error) => {
         console.warn('⚠️ [firestoreService] orderBy 실시간 구독 실패, 단순 구독으로 폴백:', error);
-        
+
         // 2차 시도: 단순 쿼리로 실시간 구독
         const fallbackUnsubscribe = trySimpleSubscription();
         if (!fallbackUnsubscribe && onError) {
@@ -285,14 +286,14 @@ export const subscribeToSubmissions = (
       }
     );
   };
-  
+
   // 단순 쿼리로 실시간 구독
   const trySimpleSubscription = () => {
     try {
       const simpleCollection = collection(db, SUBMISSIONS_COLLECTION);
-      
+
       return onSnapshot(
-        simpleCollection, 
+        simpleCollection,
         (querySnapshot) => {
           try {
             const submissions: Submission[] = [];
@@ -304,10 +305,10 @@ export const subscribeToSubmissions = (
                 // 변환 실패한 문서는 건너뛰고 계속 진행
               }
             });
-            
+
             // 클라이언트에서 정렬
             submissions.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
-            
+
             console.log(`📡 [firestoreService] 폴백 실시간 업데이트: ${submissions.length}개의 신청서 동기화`);
             callback(submissions);
           } catch (error) {
@@ -326,7 +327,7 @@ export const subscribeToSubmissions = (
       return null;
     }
   };
-  
+
   // 먼저 orderBy 시도
   try {
     return tryOrderBySubscription();
@@ -336,7 +337,7 @@ export const subscribeToSubmissions = (
     if (!fallbackUnsubscribe && onError) {
       onError(error instanceof Error ? error : new Error('Unknown error'));
     }
-    return fallbackUnsubscribe || (() => {});
+    return fallbackUnsubscribe || (() => { });
   }
 };
 
