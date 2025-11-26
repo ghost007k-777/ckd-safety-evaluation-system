@@ -68,7 +68,7 @@ export const Step2WorkTypeSelection: React.FC<Step2WorkTypeSelectionProps> = ({
           <img
             src="/assets/tools.png"
             alt="Work Tools"
-            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300 mix-blend-multiply"
           />
         </div>
         <div>

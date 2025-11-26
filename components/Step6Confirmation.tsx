@@ -684,19 +684,6 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                 description="제출하기 전에 모든 정보를 주의 깊게 검토해주세요."
             />
             <div className="space-y-8">
-                <div className="flex items-center gap-6 mb-8">
-                    <div className="hidden sm:block w-24 h-24 flex-shrink-0">
-                        <img
-                            src="/assets/confirm.png"
-                            alt="Confirmation"
-                            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
-                        />
-                    </div>
-                    <div>
-                        <h2 className="text-3xl font-bold text-slate-900 mb-2">최종 확인</h2>
-                        <p className="text-slate-500 text-lg">
-                            입력하신 정보를 마지막으로 확인해주세요.
-                        </p>
                     </div>
                 </div>
 
@@ -878,8 +865,8 @@ const Step6Confirmation = React.forwardRef<HTMLDivElement, Step6Props>(({ data }
                         <p className="text-gray-500">작업 허가서 유형이 설정되지 않았습니다.</p>
                     )}
                 </Section>
-            </div>
-        </Card>
+            </div >
+        </Card >
     );
 });
 Step6Confirmation.displayName = 'Step6Confirmation';

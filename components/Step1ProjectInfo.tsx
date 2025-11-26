@@ -18,7 +18,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, updateData }) => 
           <img
             src="/assets/site.png"
             alt="Construction Site"
-            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300 mix-blend-multiply"
           />
         </div>
         <div>
