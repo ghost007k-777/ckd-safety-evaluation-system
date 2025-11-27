@@ -237,7 +237,7 @@ const Step3RiskAssessment: React.FC<Step3Props> = ({ data, setData }) => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center gap-6 mb-8">
-        <div className="hidden sm:block w-24 h-24 flex-shrink-0 bg-white rounded-2xl border border-slate-200 p-3 shadow-sm">
+        <div className="hidden sm:block w-24 h-24 flex-shrink-0">
           <img
             src="/assets/risk.png"
             alt="Risk Assessment"
