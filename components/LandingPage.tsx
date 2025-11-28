@@ -55,7 +55,7 @@ const ActionCard: React.FC<{
         <img
           src={imageSrc}
           alt={title}
-          className="w-full h-full object-contain mix-blend-multiply"
+          className="w-full h-full object-contain"
         />
       </div>
 

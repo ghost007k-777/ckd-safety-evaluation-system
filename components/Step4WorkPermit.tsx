@@ -77,7 +77,7 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                     <img
                         src="/assets/permit.png"
                         alt="Work Permit"
-                        className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300 mix-blend-multiply"
+                        className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
                     />
                 </div>
                 <div>

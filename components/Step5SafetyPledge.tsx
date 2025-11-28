@@ -34,7 +34,7 @@ const Step5SafetyPledge: React.FC<Step5Props> = ({ data, updateData }) => {
           <img
             src="/assets/pledge.png"
             alt="Safety Pledge"
-            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300 mix-blend-multiply"
+            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
           />
         </div>
         <div>
