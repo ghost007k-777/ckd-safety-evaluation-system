@@ -71,7 +71,7 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
     const highAltitudeHangingChecks = data.safetyCheckList?.filter(item => item.category === '고소작업-달비계') || [];
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div>
             <div className="flex items-center gap-6 mb-8">
                 <div className="hidden sm:block w-24 h-24 flex-shrink-0">
                     <img
@@ -88,136 +88,165 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                 </div>
             </div>
 
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                <div className="p-8 space-y-8">
-                    <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
-                        {/* Signatures */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-gray-300">
-                            {/* Applicant */}
-                            <div className="p-4 space-y-3">
-                                <h3 className="font-semibold text-center text-gray-700 mb-4">신청자 (시공 업체)</h3>
-                                <div className="grid grid-cols-[80px,1fr] items-center gap-3">
-                                    <label className="font-semibold text-sm text-gray-600">팀</label>
-                                    <input type="text" className={inputClasses} value={data.applicantTeam || ''} onChange={e => updateData({ applicantTeam: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-[80px,1fr] items-start gap-3">
-                                    <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
-                                    <div>
-                                        <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.applicantName || ''} onChange={e => updateData({ applicantName: e.target.value })} />
-                                        <SignaturePad onEnd={(sig) => updateData({ applicantSignature: sig })} signatureDataUrl={data.applicantSignature || ''} />
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Manager */}
-                            <div className="p-4 space-y-3 border-t lg:border-t-0 border-gray-300">
-                                <h3 className="font-semibold text-center text-gray-700 mb-4">시행부서 팀장 (허가서 및 안전조치 확인)</h3>
-                                <div className="grid grid-cols-[80px,1fr] items-center gap-3">
-                                    <label className="font-semibold text-sm text-gray-600">팀</label>
-                                    <input type="text" className={inputClasses} value={data.managerTeam || ''} onChange={e => updateData({ managerTeam: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-[80px,1fr] items-start gap-3">
-                                    <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
-                                    <div>
-                                        <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.managerName || ''} onChange={e => updateData({ managerName: e.target.value })} />
-                                        <SignaturePad onEnd={(sig) => updateData({ managerSignature: sig })} signatureDataUrl={data.managerSignature || ''} />
-                                    </div>
-                                </div>
-                            </div>
+            <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
+                {/* Signatures */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 lg:divide-x lg:divide-gray-300">
+                    {/* Applicant */}
+                    <div className="p-4 space-y-3">
+                        <h3 className="font-semibold text-center text-gray-700 mb-4">신청자 (시공 업체)</h3>
+                        <div className="grid grid-cols-[80px,1fr] items-center gap-3">
+                            <label className="font-semibold text-sm text-gray-600">팀</label>
+                            <input type="text" className={inputClasses} value={data.applicantTeam || ''} onChange={e => updateData({ applicantTeam: e.target.value })} />
                         </div>
-
-                        {/* Work Details */}
-                        <div className="p-4 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
-                                <label className="font-semibold text-sm text-gray-600">작업장소</label>
-                                <input type="text" className={inputClasses} value={data.location} onChange={e => updateData({ location: e.target.value })} required />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
-                                <label className="font-semibold text-sm text-gray-600">작업일시</label>
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                                    <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={minDate} />
-                                    <div className="relative">
-                                        <input type="time" className={`${inputClasses} pr-14`} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })} />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">부터</span>
-                                    </div>
-                                    <span className="hidden sm:inline text-gray-400">~</span>
-                                    <div className="relative">
-                                        <input type="time" className={`${inputClasses} pr-14`} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })} />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">까지</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Work Description */}
-                        <div className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
-                                <label className="font-semibold text-sm text-gray-600 mt-2">작업내용</label>
-                                <div className="space-y-4">
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                        <span className="flex items-center text-gray-800">○ 작업 인원 : <input type="number" min="1" max="20" className={`${inputClasses} w-24 ml-2`} value={data.workerCount} onChange={e => handleWorkerCountChange(parseInt(e.target.value) || 1)} /> 명</span>
-                                        <span className="flex items-center text-gray-800">○ 작업 내용 : <input type="text" className={`${inputClasses} ml-2 flex-1`} value={data.description} onChange={e => updateData({ description: e.target.value })} /></span>
-                                    </div>
-
-                                    {/* Worker Information */}
-                                    {data.workerCount > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="text-sm font-semibold text-gray-700 mb-3">작업자 정보</h4>
-                                            <div className="space-y-2">
-                                                {Array.from({ length: data.workerCount }, (_, index) => (
-                                                    <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center p-3 bg-gray-50 rounded-lg">
-                                                        <span className="text-sm font-medium text-gray-600">작업자 {index + 1}</span>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="성명"
-                                                            className={inputClasses}
-                                                            value={data.workers?.[index]?.name || ''}
-                                                            onChange={e => handleWorkerChange(index, 'name', e.target.value)}
-                                                        />
-                                                        <input
-                                                            type="tel"
-                                                            placeholder="휴대번호 (예: 010-1234-5678)"
-                                                            className={inputClasses}
-                                                            value={data.workers?.[index]?.phoneNumber || ''}
-                                                            onChange={e => handleWorkerChange(index, 'phoneNumber', e.target.value)}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Attachments */}
-                        <div className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
-                                <label className="font-semibold text-sm text-gray-600">첨부서류</label>
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-y-4 gap-x-12">
-                                    <RadioGroup label="작업절차서" name="procedureDocStatus" value={data.procedureDocStatus || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ procedureDocStatus: e.target.value as 'yes' | 'no' })} />
-                                    <RadioGroup label="위험성평가" name="riskAssessmentStatus" value={data.riskAssessmentStatus || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ riskAssessmentStatus: e.target.value as 'yes' | 'no' })} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Safety Checks Header */}
-                        <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[작업현장 안전조치 확인사항]</div>
-
-                        <div className="divide-y divide-gray-200">
-                            <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
-                                <div className="col-span-8">안전조치 요구사항</div>
-                                <div className="col-span-2 text-center">해당여부 (O,X)</div>
-                                <div className="col-span-2 text-center">실시여부 (O,X)</div>
-                            </div>
-
-                            {/* General checks */}
+                        <div className="grid grid-cols-[80px,1fr] items-start gap-3">
+                            <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
                             <div>
-                                <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">일반항목</div>
-                                <div className="divide-y divide-gray-200">
-                                    {generalChecks.map((item, index) => (
-                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
-                                            <div className="md:col-span-8 text-gray-800">{index + 1}. {item.text}</div>
+                                <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.applicantName || ''} onChange={e => updateData({ applicantName: e.target.value })} />
+                                <SignaturePad onEnd={(sig) => updateData({ applicantSignature: sig })} signatureDataUrl={data.applicantSignature || ''} />
+                            </div>
+                        </div>
+                    </div>
+                    {/* Manager */}
+                    <div className="p-4 space-y-3 border-t lg:border-t-0 border-gray-300">
+                        <h3 className="font-semibold text-center text-gray-700 mb-4">시행부서 팀장 (허가서 및 안전조치 확인)</h3>
+                        <div className="grid grid-cols-[80px,1fr] items-center gap-3">
+                            <label className="font-semibold text-sm text-gray-600">팀</label>
+                            <input type="text" className={inputClasses} value={data.managerTeam || ''} onChange={e => updateData({ managerTeam: e.target.value })} />
+                        </div>
+                        <div className="grid grid-cols-[80px,1fr] items-start gap-3">
+                            <label className="font-semibold text-sm text-gray-600 pt-2">성명 (인)</label>
+                            <div>
+                                <input type="text" placeholder="성명" className={`${inputClasses} mb-2`} value={data.managerName || ''} onChange={e => updateData({ managerName: e.target.value })} />
+                                <SignaturePad onEnd={(sig) => updateData({ managerSignature: sig })} signatureDataUrl={data.managerSignature || ''} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Work Details */}
+                <div className="p-4 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                        <label className="font-semibold text-sm text-gray-600">작업장소</label>
+                        <input type="text" className={inputClasses} value={data.location} onChange={e => updateData({ location: e.target.value })} required />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                        <label className="font-semibold text-sm text-gray-600">작업일시</label>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                            <input type="date" className={inputClasses} value={data.workDate} onChange={e => updateData({ workDate: e.target.value })} min={minDate} />
+                            <div className="relative">
+                                <input type="time" className={`${inputClasses} pr-14`} value={data.workStartTime} onChange={e => updateData({ workStartTime: e.target.value })} />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">부터</span>
+                            </div>
+                            <span className="hidden sm:inline text-gray-400">~</span>
+                            <div className="relative">
+                                <input type="time" className={`${inputClasses} pr-14`} value={data.workEndTime} onChange={e => updateData({ workEndTime: e.target.value })} />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">까지</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Work Description */}
+                <div className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
+                        <label className="font-semibold text-sm text-gray-600 mt-2">작업내용</label>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <span className="flex items-center text-gray-800">○ 작업 인원 : <input type="number" min="1" max="20" className={`${inputClasses} w-24 ml-2`} value={data.workerCount} onChange={e => handleWorkerCountChange(parseInt(e.target.value) || 1)} /> 명</span>
+                                <span className="flex items-center text-gray-800">○ 작업 내용 : <input type="text" className={`${inputClasses} ml-2 flex-1`} value={data.description} onChange={e => updateData({ description: e.target.value })} /></span>
+                            </div>
+
+                            {/* Worker Information */}
+                            {data.workerCount > 0 && (
+                                <div className="mt-4">
+                                    <h4 className="text-sm font-semibold text-gray-700 mb-3">작업자 정보</h4>
+                                    <div className="space-y-2">
+                                        {Array.from({ length: data.workerCount }, (_, index) => (
+                                            <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center p-3 bg-gray-50 rounded-lg">
+                                                <span className="text-sm font-medium text-gray-600">작업자 {index + 1}</span>
+                                                <input
+                                                    type="text"
+                                                    placeholder="성명"
+                                                    className={inputClasses}
+                                                    value={data.workers?.[index]?.name || ''}
+                                                    onChange={e => handleWorkerChange(index, 'name', e.target.value)}
+                                                />
+                                                <input
+                                                    type="tel"
+                                                    placeholder="휴대번호 (예: 010-1234-5678)"
+                                                    className={inputClasses}
+                                                    value={data.workers?.[index]?.phoneNumber || ''}
+                                                    onChange={e => handleWorkerChange(index, 'phoneNumber', e.target.value)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Attachments */}
+                <div className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-center gap-3">
+                        <label className="font-semibold text-sm text-gray-600">첨부서류</label>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-y-4 gap-x-12">
+                            <RadioGroup label="작업절차서" name="procedureDocStatus" value={data.procedureDocStatus || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ procedureDocStatus: e.target.value as 'yes' | 'no' })} />
+                            <RadioGroup label="위험성평가" name="riskAssessmentStatus" value={data.riskAssessmentStatus || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ riskAssessmentStatus: e.target.value as 'yes' | 'no' })} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Safety Checks Header */}
+                <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[작업현장 안전조치 확인사항]</div>
+
+                <div className="divide-y divide-gray-200">
+                    <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
+                        <div className="col-span-8">안전조치 요구사항</div>
+                        <div className="col-span-2 text-center">해당여부 (O,X)</div>
+                        <div className="col-span-2 text-center">실시여부 (O,X)</div>
+                    </div>
+
+                    {/* General checks */}
+                    <div>
+                        <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">일반항목</div>
+                        <div className="divide-y divide-gray-200">
+                            {generalChecks.map((item, index) => (
+                                <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
+                                    <div className="md:col-span-8 text-gray-800">{index + 1}. {item.text}</div>
+                                    <div className="md:col-span-2 flex justify-center">
+                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                    </div>
+                                    <div className="md:col-span-2 flex justify-center">
+                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* High altitude checks */}
+                    <div>
+                        <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">고소작업</div>
+                        <div className="divide-y divide-gray-200">
+                            <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
+                                <div className="md:col-span-8 text-gray-800">해당 작업 유/무</div>
+                                <div className="md:col-span-4 mt-2 md:mt-0">
+                                    <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
+                                </div>
+                            </div>
+                            {data.isHighAltitudeWork === 'yes' && (
+                                <>
+                                    {/* 사다리, 작업발판 */}
+                                    <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                        <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
+                                    </div>
+                                    {highAltitudeLadderChecks.map((item, index) => (
+                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                            <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
                                             <div className="md:col-span-2 flex justify-center">
                                                 <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
                                                 <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
@@ -228,90 +257,56 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                                             </div>
                                         </div>
                                     ))}
-                                </div>
-                            </div>
 
-                            {/* High altitude checks */}
-                            <div>
-                                <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">고소작업</div>
-                                <div className="divide-y divide-gray-200">
-                                    <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
-                                        <div className="md:col-span-8 text-gray-800">해당 작업 유/무</div>
-                                        <div className="md:col-span-4 mt-2 md:mt-0">
-                                            <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
-                                        </div>
+                                    {/* 틀비계 */}
+                                    <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                        <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
                                     </div>
-                                    {data.isHighAltitudeWork === 'yes' && (
-                                        <>
-                                            {/* 사다리, 작업발판 */}
-                                            <div className="py-3 md:p-3 bg-gray-50 border-b">
-                                                <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
+                                    {highAltitudeScaffoldChecks.map((item, index) => (
+                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                            <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
+                                            <div className="md:col-span-2 flex justify-center">
+                                                <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
                                             </div>
-                                            {highAltitudeLadderChecks.map((item, index) => (
-                                                <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                                    <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
-                                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
-                                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                            {/* 틀비계 */}
-                                            <div className="py-3 md:p-3 bg-gray-50 border-b">
-                                                <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
+                                            <div className="md:col-span-2 flex justify-center">
+                                                <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
                                             </div>
-                                            {highAltitudeScaffoldChecks.map((item, index) => (
-                                                <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                                    <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
-                                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
-                                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                </div>
-                                            ))}
+                                        </div>
+                                    ))}
 
-                                            {/* 달비계 */}
-                                            <div className="py-3 md:p-3 bg-gray-50 border-b">
-                                                <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                    {/* 달비계 */}
+                                    <div className="py-3 md:p-3 bg-gray-50 border-b">
+                                        <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
+                                    </div>
+                                    {highAltitudeHangingChecks.map((item, index) => (
+                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                            <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
+                                            <div className="md:col-span-2 flex justify-center">
+                                                <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
                                             </div>
-                                            {highAltitudeHangingChecks.map((item, index) => (
-                                                <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                                    <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
-                                                        <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                    <div className="md:col-span-2 flex justify-center">
-                                                        <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
-                                                        <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Special Notes */}
-                        <div className="p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
-                                <label className="font-semibold text-sm text-gray-600 pt-2">기타 특이사항</label>
-                                <textarea className={`${inputClasses} h-24`} placeholder="안전조치 외 주의사항 등 기재" value={data.specialNotes} onChange={e => updateData({ specialNotes: e.target.value })}></textarea>
-                            </div>
+                                            <div className="md:col-span-2 flex justify-center">
+                                                <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
-            </Card>
+
+                {/* Special Notes */}
+                <div className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-[120px,1fr] items-start gap-3">
+                        <label className="font-semibold text-sm text-gray-600 pt-2">기타 특이사항</label>
+                        <textarea className={`${inputClasses} h-24`} placeholder="안전조치 외 주의사항 등 기재" value={data.specialNotes} onChange={e => updateData({ specialNotes: e.target.value })}></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
