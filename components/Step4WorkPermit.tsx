@@ -72,21 +72,7 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
 
     return (
         <div>
-            <div className="flex items-center gap-6 mb-8">
-                <div className="hidden sm:block w-24 h-24 flex-shrink-0">
-                    <img
-                        src="/assets/permit.png"
-                        alt="Work Permit"
-                        className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
-                    />
-                </div>
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-2">작업 허가서</h2>
-                    <p className="text-slate-500 text-lg">
-                        작업 허가서를 작성하고 안전 조치 사항을 확인해주세요.
-                    </p>
-                </div>
-            </div>
+
 
             <div className="border border-gray-300 rounded-xl divide-y divide-gray-300">
                 {/* Signatures */}
@@ -937,6 +923,22 @@ const Step4WorkPermit: React.FC<Step4Props> = ({ data, updateData }) => {
                             <input type="radio" name="workType" value="confined" checked={data.type === 'confined'} onChange={handleTypeChange} className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" />
                             <span className="ml-2">밀폐공간작업</span>
                         </label>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-6 mb-8">
+                    <div className="hidden sm:block w-24 h-24 flex-shrink-0">
+                        <img
+                            src="/assets/permit.png"
+                            alt="Work Permit"
+                            className="w-full h-full object-contain filter drop-shadow-lg transform hover:scale-110 transition-transform duration-300"
+                        />
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-2">작업 허가서</h2>
+                        <p className="text-slate-500 text-lg">
+                            작업 허가서를 작성하고 안전 조치 사항을 확인해주세요.
+                        </p>
                     </div>
                 </div>
 
