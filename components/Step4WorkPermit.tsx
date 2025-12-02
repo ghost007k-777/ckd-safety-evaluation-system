@@ -206,18 +206,17 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
 
                         <div className="divide-y divide-gray-200">
                             <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
-                                <div className="col-span-1">구분</div>
-                                <div className="col-span-7">안전조치 요구사항</div>
+                                <div className="col-span-8">안전조치 요구사항</div>
                                 <div className="col-span-2 text-center">해당여부 (O,X)</div>
                                 <div className="col-span-2 text-center">실시여부 (O,X)</div>
                             </div>
 
                             {/* General checks */}
-                            <div className="md:grid md:grid-cols-12">
-                                <div className="p-3 font-bold text-gray-800 md:col-span-1 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">일반항목</div>
-                                <div className="px-4 pb-4 md:p-0 md:col-span-11 md:divide-y md:divide-gray-200">
+                            <div>
+                                <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">일반항목</div>
+                                <div className="divide-y divide-gray-200">
                                     {generalChecks.map((item, index) => (
-                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
                                             <div className="md:col-span-8 text-gray-800">{index + 1}. {item.text}</div>
                                             <div className="md:col-span-2 flex justify-center">
                                                 <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
@@ -233,10 +232,10 @@ const GeneralWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => {
                             </div>
 
                             {/* High altitude checks */}
-                            <div className="md:grid md:grid-cols-12">
-                                <div className="p-3 font-bold text-gray-800 md:col-span-1 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">고소작업</div>
-                                <div className="px-4 pb-4 md:p-0 md:col-span-11 md:divide-y md:divide-gray-200">
-                                    <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0">
+                            <div>
+                                <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">고소작업</div>
+                                <div className="divide-y divide-gray-200">
+                                    <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
                                         <div className="md:col-span-8 text-gray-800">해당 작업 유/무</div>
                                         <div className="md:col-span-4 mt-2 md:mt-0">
                                             <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
@@ -628,11 +627,11 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
         if (condition === false) return null;
 
         return (
-            <div className="md:grid md:grid-cols-12">
-                <div className="p-3 font-bold text-gray-800 md:col-span-1 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">{title}</div>
-                <div className="px-4 pb-4 md:p-0 md:col-span-11 md:divide-y md:divide-gray-200">
+            <div>
+                <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">{title}</div>
+                <div className="divide-y divide-gray-200">
                     {items.map((item, index) => (
-                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                        <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
                             <div className="md:col-span-8 text-gray-800">{index + 1}. {item.text}</div>
                             <div className="md:col-span-2 flex justify-center">
                                 <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
@@ -764,18 +763,17 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
             <div className="text-center font-bold bg-gray-100 p-3 text-gray-800">[작업현장 안전조치 확인사항]</div>
             <div className="divide-y divide-gray-200">
                 <div className="hidden md:grid md:grid-cols-12 p-3 font-semibold bg-gray-50 text-gray-700 text-sm">
-                    <div className="col-span-1">구분</div>
-                    <div className="col-span-7">안전조치 요구사항</div>
+                    <div className="col-span-8">안전조치 요구사항</div>
                     <div className="col-span-2 text-center">해당여부 (O,X)</div>
                     <div className="col-span-2 text-center">실시여부 (O,X)</div>
                 </div>
 
                 {renderChecklistSection('일반항목', '일반항목', true)}
 
-                <div className="md:grid md:grid-cols-12">
-                    <div className="p-3 font-bold text-gray-800 md:col-span-1 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">화기작업</div>
-                    <div className="px-4 pb-4 md:p-0 md:col-span-11 md:divide-y md:divide-gray-200">
-                        <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0">
+                <div>
+                    <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">화기작업</div>
+                    <div className="divide-y divide-gray-200">
+                        <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
                             <div className="md:col-span-8 text-gray-800">해당 작업 유/무</div>
                             <div className="md:col-span-4 mt-2 md:mt-0">
                                 <RadioGroup label="" name="isHotWork" value={data.isHotWork || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ isHotWork: e.target.value as 'yes' | 'no' })} />
@@ -797,11 +795,11 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                     </div>
                 </div>
 
-                <div className="md:grid md:grid-cols-12">
-                    <div className="p-3 font-bold text-gray-800 md:col-span-2 md:font-semibold md:bg-gray-50 md:text-gray-700 md:flex md:items-center md:justify-center">고소작업</div>
-                    <div className="px-4 pb-4 md:p-0 md:col-span-10 md:divide-y md:divide-gray-200">
-                        <div className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0">
-                            <div className="md:col-span-6 text-gray-800">해당 작업 유/무</div>
+                <div>
+                    <div className="p-3 font-bold bg-gray-50 border-b text-gray-800">고소작업</div>
+                    <div className="divide-y divide-gray-200">
+                        <div className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3">
+                            <div className="md:col-span-8 text-gray-800">해당 작업 유/무</div>
                             <div className="md:col-span-4 mt-2 md:mt-0">
                                 <RadioGroup label="" name="isHighAltitudeWork" value={data.isHighAltitudeWork || ''} options={[{ label: '유', value: 'yes' }, { label: '무', value: 'no' }]} onChange={e => updateData({ isHighAltitudeWork: e.target.value as 'yes' | 'no' })} />
                             </div>
@@ -813,17 +811,15 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                                     <div className="font-semibold text-sm text-gray-800">1. 사다리, 작업발판</div>
                                 </div>
                                 {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-사다리') || []).map((item, index) => (
-                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                            </div>
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                            </div>
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                            <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                        </div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                            <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
                                         </div>
                                     </div>
                                 ))}
@@ -833,17 +829,15 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                                     <div className="font-semibold text-sm text-gray-800">2. 틀비계</div>
                                 </div>
                                 {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-틀비계') || []).map((item, index) => (
-                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                            </div>
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                            </div>
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                            <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                        </div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                            <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
                                         </div>
                                     </div>
                                 ))}
@@ -853,17 +847,15 @@ const HazardousWorkPermitForm: React.FC<Step4Props> = ({ data, updateData }) => 
                                     <div className="font-semibold text-sm text-gray-800">3. 달비계</div>
                                 </div>
                                 {(data.hazardousSafetyCheckList?.filter(i => i.category === '고소작업-달비계') || []).map((item, index) => (
-                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-10 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
-                                        <div className="md:col-span-6 text-gray-800 pl-4">- {item.text}</div>
-                                        <div className="md:col-span-4 grid grid-cols-2 gap-4 mt-3 md:mt-0">
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">해당여부</span>
-                                                <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
-                                            </div>
-                                            <div>
-                                                <span className="text-sm font-medium text-gray-700 md:hidden">실시여부</span>
-                                                <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
-                                            </div>
+                                    <div key={item.id} className="py-4 md:py-0 md:grid md:grid-cols-12 md:gap-4 items-center md:p-3 border-b md:border-b-0 last:border-b-0">
+                                        <div className="md:col-span-8 text-gray-800 pl-4">- {item.text}</div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">해당여부</span>
+                                            <RadioGroup label="" name={`applicable-${item.id}`} value={item.applicable} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'applicable', e.target.value as 'O' | 'X')} />
+                                        </div>
+                                        <div className="md:col-span-2 flex justify-center">
+                                            <span className="text-sm font-medium text-gray-700 md:hidden mr-4">실시여부</span>
+                                            <RadioGroup label="" name={`implemented-${item.id}`} value={item.implemented} options={[{ label: 'O', value: 'O' }, { label: 'X', value: 'X' }]} onChange={e => handleSafetyCheckChange(item.id, 'implemented', e.target.value as 'O' | 'X')} />
                                         </div>
                                     </div>
                                 ))}
